@@ -1339,28 +1339,54 @@ says whether you are in any position to try. Coverage says what you are *wearing
 - An unarmed man can still cover his vitals. With no armour at all and `guardReady` 1 the
   Guard band opens to 50.3 and Vital narrows — covering up is an arm, not a shield.
 
-**Where they come from.** Derived in `exchange.js`, not authored:
+**Both are 1.0 when you are simply standing there and a swing comes at you.** Everything
+below that is what your own action takes away. Derived in `exchange.js`, not authored:
 
 ```
 evadeReady = 1 − EVADE_OCCUPIED · occupancy(whole body)
-guardReady = (1 − occupancy of the FREEST hand) · GUARD_BASE
+guardReady = GUARD_FLOOR + (1 − GUARD_FLOOR)
+             · (1 − GUARD_BODY · occupancy(whole body))
+             · (1 − GUARD_ARM  · occupancy(freest hand))
 ```
 
-**Your guard is as good as whichever arm is least busy.** That single line produces the
-case that motivated the whole change, with nothing written for it:
+Guard needs **two** costs, because committing an arm and committing your balance are
+different things. A one-handed swing leaves the other arm entirely free — but you have
+still put momentum and balance into it, so guard drops a *little*. Committing the arm
+itself is what takes most of it. `GUARD_FLOOR` is the twist: both hands out and fully
+extended is *nearly* defenceless, not defenceless.
 
-| At the apex of a committed swing | evadeReady | guardReady |
+> An earlier version read only the freest hand. It caught the one-versus-two-hander
+> split but made a one-handed swing cost **nothing at all** — 0.45 idle and 0.45 at the
+> apex, identically flat, because the off hand is always free. Missing the body term is
+> what made it flat.
+
+| | evade | guard |
 |---|---|---|
-| One-handed | 0.15 | **0.45** — the off arm is free |
-| Two-handed (`hand: "both"`) | 0.15 | **0.00** — nothing is free |
+| Idle, just standing there | 1.00 | **1.00** |
+| Flick (uncommitted quickCut), at apex | 0.70 | **0.91** — barely costs anything |
+| Committed one-hander, at apex | 0.15 | **0.74** — down a little |
+| Committed two-hander, at apex | 0.15 | **0.18** — a twist, and that is about it |
+
+Evade falls with committed momentum whether or not you go anywhere: a *standing* swing
+still plants you, because occupancy's magnitude is `(OCCUPY_MOTION + OCCUPY_BODY·Drive)`
+and the first term does not care about travel.
+
+**And it stays high through a run-up**, which is where a light fighter's advantage
+actually lands. A lunge across 5 m, measured a quarter of the way in:
+
+| Mid-lunge, 25% through the approach | evadeReady | resulting evasion |
+|---|---|---|
+| Duelist (Agility 1.7, 68 kg) | 0.85 | **0.360** |
+| Knight (Agility 0.7, 85 kg + plate) | 0.85 | **0.153** |
+
+Readiness is *identical* — both have committed the same fraction of themselves — and the
+difference is entirely Agility. That is the separation working as intended: readiness
+says whether you are in a position to try, Agility says how much good it does you. Adding
+mass or nimbleness to readiness itself would count the same fact twice.
 
 Unconscious is both at zero. Bracing is `evadeReady` low, `guardReady` 1 — a *point in a
 space* rather than a different kind of thing, and therefore something a stance or a
 posture card can simply set.
-
-`GUARD_BASE` is 0.45 rather than 1.0 because somebody mid-fight with a hand free is not
-actively shielding their vitals; they are merely not committed elsewhere. Declaring a
-defensive posture is what takes it to 1.
 
 > **Readiness cannot close the coup-de-grâce gap** (§11). An unconscious target has
 > `evadeReady` 0, so Miss correctly vanishes — but Graze survives at 9.00, because
@@ -1517,7 +1543,9 @@ The entire tuning surface, in one table. Everything else is derived.
 | `STAB_K` | 0.026 | Mass and shape → Stability. Anchored so an ordinary adult is 1.0 |
 | `STAB_FOOT`, `STAB_COM` | 0.30, 0.55 | Footprint and CoM height as fractions of Size, for bipeds |
 | `TOPPLE_K` | 3.0 | How much Stability resists being put down |
-| `GUARD_BASE` | 0.45 | Guard readiness from a merely-free arm, before any posture (§5.13) |
+| `GUARD_BODY` | 0.30 | What committed momentum and balance costs your guard (§5.13) |
+| `GUARD_ARM` | 0.90 | What committing the arm itself costs it |
+| `GUARD_FLOOR` | 0.12 | The twist — both hands out is nearly defenceless, not defenceless |
 | `PAIN_GAIN` | 1.0 | Severity → Pain, into the remaining headroom |
 | `DECISIVE_SEVERITY` | 85 | Severity at which a blow simply ends the fight |
 | `STRUCT_GAIN` | 0.70 | Severity → Structure, the channel `mindless` cannot escape |

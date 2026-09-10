@@ -373,9 +373,20 @@ export const K = {
   STRUCT_GAIN: 0.70,
 
   // --- Readiness ------------------------------------------------------------
-  // How much of a free arm a combatant who is NOT deliberately covering up still
-  // brings to bear. Not 1.0: someone mid-fight with a hand free is not actively
-  // shielding their vitals, they are just not committed elsewhere. Declaring a
-  // defensive posture (what `braced` used to be) is what takes it to 1.0.
-  GUARD_BASE: 0.45,
+  // Guard readiness is 1.0 when you are simply STANDING THERE and a swing comes
+  // at you. Everything below is what your own action takes away from that.
+  //
+  // Two terms, because committing an arm and committing your balance are
+  // different costs. A one-handed swing leaves the other arm entirely free, but
+  // you have still put momentum and balance into it -- so guard goes down a
+  // LITTLE. Only committing the arm itself takes most of it.
+  //
+  // An earlier version read only the freest hand, which made a one-handed swing
+  // cost nothing at all: 0.45 idle and 0.45 at the apex, identically flat.
+  GUARD_BODY: 0.30,   // what committed momentum and balance costs your guard
+  GUARD_ARM: 0.90,    // what committing the ARM costs it
+
+  // You can always twist to take it differently. Both hands committed and fully
+  // extended is not defenceless, it is nearly so.
+  GUARD_FLOOR: 0.12,
 };

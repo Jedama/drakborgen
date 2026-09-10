@@ -236,21 +236,31 @@ export function handOccupancyAt(side, hand, t) {
  * says whether you are in any position to try. A troll with poor Agility can
  * still attempt it; a man mid-lunge cannot, however nimble.
  *
- *   evadeReady   from the WHOLE BODY's commitment. Feet, mass, base.
- *   guardReady   from your FREEST HAND. Your guard is as good as whichever arm
- *                is least busy -- which is why a committed ONE-handed swing
- *                still leaves you able to block, and a two-hander does not.
+ * Both are 1.0 when you are simply STANDING THERE and a swing comes at you.
+ * Everything below that is what your own action takes away.
+ *
+ *   evadeReady   from the WHOLE BODY's commitment. Feet, mass, base. Committing
+ *                momentum costs it even if you go nowhere -- a standing swing
+ *                still plants you.
+ *   guardReady   TWO costs, because committing an arm and committing your
+ *                balance are different things. A one-handed swing leaves the
+ *                other arm entirely free, but you have still put momentum and
+ *                balance into it, so guard drops a LITTLE. Committing the arm
+ *                itself is what takes most of it. And the floor is the twist:
+ *                both hands out and fully extended is nearly defenceless, not
+ *                defenceless.
  *
  * A hand with nothing in it still guards: covering up is an arm, not a shield.
  * What the shield adds is Coverage, and that is already handled by `liveArmor`
  * dropping the piece when the hand carrying it is swinging.
  */
 export function readinessAt(side, t) {
-  const evadeReady = 1 - K.EVADE_OCCUPIED * occupancyAt(side, t);
-  const freest = Math.min(handOccupancyAt(side, "main", t), handOccupancyAt(side, "off", t));
+  const body = occupancyAt(side, t);
+  const freestArm = Math.min(handOccupancyAt(side, "main", t), handOccupancyAt(side, "off", t));
+  const guard = (1 - K.GUARD_BODY * body) * (1 - K.GUARD_ARM * freestArm);
   return {
-    evadeReady: Math.max(0, evadeReady),
-    guardReady: Math.max(0, (1 - freest) * K.GUARD_BASE),
+    evadeReady: Math.max(0, 1 - K.EVADE_OCCUPIED * body),
+    guardReady: K.GUARD_FLOOR + (1 - K.GUARD_FLOOR) * Math.max(0, guard),
   };
 }
 
