@@ -70,7 +70,9 @@ export function probe({ att = {}, def = {}, card = "slash", armor = [], ...rest 
     miss: r.curve.widths[0], graze: r.curve.widths[1], guard: r.curve.widths[2],
     wound: r.curve.widths[3], vital: r.curve.widths[4],
     sFull: r.sFull, sGuard: r.sGuard, vitalAnchor: r.curve.ys[5],
-    evasion: r.evasion, placement: r.placement, momentum: r.momentum.m,
+    sev0: severityAt(r.curve, 0), floorBand: r.curve.floorBand,
+    evasion: r.evasion, placement: r.placement, placementRaw: r.placementRaw,
+    momentum: r.momentum.m,
     tau: r.timing.tau, telegraph: r.timing.telegraph, exertion: r.exertion,
     mean, lethal, curve: r.curve,
   };
@@ -105,8 +107,12 @@ export const MONOTONE = [
     change: { commitment: 1 },
     expect: { telegraph: DOWN, evasion: DOWN, miss: DOWN } },
 
+  // Both readiness numbers are named on purpose. Passing evadeReady alone left
+  // guardReady at its 0 default, which since §5.5c reads as a body doing NOTHING
+  // -- so the check was quietly measuring helplessness instead of commitment. A
+  // man mid-swing is (0.15, 0.74): pinned, but still able to twist.
   { says: "A defender tied up in their own action cannot get out of the way",
-    change: { evadeReady: 0.15 },
+    change: { evadeReady: 0.15, guardReady: 0.74 },
     expect: { evasion: DOWN, miss: DOWN, mean: UP } },
 
   { says: "Covering up trades being-elsewhere for having-something-in-the-way",
@@ -164,14 +170,30 @@ export const DEGENERATE = [
     assert: (p) => p.vitalAnchor <= p.wound + 1e-6,
     shows: (p) => `vital anchor ${p.vitalAnchor.toFixed(1)} vs wound ${p.wound.toFixed(1)}` },
 
-  // KNOWN FAILURES, kept visible on purpose. Both are the coup-de-grace case:
-  // an unarmoured, helpless target. See combat-model.md 5.5b and severity-ceiling.md.
-  { says: "KNOWN GAP -- a helpless target should not be grazed",
-    change: { def: { agility: 0 } },
-    assert: (p) => p.graze < 0.001,
-    shows: (p) => `graze ${p.graze.toFixed(2)} -- GRAZE_BASE x (1-p) has no floor at p<1`,
-    known: "Readiness cannot fix this -- GRAZE_BASE is ATTACKER imprecision. Wants p -> 1 when the target cannot move." },
+  // THE COUP DE GRACE. Four statements about a body that has stopped resisting,
+  // which is the edge the whole §5.5c change exists to get right. Helplessness is
+  // BOTH readiness numbers at zero -- not low Agility, not an absent shield.
+  { says: "A body doing nothing at all cannot be missed OR grazed",
+    change: { evadeReady: 0, guardReady: 0 },
+    assert: (p) => p.miss < 0.001 && p.graze < 0.001,
+    shows: (p) => `miss ${p.miss.toFixed(3)}, graze ${p.graze.toFixed(3)}, placement ${p.placement.toFixed(3)}` },
 
+  { says: "When nothing can be missed or grazed, the worst roll is still a real blow",
+    change: { evadeReady: 0, guardReady: 0 },
+    assert: (p) => p.sev0 > 1 && p.floorBand !== "Miss" && p.floorBand !== "Graze",
+    shows: (p) => `floor band ${p.floorBand}, severity at x=0 is ${p.sev0.toFixed(1)}` },
+
+  { says: "Bracing is not helplessness — a defender covering up can still be grazed",
+    change: { evadeReady: 0, guardReady: 1 },
+    assert: (p) => p.graze > 0.001 && Math.abs(p.placement - p.placementRaw) < 1e-9,
+    shows: (p) => `graze ${p.graze.toFixed(2)}, placement unlifted at ${p.placement.toFixed(3)}` },
+
+  { says: "No Agility is not helplessness — a slug cannot dodge but is still resisting",
+    change: { def: { agility: 0 } },
+    assert: (p) => p.graze > 0.001 && p.sev0 < 1e-9,
+    shows: (p) => `miss ${p.miss.toFixed(3)} but graze ${p.graze.toFixed(2)}, x=0 still ${p.sev0.toFixed(2)}` },
+
+  // KNOWN FAILURE, kept visible on purpose.
   { says: "KNOWN GAP -- an ordinary solid Wound should be able to kill",
     change: { att: { strength: 8 }, def: { toughness: { blunt: .2, pierce: .2, slash: .2 } } },
     assert: (p) => p.sFull >= 99.99,
@@ -182,8 +204,13 @@ export const DEGENERATE = [
 export const INVARIANT = [
   { says: "The five band widths always partition the axis",
     check: (p) => Math.abs(p.miss + p.graze + p.guard + p.wound + p.vital - 100) < 1e-6 },
-  { says: "The curve always begins at zero severity",
-    check: (p) => severityAt(p.curve, 0) < 1e-9 },
+  // NOT "always begins at zero" any more. §5.6b: it begins at zero exactly when
+  // something can go wrong for the attacker, and that is a statement about the
+  // defender rather than about the axis. The invariant is the biconditional.
+  { says: "The curve begins at zero exactly when a miss or a graze is possible",
+    check: (p) => (p.miss + p.graze > 1e-6) === (severityAt(p.curve, 0) < 1e-9) },
+  { says: "The floor never exceeds the top of the axis",
+    check: (p) => severityAt(p.curve, 0) <= severityAt(p.curve, 100) + 1e-6 },
   { says: "Severity never leaves 0..100",
     check: (p) => { for (let i = 0; i <= 1000; i++) {
       const s = severityAt(p.curve, i / 10); if (s < -1e-9 || s > 100 + 1e-9) return false; } return true; } },
@@ -227,16 +254,28 @@ export function runSanity() {
   }
 
   // Invariants run against every matchup the game can currently produce.
+  //
+  // READINESS IS PART OF THE SWEEP, and has to be: the default pair (1, 0) is a
+  // fully resisting defender, so a sweep without these four states never once
+  // produces a curve whose floor is above zero -- and an invariant about the
+  // floor that never sees a raised floor is not an invariant. Same lesson as the
+  // Vital regression: a check outside the regime of the failure is not a check.
   const cards = Object.keys(CARDS).filter((k) => CARDS[k].arcs?.length);
   const armours = [[], [ARMOR.gambeson], [ARMOR.fullPlate, ARMOR.heaterShield]];
+  const states = [
+    {},                                        // alert
+    { evadeReady: 0, guardReady: 0 },          // helpless
+    { evadeReady: 0, guardReady: 1 },          // braced
+    { evadeReady: 0.15, guardReady: 0.18 },    // caught mid two-handed swing
+  ];
   for (const t of INVARIANT) {
     const bad = [];
     for (const f of Object.keys(FIGHTERS)) for (const card of cards) for (const armor of armours) {
       const attacker = FIGHTERS[f];
       if (!attacker.cards.includes(card)) continue;
-      for (const d of Object.keys(FIGHTERS)) {
-        const p = probe({ att: attacker, def: FIGHTERS[d], card, armor });
-        if (!t.check(p)) bad.push(`${f}/${card} → ${d} (${armor.length} pieces)`);
+      for (const d of Object.keys(FIGHTERS)) for (const state of states) {
+        const p = probe({ att: attacker, def: FIGHTERS[d], card, armor, ...state });
+        if (!t.check(p)) bad.push(`${f}/${card} → ${d} (${armor.length} pieces, ready ${state.evadeReady ?? 1}/${state.guardReady ?? 0})`);
       }
     }
     results.invariant.push({ says: t.says, ok: !bad.length, bad: bad.slice(0, 4), count: bad.length });

@@ -132,6 +132,38 @@ export function placement(precisionEff, aim = 1) {
 }
 
 /**
+ * Placement against a body that is not resisting. §5.5c.
+ *
+ * `placement()` above is placement UNDER PRESSURE. An ordinary adult saturates
+ * at 0.5 not because his hand shakes but because the target is moving, flinching
+ * and covering, and that ceiling is not real once the target stops doing those
+ * things. Given all the time in the world and a body that will not move, you put
+ * the point exactly where you meant to.
+ *
+ * So resistance RELEASES placement toward 1, in the same headroom form as
+ * everything else in the model. This is what makes the coup de grace fall out of
+ * the existing machinery instead of needing a rule: at zero resistance p goes to
+ * 1, `GRAZE_BASE·(1−p)` goes to zero, and the Graze band closes on its own.
+ *
+ * Resistance is `max(evadeReady, guardReady)` -- is this body doing ANYTHING
+ * about the blow? The max matters in both directions:
+ *
+ *   - A BRACED defender is low evadeReady, high guardReady. Taking the max keeps
+ *     him fully resisting, so §5.5's "Graze survives bracing" still holds. Sum or
+ *     average would have read bracing as half-helplessness.
+ *   - It makes the (evadeReady 1, guardReady 0) default -- alert, not
+ *     specifically covering up -- read as full resistance, so nothing that does
+ *     not pass readiness changes at all.
+ *
+ * Helplessness therefore requires BOTH to be zero, which is the right bar: not
+ * "cannot dodge", not "cannot block", but doing nothing whatsoever.
+ */
+export function placedAgainst(p, evadeReady = 1, guardReady = 0) {
+  const resistance = Math.max(clamp01(evadeReady), clamp01(guardReady));
+  return clamp01(p + (1 - p) * K.AIM_UNRESISTED * (1 - resistance));
+}
+
+/**
  * How much evasion the defender actually gets to use. This is where an attack's
  * SPEED becomes accuracy without any attacker accuracy stat existing: a shorter
  * telegraph gives Agility less to work with, so Miss and Graze narrow on their

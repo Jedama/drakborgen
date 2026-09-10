@@ -657,17 +657,19 @@ bracing a knight *widened* Wound, because the probability freed by removing Miss
 nowhere else to go.
 
 ```
+p = placement, ALREADY LIFTED for a defender who is not resisting — see §5.5c
+
 STAGE 1 — did it connect?
   s_miss    = EV_MAX · E²
   s_graze   = EV_MAX · (E − E²)  +  GRAZE_BASE · (1 − p)
   connected = 1 − s_miss − s_graze
 
 STAGE 2 — given it connected, where?
-  s_vital = connected · VITAL_MAX · p^VITAL_EXP · (1 − GUARD_VITALS·braced)
+  s_vital = connected · VITAL_MAX · p^VITAL_EXP · (1 − GUARD_VITALS · guardReady)
   rest    = connected − s_vital
 
   Coverage_eff = Coverage_total · (1 − Gaps_eff · p)
-  if braced:  Coverage_eff += (1 − Coverage_eff) · BRACE_GAIN
+  Coverage_eff += (1 − Coverage_eff) · BRACE_GAIN · guardReady
 
   s_guard = rest · Coverage_eff
   s_wound = rest · (1 − Coverage_eff)
@@ -677,7 +679,8 @@ STAGE 2 — given it connected, where?
   (grazes); at high evasion it becomes clean misses. One expression, no split
   parameter.
 - **Graze survives bracing.** The evasion term goes to zero but the imprecision term
-  doesn't — a braced target can still be hit badly.
+  doesn't — a braced target can still be hit badly. It does **not** survive
+  helplessness; that distinction is §5.5c.
 - **Coverage now means what it says.** What doesn't meet armor meets flesh: Guard and
   Wound split the connected mass by `Coverage_eff` and nothing else. A knight at 0.95
   coverage has a genuinely small Wound band, which is the correct answer to "what is a
@@ -687,7 +690,7 @@ STAGE 2 — given it connected, where?
   coverage-weighted `Gaps` of the worn pieces, so Precision erodes a shield's coverage
   far more than plate's. Previously one global `GAP_FIND` let a precise attacker eat
   42% of a knight's coverage, as if plate were as exploitable as a gambeson.
-- **Bracing widens Guard** rather than merely removing Miss — see §4.7.
+- **Bracing widens Guard** rather than merely removing Miss — see §5.13.
 - **Vital stays narrow by construction.** `VITAL_MAX` is small and `VITAL_EXP > 1`.
   Note `Redundancy` does not appear here; it sets the payoff and the shape, not the
   width.
@@ -740,6 +743,80 @@ cannot be stabbed (thrust → skeleton, anchor 17, 0% lethal) and plate still wo
 > non-saturating term in the model, and in simulation it turned nearly half of unarmoured
 > mirror fights into first-turn mutual kills. That measurement is itself suspect, because
 > the fight loop has **no reactions** — see §10 — so it wants revisiting once §07 exists.
+
+### 5.5c Placement against a body that is not resisting
+
+**The problem.** `GRAZE_BASE · (1 − p)` is attacker imprecision, and it had no floor.
+An unarmoured, unconscious man could still be *grazed* — 5.3% of the axis, for an
+ordinary attacker taking his time — because placement saturates at `Precision /
+(Precision + K_P)` and an ordinary adult never gets past 0.65 however inert the target.
+Readiness could not fix it: readiness reaches Miss through evasion, and Miss was already
+correctly zero. Graze does not come from evasion.
+
+**The fix is to stop reading placement as a property of the attacker alone.**
+`placement()` is placement *under pressure*. An ordinary adult sits near 0.5 not because
+his hand shakes but because the target is moving, flinching and covering — and that
+ceiling is not real once the target stops doing any of it. Given a body that will not
+move, you put the point exactly where you meant to.
+
+```
+resistance = max(evadeReady, guardReady)
+p          = p_raw + (1 − p_raw) · AIM_UNRESISTED · (1 − resistance)
+```
+
+The same headroom form as Pain, as engagement, as everything else. At full resistance it
+is the identity, so nothing that does not pass readiness changes at all.
+
+**`max`, not sum, not either alone** — and this is the whole content of the rule:
+
+| | evadeReady | guardReady | resistance | reads as |
+|---|---|---|---|---|
+| Idle, alert | 1.0 | 1.0 | **1.0** | fully resisting |
+| Default when unspecified | 1.0 | 0.0 | **1.0** | fully resisting |
+| Braced behind a shield | 0.0 | 1.0 | **1.0** | fully resisting |
+| Mid committed one-hander | 0.15 | 0.74 | **0.74** | slightly open |
+| Mid committed two-hander | 0.15 | 0.18 | **0.18** | badly open |
+| Unconscious, bound, asleep | 0.0 | 0.0 | **0.0** | helpless |
+
+Sum or average would have read bracing as half-helplessness, which is precisely
+backwards — bracing is the *most* resisting thing a body can do. **Helplessness requires
+both numbers at zero:** not "cannot dodge", not "cannot block", but doing nothing
+whatsoever. Agility 0 is not helplessness either; a slug cannot dodge and is still
+squirming.
+
+**It is lifted once, in `composeCurve`, and four things inherit it at the same time** —
+which is the point rather than a convenience:
+
+- the Graze width closes, because `GRAZE_BASE · (1 − p)` goes to zero;
+- the Vital width opens, because it is `p^VITAL_EXP`;
+- gap-finding sharpens, because `Coverage_eff = Coverage · (1 − Gaps · p)` — the coup de
+  grace goes through the visor slit;
+- aim-at-matter rises, so the point finds the joint in a skeleton.
+
+A blow on someone who has stopped resisting is better placed in all four senses at once.
+Measured, duelist thrust, no armour:
+
+| defender | miss | graze | guard | wound | vital | severity at x=0 | P(≥85) |
+|---|---|---|---|---|---|---|---|
+| alert | 5.5 | 17.2 | 0 | 71.1 | 6.1 | 0 | 5.0% |
+| Agility 0, alert | 0 | **5.3** | 0 | 87.2 | 7.5 | 0 | 6.0% |
+| braced | 0 | **5.3** | 64.2 | 27.5 | 3.0 | 0 | 2.7% |
+| **helpless** | **0** | **0** | 0 | 84.0 | **16.0** | **53.7** | **13.0%** |
+| **helpless, in plate** | **0** | **0** | 65.1 | 18.9 | **16.0** | **7.5** | **12.8%** |
+
+The last row is the one that reads best: you cannot graze a man who is not moving, but
+you can still bounce off his armour. Sixty-five percent of blows on inert plate are
+stopped by the plate — and the sixteen percent that find the gaps find them every time,
+because there is all the time in the world to look.
+
+**A coup de grace still does not reliably kill** — 13%. That is the *other* ceiling, the
+one in §5.5b's blockquote and `severity-ceiling.md` §5.2, and it is untouched here.
+
+> **Nothing in the fight loop currently produces readiness 0.** Readiness derives from
+> occupancy alone, so `guardReady` never falls below `GUARD_FLOOR` = 0.12 and resistance
+> bottoms out around 0.18 in play. This edge is therefore *correct but unreachable*
+> until either a condition feeds readiness (a man at Pain 0.9 should be slower to raise
+> an arm) or an explicit helpless state exists. See §9.
 
 ### 5.6 The five height anchors
 
@@ -808,6 +885,42 @@ failing at:
 
 Four of the brief's expectations fall out of one rule: *each band starts where the
 last one ended.*
+
+### 5.6b The curve does not always start at zero
+
+`buildCurve()` used to pin the bottom of the axis to 0 by fiat, and `severityAt()`
+returned a hard 0 below the Miss boundary. That looked like a definition and was
+actually a hidden claim — **"however bad the roll, something can always go wrong for the
+attacker"** — which is a statement about the *defender*, not about the axis.
+
+A total miss is severity 0 because a total miss is nothing happening. But when no miss
+and no graze can happen, the worst roll on the axis is a blow that *connected*, and it
+has to be scored as one. Before this change, a knife into an unconscious man's throat at
+roll 0.4 came out at severity 0.
+
+```js
+let j = 1;                                   // Miss's interior is flat zero by construction
+while (j < 5 && widths[j] <= 0) j++;         // step over any band with no room to happen
+const x0 = xs[j], y0 = ys[j];                // the floor is the low anchor of the lowest LIVE band
+gain = (ys[5] − y0) / top;                   // both ends still pinned, still affine, still monotone
+```
+
+**A band that cannot occur cannot be the worst case**, so zero-width bands are stepped
+over. Where a Miss or a Graze is possible at all — very nearly always — `j` lands on 1,
+`y0` is `ys[1]` = 0, and the arithmetic is *identical* to before. Nothing in the fight
+loop moved: knight v. skeleton is still 398–0 at a median of four turns.
+
+The invariant that guarded the old behaviour said "the curve always begins at zero
+severity", which was the assumption asserting itself as a test. It is now the
+biconditional — *begins at zero **exactly when** a miss or a graze is possible* — which
+is falsifiable in both directions, and the invariant sweep now varies readiness so that
+it actually sees a raised floor.
+
+> **Known artifact.** A zero-width band's height gain is dropped from the ladder while
+> its *end* anchor still sets the next band's start, so an unarmoured target's floor
+> comes out at `S_guard · (1 + GUARD_RISE)` — 1.1× a clean connection — rather than at
+> `S_full`. It is small, it errs generously, and fixing it means restructuring
+> `heightAnchors()` around which bands are live. Parked, §9.
 
 ### 5.7 Band shape — and why there is no spline
 
@@ -1388,11 +1501,15 @@ Unconscious is both at zero. Bracing is `evadeReady` low, `guardReady` 1 — a *
 space* rather than a different kind of thing, and therefore something a stance or a
 posture card can simply set.
 
-> **Readiness cannot close the coup-de-grâce gap** (§11). An unconscious target has
-> `evadeReady` 0, so Miss correctly vanishes — but Graze survives at 9.00, because
-> `GRAZE_BASE·(1−p)` is *attacker* imprecision and has nothing to do with the defender's
-> state. That wants `p → 1` when the target cannot move, which is a statement about how
-> much time the attacker has, not about readiness.
+> **Readiness closes the coup-de-grâce gap after all — but only jointly.** The note that
+> stood here said readiness could not touch Graze, because `GRAZE_BASE·(1−p)` is
+> *attacker* imprecision. That was right about the mechanism and wrong about the
+> conclusion: `p` is placement **under pressure**, and the pressure is the defender. Both
+> readiness numbers at zero release it. §5.5c.
+>
+> The reason it had to be *both* is the same reason readiness is two numbers: a braced
+> man has `evadeReady` 0, and if low evade readiness alone meant helplessness, bracing —
+> the most resisting thing a body can do — would have read as the least.
 
 ---
 
@@ -1471,6 +1588,7 @@ The entire tuning surface, in one table. Everything else is derived.
 | `K_T` | 40 | How quickly telegraph time saturates into usable warning |
 | `EV_MAX` | 0.55 | Ceiling on the combined Miss+Graze share |
 | `GRAZE_BASE` | 0.15 | Graze from attacker imprecision alone (survives bracing) |
+| `AIM_UNRESISTED` | 1.0 | How far a body that is **not resisting** releases placement toward 1 (§5.5c). At 1 a wholly inert target is placed on perfectly; lowering it re-introduces attacker wobble against a corpse |
 | `VITAL_MAX` | 0.16 | Ceiling on the Vital band's width |
 | `VITAL_EXP` | 1.6 | How steeply Precision must climb to open Vital |
 | `GUARD_VITALS` | 0.6 | How much full guard readiness narrows Vital |
@@ -1663,13 +1781,19 @@ new `sim/` without disturbing what's there.
   the structural ones, and Tripped/Staggered probably fold in.
 - **Pain and Dread poison the draw**, which needs a draw. Nothing above lock-in in §03
   exists — no deck, no hand, no stances. That is the other half of the turn.
-- **A helpless target can still be grazed.** `GRAZE_BASE·(1−p)` has no floor below
-  `p = 1`, so an unconscious, unarmoured target still turns aside 9% of blows from an
-  ordinary attacker. Readiness (§5.13) correctly zeroes Miss but cannot touch this,
-  because GRAZE_BASE is ATTACKER imprecision — a statement about how much time the
-  attacker had, not about the defender's state. `p` is already "how much of Precision
-  applies at the moment of contact", and a motionless target is precisely the case where
-  all of it does. Tracked as a known gap in §11.
+- **Nothing yet drives readiness to zero.** §5.5c and §5.6b make the helpless case
+  correct, and no fight can currently reach it: readiness derives from occupancy alone,
+  so `guardReady` never drops below `GUARD_FLOOR` = 0.12. The obvious next driver is the
+  conditions — a man at Pain 0.9 or Structure 0.9 should be slower to raise an arm and
+  slower to move his feet, and if readiness read them, the coup de grace would *emerge*
+  from a fight going badly instead of needing an authored helpless state. It is a
+  tuning-visible change (readiness reaches evasion, coverage, vitals **and** placement),
+  so it wants deciding rather than assuming.
+- **A zero-width band still sets the floor with its end anchor.** §5.6b's blockquote: an
+  unarmoured target's raised floor lands at `S_guard·(1 + GUARD_RISE)` rather than
+  `S_full`, because the Guard band's internal rise is credited to a band that cannot
+  happen. The general fix is to build `heightAnchors()` over the *live* bands, which also
+  removes the quiet `gain ≠ 1` stretch that dropping a band's height causes today.
 - **`S_full` cannot reach its own ceiling.** `severity-ceiling.md` §5.2, diagnosed and
   deliberately not applied — see §5.5b for why it is deferred rather than rejected.
 - **`meanSeverity()` integrates the curve analytically without the output clamp**, so it
@@ -1802,16 +1926,28 @@ Three kinds:
 - **DEGENERATE** — take a stat to zero and assert the band it governs vanishes. This is
   the "unarmoured unconscious target" family, and it is where the model's edges live.
 - **INVARIANT** — must hold for *every* curve the game can currently produce: widths
-  partition the axis, `y(0) = 0`, severity stays in 0–100 and never decreases, no band
-  has negative width. Run across every fighter × card × armour combination.
+  partition the axis, the curve begins at zero **exactly when** a miss or a graze is
+  possible, the floor never exceeds the top, severity stays in 0–100 and never decreases,
+  no band has negative width. Run across every fighter × card × armour × **readiness
+  state** combination.
 
-Current state: **18 pass, 0 fail, 2 known gaps** — and both gaps are recorded rather than
-hidden, because both are real and neither is an accident:
+  That last dimension was added with §5.6b and is not decoration. The default readiness
+  pair is a fully resisting defender, so a sweep without it never once produces a curve
+  whose floor is above zero — and an invariant about the floor that never sees a raised
+  floor is not an invariant. Same lesson as the regression below, from the other end.
+
+Current state: **26 pass, 0 fail, 1 known gap** — recorded rather than hidden, because it
+is real and not an accident:
 
 | Gap | Shows | Why |
 |---|---|---|
-| A helpless target should not be grazed | graze 9.00 | `GRAZE_BASE·(1−p)` has no floor below `p = 1`. Wants a `helpless` flag driving `p → 1` — the mirror of `braced`. |
 | An ordinary solid Wound should be able to kill | `S_full` 92.0 | Saturating, asymptotic to 100. `severity-ceiling.md` §5.2, deliberately not applied. |
+
+The coup-de-grâce gap that stood beside it is closed (§5.5c), and closing it turned one
+failing check into four passing ones — because the interesting content was never "a
+helpless target is not grazed" on its own but the three things it must **not** drag with
+it: bracing is not helplessness, no Agility is not helplessness, and a raised floor is
+still a real blow rather than an off-by-one at the bottom of the axis.
 
 ### What writing it immediately taught
 

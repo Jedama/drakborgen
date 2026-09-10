@@ -17,6 +17,7 @@ export const K = {
   K_T: 40,            // telegraph ticks -> how much warning is usable
   EV_MAX: 0.55,       // ceiling on the combined Miss + Graze share
   GRAZE_BASE: 0.15,   // graze from attacker imprecision alone; survives bracing
+  AIM_UNRESISTED: 1.0, // how far a body that is NOT resisting releases placement
 
   // --- Where it lands -------------------------------------------------------
   VITAL_MAX: 0.16,    // ceiling on the Vital band's width

@@ -5,7 +5,7 @@
 // Nothing is computed afterward.
 
 import { K } from "./constants.js";
-import { effectiveStats, placement, evasionOpportunity, classMixed, clamp01 } from "./stats.js";
+import { effectiveStats, placement, placedAgainst, evasionOpportunity, classMixed, clamp01 } from "./stats.js";
 import { momentum, bite, engagement } from "./attack.js";
 import { protection, effectiveCoverage, penetration, shockLeak } from "./defense.js";
 import { bandWidths, heightAnchors, bandShapes, buildCurve, severityAt, meanSeverity, bandAt } from "./curve.js";
@@ -71,7 +71,12 @@ export function composeCurve({
     nudge: card.phaseNudge,
   });
 
-  const p = placement(aEff.precision, card.aim);
+  // Placement is lifted ONCE, here, and every consumer downstream inherits it:
+  // the Graze width, the Vital width, gap-finding, and aim-at-matter all read the
+  // same number. A defender who has stopped resisting is easier to place a blow
+  // on in all four senses at the same time, which is the point -- see §5.5c.
+  const pRaw = placement(aEff.precision, card.aim);
+  const p = placedAgainst(pRaw, evadeReady, guardReady);
   const evasion = evasionOpportunity(dEff.agility, timing.telegraph, evadeReady);
 
   const mom = momentum({
@@ -111,7 +116,7 @@ export function composeCurve({
     curve,
     attackerEff: aEff, defenderEff: dEff,
     attackerProtection: aProt, defenderProtection: dProt,
-    placement: p, evasion, momentum: mom, engagement: eng, bite: B,
+    placement: p, placementRaw: pRaw, evasion, momentum: mom, engagement: eng, bite: B,
     toughness, sFull, penetration: pen, shockLeak: leak, sGuard, coverageEff,
     meanSeverity: meanSeverity(curve),
     timing, exertion: exertionCost(card, aEff), concentration, sharpness,

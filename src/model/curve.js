@@ -185,10 +185,23 @@ const normCdf = (z) => 0.5 * (1 + erf(z / Math.SQRT2));
 const normPdf = (z) => Math.exp(-(z * z) / 2) / Math.sqrt(2 * Math.PI);
 
 /**
- * Sum the events, then map the result affinely onto the axis so a total miss is
- * exactly 0 and a roll of 100 is exactly the Vital anchor. Both ends are pinned
- * by construction rather than restored afterwards, and since the map is affine
- * and increasing it cannot disturb monotonicity.
+ * Sum the events, then map the result affinely onto the axis so the bottom of
+ * the axis is exactly the floor anchor and a roll of 100 is exactly the Vital
+ * anchor. Both ends are pinned by construction rather than restored afterwards,
+ * and since the map is affine and increasing it cannot disturb monotonicity.
+ *
+ * THE FLOOR IS NOT ALWAYS ZERO. §5.6b. The curve used to start at 0 by fiat, and
+ * that was a hidden assumption rather than a design statement: it said "however
+ * bad the roll, something can always go wrong for the attacker", which is a claim
+ * about the DEFENDER, not about the axis. A total miss is severity 0 because a
+ * total miss is nothing happening -- but when no miss and no graze can happen,
+ * the worst roll on the axis is a blow that connected, and it should be scored
+ * as one.
+ *
+ * So the floor is the low anchor of the lowest band that actually has room to
+ * happen. Bands with zero width are stepped over: a band that cannot occur cannot
+ * be the worst case. Where a Miss or a Graze is possible at all -- which is very
+ * nearly always -- this lands on ys[1] = 0 and behaves exactly as before.
  *
  * There is no sample table. The curve is a closed-form expression of six-ish
  * terms, so it costs about the same to evaluate as it did to interpolate, has
@@ -199,20 +212,25 @@ export function buildCurve({ widths, anchors, shape, softness = K.SOFTNESS, soft
   const events = riseEvents({ xs, ys, shape, softness, softGain });
   const sum = (x) => events.reduce((s, e) => s + e.area * normCdf((x - e.at) / e.sigma), 0);
 
-  const x0 = xs[1];                       // nothing below the Miss boundary
+  // Start at the Miss boundary -- the Miss band's interior is flat zero by
+  // construction -- then step over any band that has no room to happen.
+  let j = 1;
+  while (j < 5 && widths[j] <= 0) j++;
+  const x0 = xs[j], y0 = Math.max(0, Math.min(100, ys[j]));
+
   const base = sum(x0);
   const top = sum(100) - base;
-  const gain = top > 1e-9 ? ys[5] / top : 0;
+  const gain = top > 1e-9 ? (ys[5] - y0) / top : 0;
 
-  return { xs, ys, shape, widths, softness, softGain, events, x0, base, gain };
+  return { xs, ys, shape, widths, softness, softGain, events, x0, y0, gain, base, floorBand: BANDS[j] };
 }
 
 /** Severity at a given roll. */
 export function severityAt(curve, x) {
-  if (x <= curve.x0) return 0;
+  if (x <= curve.x0) return curve.y0;
   let s = 0;
   for (const e of curve.events) s += e.area * normCdf((x - e.at) / e.sigma);
-  return Math.max(0, Math.min(100, (s - curve.base) * curve.gain));
+  return Math.max(0, Math.min(100, curve.y0 + (s - curve.base) * curve.gain));
 }
 
 /**
@@ -222,10 +240,12 @@ export function severityAt(curve, x) {
  * mean of a sum of them does too. No sampling error to confuse a tuning pass.
  */
 export function meanSeverity(curve) {
-  const { events, x0, base, gain } = curve;
+  const { events, x0, y0, base, gain } = curve;
   const antideriv = (x) => events.reduce((s, e) => {
     const z = (x - e.at) / e.sigma;
     return s + e.area * ((x - e.at) * normCdf(z) + e.sigma * normPdf(z));
   }, 0);
-  return (gain * (antideriv(100) - antideriv(x0) - base * (100 - x0))) / 100;
+  // The floor covers the whole axis (y0·x0 below the start plus y0·(100−x0)
+  // above it), so it enters as a flat term and the integral is unchanged.
+  return y0 + (gain * (antideriv(100) - antideriv(x0) - base * (100 - x0))) / 100;
 }
