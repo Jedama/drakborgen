@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Drakborgen — Siger vs. Giant Spider</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Siger vs. Giant Spider</h1>
+
+  <div class="arena">
+    <div id="sigerHealth" class="health-panel siger"></div>
+    <div class="vs">VS</div>
+    <div id="spiderHealth" class="health-panel spider"></div>
+  </div>
+
+  <div id="distanceBar" class="distance-panel"></div>
+
+  <p class="note">Four cards while the real Windup/Travel/Execution/Recovery timing engine gets proven -- the rest are commented out in script.js, not deleted.</p>
+  <div class="cards">
+    <button class="card-btn" data-card="axeChop">
+      <span class="card-title">Axe Chop (Right-to-Left)</span>
+      <span class="card-sub">Slashing — high weapon power, windup 45, reach 8</span>
+    </button>
+    <button class="card-btn" data-card="momentumHack">
+      <span class="card-title">Momentum Hack</span>
+      <span class="card-sub">Slashing — momentum scales with distance actually covered, moves toward the foe during its own windup</span>
+    </button>
+    <button class="card-btn" data-card="shoulderShove">
+      <span class="card-title">Shoulder Shove</span>
+      <span class="card-sub">Blunt — no weapon, all momentum, windup 15 (much shorter than a swing), can disrupt a still-winding-up foe</span>
+    </button>
+    <button class="card-btn" data-card="bucklerParry">
+      <span class="card-title">Buckler Parry</span>
+      <span class="card-sub">Defense — shoves the incoming roll toward Armor, riposte on a clean read</span>
+    </button>
+  </div>
+
+  <button id="newFightBtn" class="new-fight">New Fight</button>
+
+  <h2>Curves</h2>
+  <div id="curvePanel" class="curve-panel"><p class="curve-empty">Play a card to see the roll plotted against its composed curve.</p></div>
+
+  <h2>Log</h2>
+  <ol id="log"></ol>
+
+  <script src="script.js"></script>
+</body>
+</html>

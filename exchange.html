@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exchange — head to head</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif&display=swap">
+<link rel="stylesheet" href="src/ui/workbench.css">
+<link rel="stylesheet" href="src/ui/exchange.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Exchange</h1>
+      <p class="sub">Two locked <strong>sequences</strong>, one shared clock. Cards chain off recovery, carry their guard position forward, and overlap when they use different hands — 100&nbsp;ticks to the second.</p>
+    </div>
+    <div class="hero">
+      <div class="hero-num" id="verdict">—</div>
+      <div class="hero-lab" id="verdictLab">Outcome</div>
+    </div>
+  </header>
+
+  <div class="presets" id="presets"></div>
+
+  <div class="cols">
+    <div class="panel rail" id="rail"></div>
+    <div class="stage">
+      <div class="panel plot">
+        <svg id="timeline" viewBox="0 0 760 300" role="img" aria-label="Both combatants' phases on one timeline"></svg>
+        <p class="cap" id="cap"></p>
+      </div>
+      <div class="two">
+        <div class="panel">
+          <div class="panel-h">Phases</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Card</th><th>Starts</th><th>Carry</th><th>Ready</th><th>Total</th><th>Ends at</th></tr></thead>
+              <tbody id="phaserows"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h">What happened</div>
+          <div class="derived" id="log"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Fixed distance, no reactions — see the header of
+    <code>src/model/exchange.js</code> for exactly what is deferred and why.
+    Roll again to resample the damage; the timing is deterministic and does not move.
+  </footer>
+</div>
+<script type="module" src="src/ui/exchange.js"></script>
+</body>
+</html>

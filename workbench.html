@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Severity Curve Workbench</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif&display=swap">
+<link rel="stylesheet" href="src/ui/workbench.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Severity Curve Workbench</h1>
+      <p class="sub">One roll, one curve, y&nbsp;=&nbsp;Severity. Band widths, heights and shapes are all computed from stats — nothing here is hand-authored.</p>
+    </div>
+    <div class="hero">
+      <div class="hero-num" id="ev">—</div>
+      <div class="hero-lab">Mean severity per landed hit</div>
+    </div>
+  </header>
+
+  <div class="presets" id="presets"></div>
+
+  <div class="cols">
+    <div class="panel rail" id="rail"></div>
+    <div class="stage">
+      <div class="panel plot">
+        <svg id="chart" viewBox="0 0 760 380" role="img" aria-label="Severity as a function of the roll"></svg>
+        <p class="cap" id="cap"></p>
+      </div>
+      <div class="two">
+        <div class="panel">
+          <div class="panel-h">Bands</div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Band</th><th>Width</th><th>Enters</th><th>Ends</th></tr></thead>
+              <tbody id="bandrows"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h">Derived</div>
+          <div class="derived" id="derived"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Every number on this page comes from <code>src/model/</code>, which is pure and
+    portable — no DOM, no globals, no rendering. <code>src/data/</code> is content.
+    This file and <code>src/ui/</code> are scaffolding and port to nothing.
+    See <code>combat-model.md</code> for the maths and its reasoning.
+  </footer>
+</div>
+<script type="module" src="src/ui/workbench.js"></script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 0 20px;
+  line-height: 1.5;
+  color: #222;
+}
+
+h1 { margin-bottom: 24px; }
+
+.arena {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.health-panel { flex: 1; }
+.vs { font-weight: bold; color: #999; font-size: 14px; }
+
+.distance-panel { margin-bottom: 16px; }
+.dist-label { font-size: 12px; color: #666; margin-bottom: 3px; font-family: "Courier New", monospace; }
+.dist-track {
+  width: 100%; height: 10px; background: #e5e5e5;
+  border-radius: 4px; overflow: hidden; border: 1px solid #ccc;
+}
+.dist-fill { height: 100%; background: linear-gradient(90deg, #c99a3f, #c0392b); transition: width 0.3s ease; }
+
+.hp-name { font-weight: bold; margin-bottom: 4px; }
+.hp-bar {
+  width: 100%;
+  height: 18px;
+  background: #e5e5e5;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #ccc;
+}
+.hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4a934a, #6cb96c);
+  transition: width 0.3s ease;
+}
+.siger .hp-fill { background: linear-gradient(90deg, #2b6cb0, #5b9bd5); }
+.spider .hp-fill { background: linear-gradient(90deg, #7a3b8c, #a55bb8); }
+.hp-num { font-size: 12px; color: #666; margin-top: 2px; font-family: "Courier New", monospace; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.card-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 14px;
+  border: 2px solid #333;
+  border-radius: 6px;
+  background: #fafafa;
+  cursor: pointer;
+  text-align: left;
+}
+.card-btn:hover:not(:disabled) { background: #eef4fb; border-color: #2b6cb0; }
+.card-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.card-title { font-weight: bold; font-size: 15px; }
+.card-sub { font-size: 11.5px; color: #666; }
+
+.new-fight {
+  font-size: 14px;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-bottom: 24px;
+}
+
+.curve-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.curve-empty { font-size: 13px; color: #888; }
+.curve-card {
+  width: 380px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #fff;
+}
+.curve-title {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-family: "Courier New", monospace;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+.curve-card canvas { display: block; }
+
+#log {
+  font-family: "Courier New", monospace;
+  font-size: 13.5px;
+  background: #f4f4f4;
+  padding: 16px 16px 16px 36px;
+  border-radius: 4px;
+  max-height: 480px;
+  overflow-y: auto;
+}
+#log li { margin-bottom: 10px; }

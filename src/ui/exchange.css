@@ -1,0 +1,58 @@
+/* Additions on top of workbench.css, which owns the palette and the shell. */
+
+.hero-num.small { font-size: 22px; line-height: 1.25; letter-spacing: -0.01em; }
+
+.sel {
+  display: grid; grid-template-columns: 1fr; gap: 6px; margin-bottom: 14px;
+}
+.sel label { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.sel select {
+  width: 100%; padding: 7px 9px; border-radius: 6px;
+  border: 1px solid var(--rule-2); background: var(--surface); color: var(--ink);
+  font-family: "IBM Plex Sans", sans-serif; font-size: 13px;
+}
+
+.btn {
+  width: 100%; padding: 9px 12px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--rule-2); background: var(--accent); color: var(--on-accent);
+  font-family: "IBM Plex Sans", sans-serif; font-size: 13px; font-weight: 600;
+}
+.btn:hover { filter: brightness(1.06); }
+
+.logline { padding: 7px 0; border-bottom: 1px dotted var(--rule); font-size: 13px; }
+.logline:last-child { border-bottom: 0; }
+.logline b { font-family: "IBM Plex Mono", monospace; font-weight: 600; }
+.tag {
+  display: inline-block; padding: 1px 7px; border-radius: 999px; margin-right: 7px;
+  font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase;
+  border: 1px solid var(--rule-2); color: var(--ink-2);
+}
+.tag.recovering { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.tag.gathering { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.tag.executing { border-color: var(--rule-2); }
+.tag.whiff    { border-color: var(--rule-2); color: var(--ink-3); }
+
+.tag.gathering, .tag.recovering { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.tag.executing, .tag.finished, .tag.idle { border-color: var(--rule-2); }
+
+.seq { margin: 2px 0 8px; }
+.seqrow {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 6px; border-radius: 5px; background: var(--sunken);
+  margin-bottom: 3px; font-size: 12.5px;
+}
+.seqrow span { flex: 1; }
+.seqrow em { font-family: "IBM Plex Mono", monospace; font-style: normal; color: var(--ink-3); font-size: 11px; }
+.seqrow button {
+  border: 0; background: none; color: var(--ink-3); cursor: pointer;
+  font-size: 15px; line-height: 1; padding: 0 2px;
+}
+.seqrow button:hover { color: var(--ink); }
+.seqrow.empty { color: var(--ink-3); font-style: italic; justify-content: center; }
+
+.bar { height: 5px; border-radius: 3px; background: var(--sunken); overflow: hidden; }
+.bar i { display: block; height: 100%; background: rgb(var(--band) / .7); }
+.barlab {
+  display: flex; justify-content: space-between; margin: 4px 0 10px;
+  font-size: 10.5px; color: var(--ink-3); font-family: "IBM Plex Mono", monospace;
+}
