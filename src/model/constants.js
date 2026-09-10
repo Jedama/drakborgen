@@ -21,8 +21,8 @@ export const K = {
   // --- Where it lands -------------------------------------------------------
   VITAL_MAX: 0.16,    // ceiling on the Vital band's width
   VITAL_EXP: 1.6,     // how steeply Precision must climb to open Vital
-  GUARD_VITALS: 0.6,  // how much bracing narrows Vital
-  BRACE_GAIN: 0.70,   // how far bracing closes the remaining gap in Coverage
+  GUARD_VITALS: 0.6,  // how much full guard readiness narrows Vital
+  BRACE_GAIN: 0.70,   // how far full guard readiness closes the gap in Coverage
 
   // --- Load -----------------------------------------------------------------
   CARRY_K: 12.0,      // Strength and body mass -> carry capacity
@@ -371,4 +371,11 @@ export const K = {
   // before it is dismantled, so Structure rarely governs a human -- which is
   // correct, not a wasted channel.
   STRUCT_GAIN: 0.70,
+
+  // --- Readiness ------------------------------------------------------------
+  // How much of a free arm a combatant who is NOT deliberately covering up still
+  // brings to bear. Not 1.0: someone mid-fight with a hand free is not actively
+  // shielding their vitals, they are just not committed elsewhere. Declaring a
+  // defensive posture (what `braced` used to be) is what takes it to 1.0.
+  GUARD_BASE: 0.45,
 };

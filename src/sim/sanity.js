@@ -106,8 +106,12 @@ export const MONOTONE = [
     expect: { telegraph: DOWN, evasion: DOWN, miss: DOWN } },
 
   { says: "A defender tied up in their own action cannot get out of the way",
-    change: { defenderOccupancy: 0.9 },
+    change: { evadeReady: 0.15 },
     expect: { evasion: DOWN, miss: DOWN, mean: UP } },
+
+  { says: "Covering up trades being-elsewhere for having-something-in-the-way",
+    change: { guardReady: 1 },
+    expect: { guard: UP, vital: DOWN } },
 
   { says: "Being hurt makes you easier to hit",
     change: { defenderPain: 0.7 },
@@ -140,10 +144,20 @@ export const DEGENERATE = [
     change: { armor: [] },
     assert: (p) => p.guard < 0.001, shows: (p) => `guard ${p.guard.toFixed(3)}` },
 
-  { says: "A braced defender has given up evading entirely",
-    change: { braced: true },
+  { says: "Zero evade readiness means never being missed, whatever the Agility",
+    change: { def: { agility: 5 }, evadeReady: 0 },
     assert: (p) => p.evasion < 1e-9 && p.miss < 0.001,
-    shows: (p) => `evasion ${p.evasion.toFixed(4)}, miss ${p.miss.toFixed(3)}` },
+    shows: (p) => `Agility 5 but evasion ${p.evasion.toFixed(4)}, miss ${p.miss.toFixed(3)}` },
+
+  { says: "A troll with no Agility can still be READY to try — readiness is not capability",
+    change: { def: { agility: 0.2 }, evadeReady: 1 },
+    assert: (p) => p.evasion > 0,
+    shows: (p) => `Agility 0.2, evade ready: evasion ${p.evasion.toFixed(3)}` },
+
+  { says: "An unarmed man can still cover his vitals — guard readiness needs no shield",
+    change: { armor: [], guardReady: 1 },
+    assert: (p) => p.guard > 1 && p.vital < probe({ armor: [], guardReady: 0 }).vital,
+    shows: (p) => `no armour, guard ${p.guard.toFixed(1)}, vital ${p.vital.toFixed(2)}` },
 
   { says: "Nothing worth aiming at means no Vital band",
     change: { def: { vitalSuit: { blunt: 0, pierce: 0, slash: 0 }, redundancy: 1 } },
@@ -156,7 +170,7 @@ export const DEGENERATE = [
     change: { def: { agility: 0 } },
     assert: (p) => p.graze < 0.001,
     shows: (p) => `graze ${p.graze.toFixed(2)} -- GRAZE_BASE x (1-p) has no floor at p<1`,
-    known: "Needs a `helpless` flag driving p -> 1, the mirror of `braced`." },
+    known: "Readiness cannot fix this -- GRAZE_BASE is ATTACKER imprecision. Wants p -> 1 when the target cannot move." },
 
   { says: "KNOWN GAP -- an ordinary solid Wound should be able to kill",
     change: { att: { strength: 8 }, def: { toughness: { blunt: .2, pierce: .2, slash: .2 } } },

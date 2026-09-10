@@ -24,8 +24,13 @@ export function composeCurve({
   exhaustion = 0, pain = 0, structure = 0, dread = 0, adrenaline = 0,
   defenderExhaustion = 0, defenderPain = 0, defenderStructure = 0,
   defenderDread = 0, defenderAdrenaline = 0,
-  offhand = false, braced = false,
-  distance = 0, commitment = 0, defenderOccupancy = 0, carry = 1,
+  offhand = false,
+  // READINESS, 0-1 each (§5.13). How able the defender is RIGHT NOW to try to
+  // not-be-there, and to interpose something. Not capability -- Agility and
+  // Coverage are capability. These are state, and they are what a `braced`
+  // boolean used to gesture at badly.
+  evadeReady = 1, guardReady = 0,
+  distance = 0, commitment = 0, carry = 1,
   arc = null, landingSide = 0, hand = null,
   overrides = {},
 }) {
@@ -67,7 +72,7 @@ export function composeCurve({
   });
 
   const p = placement(aEff.precision, card.aim);
-  const evasion = evasionOpportunity(dEff.agility, timing.telegraph, braced, defenderOccupancy);
+  const evasion = evasionOpportunity(dEff.agility, timing.telegraph, evadeReady);
 
   const mom = momentum({
     bodyMass: attacker.mass,
@@ -88,8 +93,8 @@ export function composeCurve({
   const leak = shockLeak(mom.m, dProt.spread);
   const sGuard = sFull * (pen + (1 - pen) * leak);
 
-  const coverageEff = effectiveCoverage(dProt.coverage, dProt.gaps, p, braced);
-  const widths = bandWidths({ evasion, placement: p, coverageEff, braced });
+  const coverageEff = effectiveCoverage(dProt.coverage, dProt.gaps, p, guardReady);
+  const widths = bandWidths({ evasion, placement: p, coverageEff, guardReady });
   const anchors = heightAnchors({
     sFull, sGuard,
     redundancy: defender.redundancy ?? 0,
@@ -110,7 +115,7 @@ export function composeCurve({
     toughness, sFull, penetration: pen, shockLeak: leak, sGuard, coverageEff,
     meanSeverity: meanSeverity(curve),
     timing, exertion: exertionCost(card, aEff), concentration, sharpness,
-    effort, hand, arc, landingSide, defenderOccupancy, carry,
+    effort, hand, arc, landingSide, carry, evadeReady, guardReady,
   };
 }
 

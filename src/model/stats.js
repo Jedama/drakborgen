@@ -135,19 +135,21 @@ export function placement(precisionEff, aim = 1) {
  * How much evasion the defender actually gets to use. This is where an attack's
  * SPEED becomes accuracy without any attacker accuracy stat existing: a shorter
  * telegraph gives Agility less to work with, so Miss and Graze narrow on their
- * own. A braced defender has stopped trying to not-be-there entirely.
+ * own.
  *
- * `occupancy` is what the defender's OWN action costs them (see timing.js). You
- * do not sidestep at the apex of your own swing, and you barely sidestep while
- * unwinding from one. This is why catching someone mid-commitment lands better,
- * and it is a consequence of what they are doing rather than a bonus bolted on
- * for landing early.
+ * `evadeReady` is READINESS, 0-1 (§5.13) -- how able this body is, right now, to
+ * try to not-be-there. It is a state, not a capability: Agility says how well
+ * you dodge, readiness says whether you are in any position to attempt it. A
+ * troll with terrible Agility can still try; a man mid-lunge cannot, however
+ * nimble he is; an unconscious one is at zero.
+ *
+ * This replaced a `braced` boolean. Bracing is not a different kind of thing --
+ * it is simply low evadeReady and high guardReady, a point in a space rather
+ * than a flag.
  */
-export function evasionOpportunity(agilityEff, telegraph, braced = false, occupancy = 0) {
-  if (braced) return 0;
+export function evasionOpportunity(agilityEff, telegraph, evadeReady = 1) {
   const window = telegraph / (telegraph + K.K_T);
-  const free = 1 - K.EVADE_OCCUPIED * clamp01(occupancy);
-  return (agilityEff / (agilityEff + K.K_A)) * window * free;
+  return (agilityEff / (agilityEff + K.K_A)) * window * clamp01(evadeReady);
 }
 
 /** Weighted sum over a damage-class mix, e.g. { blunt: 0.75, pierce: 0.25 }. */

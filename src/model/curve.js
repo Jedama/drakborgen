@@ -5,6 +5,7 @@
 // are computed from stats; the band shapes come from what each band MEANS.
 
 import { K } from "./constants.js";
+import { clamp01 } from "./stats.js";
 
 export const BANDS = ["Miss", "Graze", "Guard", "Wound", "Vital"];
 
@@ -20,13 +21,13 @@ export const BANDS = ["Miss", "Graze", "Guard", "Wound", "Vital"];
  *
  * Returns widths in roll units, summing to 100.
  */
-export function bandWidths({ evasion, placement, coverageEff, braced = false }) {
+export function bandWidths({ evasion, placement, coverageEff, guardReady = 0 }) {
   const E = evasion, p = placement;
 
   // Stage 1 -- did it connect? At low evasion nearly all of it is partial
   // (grazes); at high evasion it becomes clean misses. One expression, no split
   // parameter. The imprecision term is what lets Graze survive bracing: a
-  // braced target can still be hit badly.
+  // defender who is covering up can still be hit badly.
   const miss = K.EV_MAX * E * E;
   const graze = K.EV_MAX * (E - E * E) + K.GRAZE_BASE * (1 - p);
   const connected = Math.max(0.03, 1 - miss - graze);
@@ -34,7 +35,10 @@ export function bandWidths({ evasion, placement, coverageEff, braced = false }) 
   // Stage 2 -- given it connected, where? Vital stays narrow by construction.
   // Note Redundancy does NOT appear here: it sets the payoff and the shape, not
   // the width.
-  const vital = connected * K.VITAL_MAX * p ** K.VITAL_EXP * (1 - (braced ? K.GUARD_VITALS : 0));
+  // Guard readiness narrows Vital: covering up is exactly the act of putting
+  // something between a blow and the parts of you that end fights. Graded, not a
+  // flag -- a partly-free arm covers partly.
+  const vital = connected * K.VITAL_MAX * p ** K.VITAL_EXP * (1 - K.GUARD_VITALS * clamp01(guardReady));
   const rest = connected - vital;
 
   // What doesn't meet armor meets flesh. Coverage means exactly that.

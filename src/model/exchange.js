@@ -212,6 +212,48 @@ export function busyHands(side, t) {
   return busy;
 }
 
+/** How tied up one particular hand is at time t, 0-1. */
+export function handOccupancyAt(side, hand, t) {
+  let worst = 0;
+  for (const step of side.steps) {
+    if (step.cancelled && t >= step.cancelledAt) continue;
+    if (!step.hands.has(hand)) continue;
+    const local = t - step.start;
+    if (local < 0 || local >= step.total) continue;
+    worst = Math.max(worst, occupancy(local, { ...step.phases, total: step.total }, {
+      drive: step.card.drive, effort: step.card.effort ?? 1,
+      commitment: step.commitment,
+      recoverability: step.weapon?.recoverability ?? 0.5,
+    }));
+  }
+  return worst;
+}
+
+/**
+ * The two readiness numbers (§5.13), derived rather than authored.
+ *
+ * They are a STATE, not a capability. Agility says how well you dodge; evadeReady
+ * says whether you are in any position to try. A troll with poor Agility can
+ * still attempt it; a man mid-lunge cannot, however nimble.
+ *
+ *   evadeReady   from the WHOLE BODY's commitment. Feet, mass, base.
+ *   guardReady   from your FREEST HAND. Your guard is as good as whichever arm
+ *                is least busy -- which is why a committed ONE-handed swing
+ *                still leaves you able to block, and a two-hander does not.
+ *
+ * A hand with nothing in it still guards: covering up is an arm, not a shield.
+ * What the shield adds is Coverage, and that is already handled by `liveArmor`
+ * dropping the piece when the hand carrying it is swinging.
+ */
+export function readinessAt(side, t) {
+  const evadeReady = 1 - K.EVADE_OCCUPIED * occupancyAt(side, t);
+  const freest = Math.min(handOccupancyAt(side, "main", t), handOccupancyAt(side, "off", t));
+  return {
+    evadeReady: Math.max(0, evadeReady),
+    guardReady: Math.max(0, (1 - freest) * K.GUARD_BASE),
+  };
+}
+
 /**
  * The defender's protection as it stands at this instant: the shield drops out
  * if the hand holding it is busy. A shield BASH therefore spends the shield to
@@ -354,7 +396,7 @@ function resolveContact({ attacker, defender, step, arc, distance, t, rng }) {
     defenderDread: defender.dread,
     distance, commitment: step.commitment, carry: step.carry,
     arc: arc.arc, landingSide: arc.landingSide, hand: arc.hand,
-    defenderOccupancy: occupancyAt(defender, t),
+    ...readinessAt(defender, t),
   });
   const rolled = rollOn(composed.curve, rng);
 

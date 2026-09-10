@@ -237,6 +237,20 @@ mid-overhead has his feet planted and can slip nothing, but his shield arm is un
 and covers exactly as well as ever. A duelist mid-lunge has committed both. And a shield
 *bash* spends the shield to throw it, leaving that side open while it happens.
 
+Both are **numbers**, not flags — *evade readiness* and *guard readiness*, each 0 to 1.
+Readiness is a **state, not a capability**: Agility says how well you dodge, readiness
+says whether you are in any position to try. A troll with terrible Agility can still
+attempt it. An unarmed man can still cover his vitals — covering up is an arm, not a
+shield. Someone unconscious has neither.
+
+And guard readiness comes from **whichever arm is least busy**, which is why a committed
+*one-handed* swing leaves you able to block while a two-handed one does not. That falls
+out of the same occupancy the evasion half uses; nothing is written for it.
+
+A defensive posture is simply a point in that space — low evade, high guard — rather than
+a separate kind of thing, which is what makes stances (§05) expressible with no new
+machinery.
+
 This is also why catching someone mid-commitment lands better — because of what *they*
 are doing, not a bonus handed to whoever moved first. It is what gives the aftermath of
 a heavy swing its teeth, and it is the reason a card that costs no exertion, like taking

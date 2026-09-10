@@ -1,7 +1,7 @@
 // What stops the blow: how worn protection combines, and what gets past it.
 
 import { K } from "./constants.js";
-import { combineFraction, classMixed } from "./stats.js";
+import { combineFraction, classMixed, clamp01 } from "./stats.js";
 
 /**
  * Aggregate a set of protection pieces (armor, shields, natural plating) into
@@ -63,9 +63,20 @@ export function protection(pieces = [], classMix = { blunt: 1 }, landingSide = 0
  * Bracing converts evasion into coverage -- it is exactly the act of no longer
  * trying to not-be-there and instead trying to have-armor-there.
  */
-export function effectiveCoverage(coverage, gaps, placementQuality, braced = false) {
+/**
+ * `guardReady` is READINESS, 0-1 (§5.13): how able this body is, right now, to
+ * interpose SOMETHING. Not a shield, not armour -- an arm, a raised weapon, a
+ * turned shoulder. An unarmed man can still cover his vitals; a man swinging a
+ * two-hander with everything he has cannot, whatever he is wearing.
+ *
+ * Worn Coverage is what you are carrying; readiness is whether you are in a
+ * position to use it. So readiness lifts coverage toward complete rather than
+ * scaling it -- at zero you get exactly the passive protection you are wearing,
+ * and at one you are actively covering.
+ */
+export function effectiveCoverage(coverage, gaps, placementQuality, guardReady = 0) {
   const found = coverage * (1 - gaps * placementQuality);
-  return braced ? found + (1 - found) * K.BRACE_GAIN : found;
+  return found + (1 - found) * K.BRACE_GAIN * clamp01(guardReady);
 }
 
 /**

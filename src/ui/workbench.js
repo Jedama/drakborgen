@@ -64,7 +64,7 @@ function loadPreset(preset) {
     weapon: clone(weaponOf(A, card.arcs?.[0]?.hand === "off" ? "off" : "main")) ?? null,
     attackerArmor: armorOf(A).map(clone),
     defenderArmor: [dArmor],
-    braced: false, offhand: false,
+    evadeReady: 1, guardReady: 0, offhand: false,
     commitment: 0, distance: 0,
     // Drifts start at their derived values and are then free to drag.
     overrides: {
@@ -111,7 +111,9 @@ const CONTROLS = [
     { p: "defenderArmor.0.gaps",      l: "Gaps",                 min: 0,   max: 1,   step: .01, d: 2 },
     { p: "defenderArmor.0.hardness",  l: "Hardness (1 = plate)", min: 0,   max: 2.5, step: .01, d: 2 },
     { p: "defenderArmor.0.spread",    l: "Spread",               min: 0,   max: 1,   step: .01, d: 2 },
-  ], toggle: { key: "braced", label: "Braced" } },
+    { p: "evadeReady", l: "Evade readiness (0 helpless … 1 free)", min: 0, max: 1, step: .05, d: 2 },
+    { p: "guardReady", l: "Guard readiness (0 none … 1 covering up)", min: 0, max: 1, step: .05, d: 2 },
+  ] },
 
   { title: "Band shape", tag: () => "", items: [
     { p: "overrides.riseGuard",  l: "Guard rise (from its end)",   min: .05, max: 1,  step: .01,  d: 2 },
@@ -210,7 +212,7 @@ function render() {
     attacker: state.attacker, defender: state.defender,
     card: state.card, weapon: state.weapon,
     attackerArmor: state.attackerArmor, defenderArmor: state.defenderArmor,
-    braced: state.braced, offhand: state.offhand,
+    evadeReady: state.evadeReady, guardReady: state.guardReady, offhand: state.offhand,
     distance: state.distance, commitment: state.commitment,
     arc: state.card.arcs?.[0]?.arc ?? state.card.arcs?.[0] ?? null,
     hand: state.card.arcs?.[0]?.hand ?? "main",

@@ -1160,8 +1160,9 @@ Caught at the apex of their own full swing, the duelist's defence collapses:
 | Graze width | 21.7 | 13.1 |
 | Mean severity | 37.5% | **42.9%** |
 
-**Guard** is the other limiter and needs no curve at all: if the card's `hand` is the
-hand holding the shield, that shield's Coverage drops out for the card's duration. So a
+**Guard** is the other limiter, and it became `guardReady` (§5.13) — graded from your
+freest hand rather than a boolean. Separately, if the card's `hand` is the hand holding
+the shield, that shield's Coverage drops out for the card's duration. So a
 shield *bash* spends the shield to throw it and is undefended on that side while it
 happens — emergent, with no rule authored. A two-handed weapon would want `hand: "both"`
 and lose it entirely.
@@ -1311,6 +1312,64 @@ property of the timeline, not a choice.
 
 ---
 
+### 5.13 Readiness — two numbers, not a flag
+
+**Flags are only good for things that can truly only be one or the other.** Bracing is
+not one of those. It was a boolean, and it did three unrelated things at once — zeroed
+evasion, lifted Coverage, narrowed Vital — which is the shape of a flag standing in for a
+quantity nobody had named yet.
+
+The quantity is **readiness**: how able this body is, *right now*, to attempt a defence.
+And it is two numbers, because there are two defences and they fail for different
+reasons (§5.11):
+
+```
+evadeReady   0-1   able to not-be-there.   Feet, mass, base.
+guardReady   0-1   able to interpose.      An arm.
+```
+
+**Readiness is state, not capability.** Agility says how *well* you dodge; `evadeReady`
+says whether you are in any position to try. Coverage says what you are *wearing*;
+`guardReady` says whether you can use it. That separation is the whole point:
+
+- A troll with Agility 0.2 can still be ready to try — and does: evasion 0.109 at
+  `evadeReady` 1.
+- A duelist with Agility 5 who is not ready is never missed at all — evasion 0.0000,
+  Miss 0.000 at `evadeReady` 0.
+- An unarmed man can still cover his vitals. With no armour at all and `guardReady` 1 the
+  Guard band opens to 50.3 and Vital narrows — covering up is an arm, not a shield.
+
+**Where they come from.** Derived in `exchange.js`, not authored:
+
+```
+evadeReady = 1 − EVADE_OCCUPIED · occupancy(whole body)
+guardReady = (1 − occupancy of the FREEST hand) · GUARD_BASE
+```
+
+**Your guard is as good as whichever arm is least busy.** That single line produces the
+case that motivated the whole change, with nothing written for it:
+
+| At the apex of a committed swing | evadeReady | guardReady |
+|---|---|---|
+| One-handed | 0.15 | **0.45** — the off arm is free |
+| Two-handed (`hand: "both"`) | 0.15 | **0.00** — nothing is free |
+
+Unconscious is both at zero. Bracing is `evadeReady` low, `guardReady` 1 — a *point in a
+space* rather than a different kind of thing, and therefore something a stance or a
+posture card can simply set.
+
+`GUARD_BASE` is 0.45 rather than 1.0 because somebody mid-fight with a hand free is not
+actively shielding their vitals; they are merely not committed elsewhere. Declaring a
+defensive posture is what takes it to 1.
+
+> **Readiness cannot close the coup-de-grâce gap** (§11). An unconscious target has
+> `evadeReady` 0, so Miss correctly vanishes — but Graze survives at 9.00, because
+> `GRAZE_BASE·(1−p)` is *attacker* imprecision and has nothing to do with the defender's
+> state. That wants `p → 1` when the target cannot move, which is a statement about how
+> much time the attacker has, not about readiness.
+
+---
+
 ## 6. The three fighters
 
 Illustrative values, to show the shape of a sheet.
@@ -1388,8 +1447,8 @@ The entire tuning surface, in one table. Everything else is derived.
 | `GRAZE_BASE` | 0.15 | Graze from attacker imprecision alone (survives bracing) |
 | `VITAL_MAX` | 0.16 | Ceiling on the Vital band's width |
 | `VITAL_EXP` | 1.6 | How steeply Precision must climb to open Vital |
-| `GUARD_VITALS` | 0.6 | How much bracing narrows Vital |
-| `BRACE_GAIN` | 0.70 | How far bracing closes the remaining gap in Coverage |
+| `GUARD_VITALS` | 0.6 | How much full guard readiness narrows Vital |
+| `BRACE_GAIN` | 0.70 | How far full guard readiness closes the gap in Coverage |
 | `RISE_GUARD/WOUND/VITAL` | 0.35, 0.35, 0.50 | Band rise fractions (§5.7) |
 | `drift_*` | derived | Per-band plateau tilt, from Spread and Redundancy (§5.7) |
 | `SOFTNESS` | 1.0 rolls | Floor under a rise's runway. Only binds on bands too narrow to hold their own rise, where it decides whether a vital hit is a step or a steep climb. Moves outcomes, not only appearance — useful range roughly 0.5–1.5 (§5.7) |
@@ -1458,6 +1517,7 @@ The entire tuning surface, in one table. Everything else is derived.
 | `STAB_K` | 0.026 | Mass and shape → Stability. Anchored so an ordinary adult is 1.0 |
 | `STAB_FOOT`, `STAB_COM` | 0.30, 0.55 | Footprint and CoM height as fractions of Size, for bipeds |
 | `TOPPLE_K` | 3.0 | How much Stability resists being put down |
+| `GUARD_BASE` | 0.45 | Guard readiness from a merely-free arm, before any posture (§5.13) |
 | `PAIN_GAIN` | 1.0 | Severity → Pain, into the remaining headroom |
 | `DECISIVE_SEVERITY` | 85 | Severity at which a blow simply ends the fight |
 | `STRUCT_GAIN` | 0.70 | Severity → Structure, the channel `mindless` cannot escape |
@@ -1556,8 +1616,9 @@ new `sim/` without disturbing what's there.
 - **Armor penetration** is a single term (`P`, §5.6) precisely so a dedicated system
   can replace it later without disturbing anything else.
 - **Stances** (§05) are not modelled — everything assumes a neutral attacking posture.
-  Each stance will be a (guard emphasis, evasion effort) pair; `braced` already
-  demonstrates the mechanism. **Posture** is the card-level counterpart.
+  A stance is now plainly expressible: it sets a point in the readiness space (§5.13).
+  Defence is high `guardReady`, Await is high on both, Charge is low on both. **Posture**
+  is the card-level counterpart. Nothing new is needed to represent them.
 - **Lanes and Direction** are parked. Shield-side asymmetry plugs into
   `Coverage_total` when they return.
 - **Reactions are the last inert system.** `reactionWindow` is written and correct and
@@ -1576,11 +1637,11 @@ new `sim/` without disturbing what's there.
   exists — no deck, no hand, no stances. That is the other half of the turn.
 - **A helpless target can still be grazed.** `GRAZE_BASE·(1−p)` has no floor below
   `p = 1`, so an unconscious, unarmoured target still turns aside 9% of blows from an
-  ordinary attacker. The coup de grâce is not expressible. Wants a **`helpless`** flag
-  driving `p → 1` — the exact mirror of `braced`, which gives up evasion for coverage;
-  helpless gives the attacker unlimited time to place the blow. `p` is already defined as
-  "how much of Precision applies at the moment of contact", and a motionless target is
-  precisely the case where all of it does. Tracked as a known gap in §11.
+  ordinary attacker. Readiness (§5.13) correctly zeroes Miss but cannot touch this,
+  because GRAZE_BASE is ATTACKER imprecision — a statement about how much time the
+  attacker had, not about the defender's state. `p` is already "how much of Precision
+  applies at the moment of contact", and a motionless target is precisely the case where
+  all of it does. Tracked as a known gap in §11.
 - **`S_full` cannot reach its own ceiling.** `severity-ceiling.md` §5.2, diagnosed and
   deliberately not applied — see §5.5b for why it is deferred rather than rejected.
 - **`meanSeverity()` integrates the curve analytically without the output clamp**, so it
