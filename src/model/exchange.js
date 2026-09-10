@@ -41,7 +41,7 @@
 import { K } from "./constants.js";
 import { effectiveStats, bodyReach, stability, toppleChance } from "./stats.js";
 import { protection } from "./defense.js";
-import { phases, lodgeRecovery, exertionCost, exertionBudget, occupancy, carryCost, followThrough } from "./timing.js";
+import { phases, lodgeRecovery, exertionCost, exertionBudget, occupancy, phaseShape, carryCost, followThrough } from "./timing.js";
 import { profileOf } from "../data/profiles.js";
 import { handsUsed } from "../data/cards.js";
 import { GUARD, guardDistance, landingSide, along } from "../data/arcs.js";
@@ -253,15 +253,53 @@ export function handOccupancyAt(side, hand, t) {
  * A hand with nothing in it still guards: covering up is an arm, not a shield.
  * What the shield adds is Coverage, and that is already handled by `liveArmor`
  * dropping the piece when the hand carrying it is swinging.
+ *
+ * OCCUPANCY ALONE TOPS OUT AT EXACTLY 1 -- both numbers, in both directions. That
+ * ceiling is the whole reason anticipation has to come from a card (§5.13b): no
+ * amount of standing around doing nothing makes you READIER than ready. Setting
+ * yourself for a blow you can see coming is an action, so it is a card, and the
+ * grant rides the card's own envelope.
  */
 export function readinessAt(side, t) {
   const body = occupancyAt(side, t);
   const freestArm = Math.min(handOccupancyAt(side, "main", t), handOccupancyAt(side, "off", t));
   const guard = (1 - K.GUARD_BODY * body) * (1 - K.GUARD_ARM * freestArm);
+  const cap = (v) => Math.max(0, Math.min(K.READY_MAX, v));
   return {
-    evadeReady: Math.max(0, 1 - K.EVADE_OCCUPIED * body),
-    guardReady: K.GUARD_FLOOR + (1 - K.GUARD_FLOOR) * Math.max(0, guard),
+    evadeReady: cap(1 - K.EVADE_OCCUPIED * body + grantAt(side, t, "evade")),
+    guardReady: cap(K.GUARD_FLOOR + (1 - K.GUARD_FLOOR) * Math.max(0, guard) + grantAt(side, t, "guard")),
   };
+}
+
+/**
+ * What the cards in flight are ADDING to a readiness number right now.
+ *
+ * A card's `readiness` is a pair of deltas on the same envelope as its occupancy,
+ * so a block ramps up as you set yourself, holds while you hold it, and relaxes as
+ * you lower it -- and if the exchange interrupts the card, the guard goes with it.
+ * Nothing else was needed to make that true.
+ *
+ * The grants SUM across cards in flight, unlike occupancy which takes the worst.
+ * Occupancy asks "how tied up is this body", where the most committed thing wins;
+ * this asks "what is this body doing for its defence", where two hands doing it are
+ * genuinely doing more than one. `READY_MAX` is the only bound.
+ *
+ * Deltas are signed, and negative is the useful half: bracing PLANTS you. A card
+ * that buys guard by giving up footwork says so here in one number, which is what
+ * makes a stance a point in the readiness space rather than a new mechanism.
+ */
+function grantAt(side, t, which) {
+  let sum = 0;
+  for (const step of side.steps) {
+    if (step.cancelled && t >= step.cancelledAt) continue;
+    const g = step.card.readiness?.[which];
+    if (!g) continue;
+    const local = t - step.start;
+    if (local < 0 || local >= step.total) continue;
+    sum += g * phaseShape(local, { ...step.phases, total: step.total },
+                          step.weapon?.recoverability ?? 0.5);
+  }
+  return sum;
 }
 
 /**

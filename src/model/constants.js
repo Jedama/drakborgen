@@ -390,4 +390,17 @@ export const K = {
   // You can always twist to take it differently. Both hands committed and fully
   // extended is not defenceless, it is nearly so.
   GUARD_FLOOR: 0.12,
+
+  // --- Readiness above 1: ANTICIPATION (§5.13b) ------------------------------
+  // 1.0 is alert and unengaged -- standing there when a swing comes. Above 1 is
+  // knowing it was coming and having set yourself for it, which no amount of
+  // being unoccupied gets you. Only a card can grant it.
+  //
+  // Every one of these reads ONLY the part above 1, so the whole band from 0 to 1
+  // behaves exactly as it did before this existed.
+  READY_MAX: 2.0,      // ceiling. A card grant cannot take you past this
+  READY_EVADE: 0.35,   // how far anticipation closes the gap to a certain miss
+  READY_COVER: 0.50,   // how far it closes the remaining gap in Coverage
+  READY_VITALS: 0.50,  // how much further it narrows Vital, on top of GUARD_VITALS
+  READY_SHOCK: 0.40,   // how much of the shock through armor a SET body absorbs
 };

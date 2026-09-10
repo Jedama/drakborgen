@@ -38,7 +38,7 @@ export const FIGHTERS = {
     vitalSuit: { blunt: 0.9, pierce: 1.2, slash: 1.0 },
     mainHand: "rapier", offHand: null,
     armor: ["gambeson"],
-    cards: ["thrust", "lunge", "quickCut", "slash", "backslash", "takeBreath"],
+    cards: ["thrust", "lunge", "quickCut", "slash", "backslash", "takeBreath", "brace"],
     flags: [],
   },
 
@@ -54,7 +54,7 @@ export const FIGHTERS = {
     vitalSuit: { blunt: 0.9, pierce: 1.2, slash: 1.0 },
     mainHand: "armingSword", offHand: "heaterShield",
     armor: ["fullPlate", "heaterShield"],
-    cards: ["quickCut", "slash", "backslash", "fullSwing", "thrust", "overhead", "diagonalHack", "risingCut", "shieldBash", "takeBreath"],
+    cards: ["quickCut", "slash", "backslash", "fullSwing", "thrust", "overhead", "diagonalHack", "risingCut", "shieldBash", "takeBreath", "brace"],
     flags: [],
   },
 

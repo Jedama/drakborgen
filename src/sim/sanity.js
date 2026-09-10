@@ -69,8 +69,10 @@ export function probe({ att = {}, def = {}, card = "slash", armor = [], ...rest 
   return {
     miss: r.curve.widths[0], graze: r.curve.widths[1], guard: r.curve.widths[2],
     wound: r.curve.widths[3], vital: r.curve.widths[4],
-    sFull: r.sFull, sGuard: r.sGuard, vitalAnchor: r.curve.ys[5],
-    sev0: severityAt(r.curve, 0), floorBand: r.curve.floorBand,
+    sFull: r.sFull, sGuard: r.sGuard,
+    vitalAnchor: r.curve.ys[5], woundAnchor: r.curve.ys[4],
+    sev0: severityAt(r.curve, 0), floorBand: r.curve.floorBand, gain: r.curve.gain,
+    plateau: severityAt(r.curve, 40),
     evasion: r.evasion, placement: r.placement, placementRaw: r.placementRaw,
     momentum: r.momentum.m,
     tau: r.timing.tau, telegraph: r.timing.telegraph, exertion: r.exertion,
@@ -127,6 +129,20 @@ export const MONOTONE = [
     change: { armor: [ARMOR.fullPlate] },
     expect: { guard: UP, wound: DOWN, mean: DOWN } },
 
+  // ANTICIPATION, §5.13b. Both of these are the design statement "seeing it coming
+  // is worth something" split into its two halves, and the first one is the check
+  // that caught the normalisation inversion: before §5.7b it FAILED on `mean` and
+  // on `plateau`, because narrowing Vital lifted the whole curve.
+  { says: "Setting yourself for a blow widens Guard, narrows Vital, and softens what gets through",
+    baseline: { armor: [ARMOR.gambeson], guardReady: 1 },
+    change: { guardReady: 2 },
+    expect: { guard: UP, vital: DOWN, sGuard: DOWN, plateau: DOWN, mean: DOWN } },
+
+  { says: "Seeing it coming sharpens evasion, whatever your Agility",
+    baseline: { def: { agility: 0.4 }, evadeReady: 1 },
+    change: { evadeReady: 2 },
+    expect: { evasion: UP, miss: UP, mean: DOWN } },
+
   // THE REGRESSION. This is the bug that motivated the whole file: with the Vital
   // anchor clamped, a flick out-killed a committed swing.
   //
@@ -165,10 +181,11 @@ export const DEGENERATE = [
     assert: (p) => p.guard > 1 && p.vital < probe({ armor: [], guardReady: 0 }).vital,
     shows: (p) => `no armour, guard ${p.guard.toFixed(1)}, vital ${p.vital.toFixed(2)}` },
 
+  // `p.wound` is a WIDTH; this used to compare it to a height and passed by luck.
   { says: "Nothing worth aiming at means no Vital band",
     change: { def: { vitalSuit: { blunt: 0, pierce: 0, slash: 0 }, redundancy: 1 } },
-    assert: (p) => p.vitalAnchor <= p.wound + 1e-6,
-    shows: (p) => `vital anchor ${p.vitalAnchor.toFixed(1)} vs wound ${p.wound.toFixed(1)}` },
+    assert: (p) => p.vitalAnchor <= p.woundAnchor + 1e-6,
+    shows: (p) => `vital anchor ${p.vitalAnchor.toFixed(1)} vs wound anchor ${p.woundAnchor.toFixed(1)}` },
 
   // THE COUP DE GRACE. Four statements about a body that has stopped resisting,
   // which is the edge the whole §5.5c change exists to get right. Helplessness is
@@ -192,6 +209,31 @@ export const DEGENERATE = [
     change: { def: { agility: 0 } },
     assert: (p) => p.graze > 0.001 && p.sev0 < 1e-9,
     shows: (p) => `miss ${p.miss.toFixed(3)} but graze ${p.graze.toFixed(2)}, x=0 still ${p.sev0.toFixed(2)}` },
+
+  // Anticipation is meant to be STRICTLY ADDITIVE: everything from 0 to 1 behaves
+  // exactly as it did before §5.13b existed. The way to test that without freezing
+  // old numbers into the file is continuity at the seam -- if the `over` terms leaked
+  // into the `under` band, or double-counted at 1, there would be a step here.
+  // The interval has to be MUCH narrower than the tolerance, or the check measures
+  // the slope instead of a step. `under` and `over` have different slopes by
+  // design -- BRACE_GAIN against READY_COVER -- so there is a KINK at 1, and a kink
+  // is fine. A step is not. At ±1e-6 the slope contributes ~5e-5, so a 1e-3 bar
+  // catches any real discontinuity with three orders of magnitude to spare.
+  { says: "Anticipation joins continuously at 1 — a kink is fine, a step is not",
+    change: { armor: [ARMOR.gambeson], guardReady: 1 + 1e-6 },
+    assert: (p) => {
+      const lo = probe({ armor: [ARMOR.gambeson], guardReady: 1 - 1e-6 });
+      return Math.abs(p.mean - lo.mean) < 1e-3 && Math.abs(p.guard - lo.guard) < 1e-3;
+    },
+    shows: (p) => {
+      const lo = probe({ armor: [ARMOR.gambeson], guardReady: 1 - 1e-6 });
+      return `across the seam: mean moves ${Math.abs(p.mean - lo.mean).toExponential(1)}, guard ${Math.abs(p.guard - lo.guard).toExponential(1)}`;
+    } },
+
+  { says: "Readiness cannot be pushed past READY_MAX",
+    change: { armor: [ARMOR.gambeson], guardReady: 99 },
+    assert: (p) => Math.abs(p.guard - probe({ armor: [ARMOR.gambeson], guardReady: 2 }).guard) < 1e-9,
+    shows: (p) => `guardReady 99 gives guard ${p.guard.toFixed(2)}, same as 2.0` },
 
   // KNOWN FAILURE, kept visible on purpose.
   { says: "KNOWN GAP -- an ordinary solid Wound should be able to kill",
@@ -220,6 +262,12 @@ export const INVARIANT = [
         if (s < prev - 1e-6) return false; prev = s; } return true; } },
   { says: "No band ever has negative width",
     check: (p) => [p.miss, p.graze, p.guard, p.wound, p.vital].every((w) => w >= -1e-9) },
+  // §5.7b. `gain` was a global fudge that absorbed whatever the bumps failed to
+  // deliver inside the axis, and while it was free to drift it hid an inversion.
+  // Now that each bump is normalised where it happens, gain is identically 1, and
+  // asserting that is the cheapest possible statement that both ends are pinned.
+  { says: "Both ends of the curve are pinned — the global gain is exactly 1",
+    check: (p) => Math.abs(p.gain - 1) < 1e-6 },
 ];
 
 // --- Running ----------------------------------------------------------------
@@ -267,6 +315,8 @@ export function runSanity() {
     { evadeReady: 0, guardReady: 0 },          // helpless
     { evadeReady: 0, guardReady: 1 },          // braced
     { evadeReady: 0.15, guardReady: 0.18 },    // caught mid two-handed swing
+    { evadeReady: 0.3, guardReady: 1.8 },      // braced, and saw it coming
+    { evadeReady: 2, guardReady: 2 },          // the ceiling, in both
   ];
   for (const t of INVARIANT) {
     const bad = [];

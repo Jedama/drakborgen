@@ -1,7 +1,7 @@
 // What stops the blow: how worn protection combines, and what gets past it.
 
 import { K } from "./constants.js";
-import { combineFraction, classMixed, clamp01 } from "./stats.js";
+import { combineFraction, classMixed, clamp01, readySplit } from "./stats.js";
 
 /**
  * Aggregate a set of protection pieces (armor, shields, natural plating) into
@@ -75,8 +75,12 @@ export function protection(pieces = [], classMix = { blunt: 1 }, landingSide = 0
  * and at one you are actively covering.
  */
 export function effectiveCoverage(coverage, gaps, placementQuality, guardReady = 0) {
+  const { under, over } = readySplit(guardReady);
   const found = coverage * (1 - gaps * placementQuality);
-  return found + (1 - found) * K.BRACE_GAIN * clamp01(guardReady);
+  // Two closings of the same gap. The first is being ABLE to cover; the second is
+  // having known where to cover. §5.13b.
+  const braced = found + (1 - found) * K.BRACE_GAIN * under;
+  return braced + (1 - braced) * K.READY_COVER * over;
 }
 
 /**
@@ -96,7 +100,22 @@ export function penetration(m, concentration, hardness, resist) {
  * why blocking a much heavier attacker's weapon does not save you from the body
  * behind it, and why plate (high Spread) beats mail (low Spread) against a mace
  * at similar Hardness.
+ *
+ * ANTICIPATION ABSORBS SHOCK. §5.13b. This is the one place readiness reaches the
+ * HEIGHT of the curve rather than the width of a band, and it is what makes "the
+ * shock of impact won't be as bad" true rather than merely plausible: a set body
+ * meets the blow with structure, and a caught one has it dumped into them. Shock
+ * is the only honest hook for it -- anticipation does not make steel harder, so it
+ * has no business touching `penetration`.
+ *
+ * Only the part ABOVE 1 counts. The opposite claim -- that a loose body takes
+ * shock WORSE -- is true and deliberately not modelled here: below 1 the defender
+ * is already losing coverage (a busy shield hand is no shield) and Guard band
+ * width, and charging the same slackness a third time in the height would be
+ * double-counting dressed as realism.
  */
-export function shockLeak(m, spread) {
-  return K.SHOCK_K * m * (1 - spread) / (1 + m);
+export function shockLeak(m, spread, guardReady = 1) {
+  const { over } = readySplit(guardReady);
+  const L = K.SHOCK_K * m * (1 - spread) / (1 + m);
+  return Math.max(0, L * (1 - K.READY_SHOCK * over));
 }

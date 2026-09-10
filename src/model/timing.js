@@ -236,24 +236,34 @@ export function occupancy(t, phases, { drive = 0, effort = 1, commitment = 0, re
   const magnitude = Math.min(1,
     (K.OCCUPY_MOTION + K.OCCUPY_BODY * drive) * effort * (1 + K.OCCUPY_COMMIT * commitment));
   if (magnitude <= 0) return 0;
+  return magnitude * phaseShape(t, phases, recoverability);
+}
 
+/**
+ * The envelope, with no magnitude: 0 outside the card, rising through Windup,
+ * flat at 1 through Execution, decaying through Recovery at a rate set by the
+ * held item's Recoverability.
+ *
+ * Split out of `occupancy` because a card that GRANTS readiness (§5.13b) wants
+ * exactly the same shape as one that costs it. Raising a shield and swinging a
+ * sword are the same arc of a body committing to something and then letting it
+ * go; only the sign of what it does to your defence differs. Reusing the envelope
+ * is what stops a block card needing its own timing rules.
+ */
+export function phaseShape(t, phases, recoverability = 0.5) {
   const { ready, execution } = phases;
   const recovery = phases.total - ready - execution;
   const floor = K.OCCUPY_FLOOR;
-  let shape;
 
   if (t < 0 || t >= ready + execution + recovery) return 0;
   if (t < ready) {
     const f = ready > 0 ? t / ready : 1;
-    shape = floor + (1 - floor) * f ** K.OCCUPY_RISE;
-  } else if (t < ready + execution) {
-    shape = 1;
-  } else {
-    const g = recovery > 0 ? (t - ready - execution) / recovery : 1;
-    const p = K.OCCUPY_DECAY * recoverability + 0.5;
-    shape = floor + (1 - floor) * (1 - g) ** p;
+    return floor + (1 - floor) * f ** K.OCCUPY_RISE;
   }
-  return magnitude * shape;
+  if (t < ready + execution) return 1;
+  const g = recovery > 0 ? (t - ready - execution) / recovery : 1;
+  const p = K.OCCUPY_DECAY * recoverability + 0.5;
+  return floor + (1 - floor) * (1 - g) ** p;
 }
 
 /**

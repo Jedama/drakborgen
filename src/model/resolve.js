@@ -95,7 +95,7 @@ export function composeCurve({
   const sFull = 100 * (B * eng.effective) / (B * eng.effective + K.TOUGH_K * toughness);
 
   const pen = penetration(mom.m, concentration, dProt.hardness, dProt.resist);
-  const leak = shockLeak(mom.m, dProt.spread);
+  const leak = shockLeak(mom.m, dProt.spread, guardReady);
   const sGuard = sFull * (pen + (1 - pen) * leak);
 
   const coverageEff = effectiveCoverage(dProt.coverage, dProt.gaps, p, guardReady);

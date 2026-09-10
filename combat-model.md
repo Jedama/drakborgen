@@ -468,6 +468,7 @@ that difference used to require are now one card.
 | **Exertion** | number | What the motion demands. What it *costs* depends on the body — §5.9. |
 | **Demands** | stat | Which stat the exertion leans on: Strength, Agility, or nothing. |
 | **Direction** | −100..100 | Parked with lanes. |
+| **Readiness** | signed pair | Optional `{ evade, guard }` deltas, applied on the card's own phase envelope. The **only** way readiness exceeds 1 — occupancy can take readiness away and can leave it alone, but nothing merely idle is readier than ready. §5.13b. |
 
 There is **no Windup and no Weapon** on a card any longer. Both were hand-authored
 numbers sitting on top of derived ones that already contained the answer — the same
@@ -998,6 +999,60 @@ matchups shift their mean severity by −0.9%, +0.6%, −0.4%, +4.8%, +7.5% and 
 at 2.5 the largest reaches +31%. The ones that move are precisely the ones with a wall
 in them. Previously the fillet cap answered this question by accident.
 
+### 5.7b The global gain was hiding an inversion
+
+The affine map above carried a **global** `gain = y_vital / (raw(100) − raw(x₁))`,
+and that denominator is not the total area of the bumps. Two things leak out of it:
+
+1. **Mass off the end of the axis.** `SOFTNESS` is a floor under sigma, so a narrow
+   band gets a bump *wider than the band*. Near `x = 100` a large share of that bump
+   lies past the axis — for a Vital band 0.8 rolls wide, **27%** of it.
+2. **Dead bands.** `riseEvents` skips a band with no width, dropping its height from
+   the ladder while the next band still starts at that band's end anchor. An
+   unarmoured defender has no Guard band, so this was the *normal* case.
+
+Either way the gain rose to make the total come out right, and **a global gain lifts
+the whole curve.** That is an inversion, and it is the exact shape of the bug that
+motivated the sanity harness in the first place:
+
+> Narrowing the Vital band pushes more of its bump off the axis → gain rises → the
+> **Guard plateau rises**. Covering your vitals makes every ordinary blow *worse*.
+
+Measured, knight `overhead` onto a gambeson, guard readiness 1 → 2:
+
+| | Vital width | gain | plateau at x=40 | mean | P(≥85) |
+|---|---|---|---|---|---|
+| before, readiness 1 | 0.83 | 1.217 | 44.1 | 39.96 | 1.85% |
+| before, readiness 2 | 0.42 | **1.332** | **47.3** | **40.82** | **1.90%** |
+| after, readiness 1 | 0.83 | **1.000** | 37.1 | 33.76 | 1.54% |
+| after, readiness 2 | 0.42 | **1.000** | **36.3** | **31.65** | **1.34%** |
+
+Bracing made you *worse off* on both measures. It was invisible for as long as
+readiness could not exceed 1, because nothing else narrowed Vital sharply enough to
+move the gain.
+
+**Both leaks are fixed where they happen, not globally.**
+
+```js
+// 1. a dead band cannot rise: collapse its end anchor onto its start
+for (let i = j; i < 5; i++) if (widths[i] <= 0) ys[i + 1] = ys[i];
+
+// 2. each bump delivers its whole authored rise INSIDE the axis
+for (const e of events) e.area /= Φ((100 − e.at)/e.sigma) − Φ((x₀ − e.at)/e.sigma);
+```
+
+A narrow top band now delivers its rise as a **steeper jump** rather than a muted one,
+which is the honest reading of a narrow band anyway. And `gain` comes out **exactly
+1** for every curve the game can produce — kept in the code rather than deleted,
+because it is now the cheapest possible assertion that both ends really are pinned.
+There is an invariant on it.
+
+**A shape bug fell out with it.** An unarmoured target's Wound band used to span
+`S_full·1.10` to `S_full·1.12` — a flat sliver, 71 roll-units wide — because it
+inherited the dead Guard band's end anchor. It now starts where Graze actually ended
+and climbs about eleven points across itself, which is what §5.6 says a Wound band is
+for. Fight outcomes barely moved: knight v. skeleton 396–0 at a median of four turns.
+
 `SOFT_GAIN` is the open follow-up, and ships at 0. It lengthens the runway in
 proportion to the *size* of a rise, not just its width — the wider the gap between
 what the armor stops and what the flesh takes, the wider the band of rolls where you
@@ -1437,9 +1492,14 @@ And it is two numbers, because there are two defences and they fail for differen
 reasons (§5.11):
 
 ```
-evadeReady   0-1   able to not-be-there.   Feet, mass, base.
-guardReady   0-1   able to interpose.      An arm.
+evadeReady   0-2   able to not-be-there.   Feet, mass, base.
+guardReady   0-2   able to interpose.      An arm.
 ```
+
+**The range is 0 to `READY_MAX`, with 1 as neutral.** Occupancy can only take readiness
+away, so everything from 0 to 1 is what your own action costs you — that is the rest of
+this section. Above 1 is *anticipation*, and it needs §5.13b, because nothing that is
+merely idle is readier than ready.
 
 **Readiness is state, not capability.** Agility says how *well* you dodge; `evadeReady`
 says whether you are in any position to try. Coverage says what you are *wearing*;
@@ -1510,6 +1570,94 @@ posture card can simply set.
 > The reason it had to be *both* is the same reason readiness is two numbers: a braced
 > man has `evadeReady` 0, and if low evade readiness alone meant helplessness, bracing —
 > the most resisting thing a body can do — would have read as the least.
+
+### 5.13b Anticipation — readiness above 1
+
+Everything above is subtractive: occupancy takes readiness away and idleness leaves it
+alone. But **being unoccupied is not the same as being ready**, and 1.0 was doing both
+jobs. Standing there when a swing comes is not the same as having seen it coming and set
+yourself for it — sharper reflexes, and the shock does not land the same way.
+
+So 1 is neutral rather than maximal, and the band above it is anticipation. **Only a card
+grants it.** That falls out of the definition rather than being a restriction: readiness
+is derived from occupancy, occupancy tops out at exactly 1 in both directions, and there
+is nowhere else for a bonus to come from. Setting yourself for a blow is an action.
+
+**Anticipation pays in four places, and reads only the part above 1:**
+
+| | mechanism | why |
+|---|---|---|
+| Evasion | `E → E + (1−E)·READY_EVADE·over` | closes the gap toward a certain miss, *not* proportional to Agility — knowing it is coming is exactly what lets a slow body move in time |
+| Coverage | `cov → cov + (1−cov)·READY_COVER·over` | a second closing of the same gap: the first is being able to cover, the second is having known where |
+| Vital width | `× (1 − READY_VITALS·over)` | knowing where the blow is going is what puts the cover in the right place rather than merely up |
+| **Shock leak** | `L → L·(1 − READY_SHOCK·over)` | **the height, not a width.** A set body meets the blow with structure; a caught one has it dumped into them |
+
+The evasion form also earns its keep defensively: it keeps `E ≤ 1` for free, and the
+Graze width carries an `E − E²` term that goes **negative** above 1. A negative band
+width is not a tuning problem, it is a broken axis.
+
+**Shock is the only honest hook for the height.** Anticipation does not make steel
+harder, so it has no business touching `penetration` — but `L` is literally the momentum
+that transmits through armour that held, and how set you are is exactly what decides how
+much of that your body absorbs. This is the one place readiness reaches the *y*-axis.
+
+**Only the part above 1 counts, and that is deliberate.** The opposite claim — that a
+loose body takes shock *worse* — is true and is not modelled here: below 1 the defender
+is already losing Guard band width and losing coverage outright (a busy shield hand is no
+shield), and charging the same slackness a third time in the height would be
+double-counting dressed as realism. It also makes the whole feature **strictly
+additive**: the 0-to-1 band behaves exactly as it did before anticipation existed, so a
+curve built without readiness is not silently a curve built with *bad* readiness. There
+is a continuity check on the seam — a kink at 1 is fine, a step is not.
+
+**Placement is the deliberate exception.** `placedAgainst` (§5.5c) saturates its
+resistance at 1, so anticipation buys nothing there. The question that asks is binary in
+spirit — *is this body doing anything about the blow* — and once the answer is yes there
+is nothing further to say. It already pays in four places; a fifth would be the same fact
+charged again.
+
+**Measured**, knight `overhead`, guard readiness 1 → 2:
+
+| defender | Guard width | Vital width | leak | `S_guard` | plateau at x=40 | mean | P(≥85) |
+|---|---|---|---|---|---|---|---|
+| gambeson | 50.5 → **58.7** | 0.83 → **0.42** | .108 → **.065** | 41.2 → **40.3** | 37.1 → **36.3** | 33.8 → **31.7** | 1.54 → **1.34%** |
+| full plate | 76.6 → **78.5** | 1.00 → **0.50** | .054 → **.032** | 13.2 → **12.2** | 11.9 → **11.0** | 13.2 → **11.6** | 1.47 → **1.05%** |
+| plate, vs a *bash* | 78.4 → **80.0** | 0.62 → **0.31** | .064 → **.038** | 8.0 → **7.0** | 7.2 → **6.3** | 8.5 → **7.1** | 0.85 → **0.64%** |
+
+Guard widens, Vital halves, and severity falls at every point of the axis — including
+the plateau, which is the part that is *only* reachable through shock. The gambeson
+gains most width because it has the most headroom; plate is nearly saturated already.
+
+#### Where it comes from: a card
+
+A card may carry signed `readiness` deltas, applied on **its own phase envelope** — the
+same rise/hold/decay `occupancy` uses, split out as `phaseShape()`. Raising a shield and
+swinging a sword are the same arc of a body committing to something and then letting it
+go; only the sign of what it does to your defence differs. Reusing the envelope is what
+stops a block card needing timing rules of its own, and it means an interrupted brace
+loses its guard with no rule written for that either.
+
+`brace` is the first card whose entire payoff is readiness — `{ guard +0.9, evade −0.35 }`
+on a `set` profile (windup 18, **hold 55**, recovery 22, all fixed: Strength does not
+make you brace faster). It has no arcs, so no contact and no curve. Measured on a real
+clock, knight:
+
+```
+t=  0   evade 0.91   guard 1.09     the shield starting up
+t= 20   evade 0.27   guard 1.78     set
+t= 60   evade 0.27   guard 1.78     still set — the hold IS the card
+t= 85   evade 0.58   guard 1.44     coming down
+t=110   evade 1.00   guard 1.00     neutral again
+```
+
+Low evade, high guard, **above** neutral — which is what a stance was always supposed to
+be, arriving as a point in the readiness space rather than a new mechanism. The negative
+delta is the useful half: bracing *plants* you, and one number says so.
+
+> **Nothing chooses to brace yet.** `greedyChooser` ranks by severity per point of
+> exertion and filters to cards with arcs, so it cannot see a card whose payoff is
+> defensive. That is not a gap in this system — it is §07. Deciding to defend is a
+> *reaction*, and until reactions exist the card is playable and never played.
 
 ---
 
@@ -1589,6 +1737,11 @@ The entire tuning surface, in one table. Everything else is derived.
 | `EV_MAX` | 0.55 | Ceiling on the combined Miss+Graze share |
 | `GRAZE_BASE` | 0.15 | Graze from attacker imprecision alone (survives bracing) |
 | `AIM_UNRESISTED` | 1.0 | How far a body that is **not resisting** releases placement toward 1 (§5.5c). At 1 a wholly inert target is placed on perfectly; lowering it re-introduces attacker wobble against a corpse |
+| `READY_MAX` | 2.0 | Ceiling on readiness (§5.13b). 1 is alert and unengaged; a card grant cannot take you past this |
+| `READY_EVADE` | 0.35 | How far anticipation closes the gap to a certain miss |
+| `READY_COVER` | 0.50 | How far it closes the remaining gap in Coverage |
+| `READY_VITALS` | 0.50 | How much further it narrows Vital, on top of `GUARD_VITALS` |
+| `READY_SHOCK` | 0.40 | How much of the shock through armor a **set** body absorbs. The only readiness term that reaches the curve's height |
 | `VITAL_MAX` | 0.16 | Ceiling on the Vital band's width |
 | `VITAL_EXP` | 1.6 | How steeply Precision must climb to open Vital |
 | `GUARD_VITALS` | 0.6 | How much full guard readiness narrows Vital |
@@ -1789,11 +1942,19 @@ new `sim/` without disturbing what's there.
   from a fight going badly instead of needing an authored helpless state. It is a
   tuning-visible change (readiness reaches evasion, coverage, vitals **and** placement),
   so it wants deciding rather than assuming.
-- **A zero-width band still sets the floor with its end anchor.** §5.6b's blockquote: an
-  unarmoured target's raised floor lands at `S_guard·(1 + GUARD_RISE)` rather than
-  `S_full`, because the Guard band's internal rise is credited to a band that cannot
-  happen. The general fix is to build `heightAnchors()` over the *live* bands, which also
-  removes the quiet `gain ≠ 1` stretch that dropping a band's height causes today.
+- **Nothing chooses to defend.** `brace` exists, works on a real clock, and is never
+  played: `greedyChooser` ranks by severity per point of exertion and filters to cards
+  with arcs, so a card whose payoff is defensive is invisible to it. Deciding to defend
+  is a *reaction*, so this is §07 rather than a gap in §5.13b — but it does mean
+  anticipation is currently reachable only by hand, the same way helplessness is.
+- **A zero-width band still sets the *floor* with its end anchor.** §5.6b's blockquote.
+  The rest of that item is fixed — §5.7b collapses dead bands out of the ladder, so the
+  height is no longer lost and `gain` is exactly 1 — but `y0` is still `ys[j]`, so an
+  unarmoured helpless target's floor lands at `S_guard·(1 + GUARD_RISE)` rather than
+  `S_full`. The anchor chain simply has no answer here: with Miss, Graze and Guard all
+  dead, the Wound band has no "only just past the guard" edge to start from. It is a 10%
+  overshoot in a case nothing can currently reach, and fixing it means `heightAnchors()`
+  knowing which bands are live.
 - **`S_full` cannot reach its own ceiling.** `severity-ceiling.md` §5.2, diagnosed and
   deliberately not applied — see §5.5b for why it is deferred rather than rejected.
 - **`meanSeverity()` integrates the curve analytically without the output clamp**, so it
@@ -1936,7 +2097,7 @@ Three kinds:
   whose floor is above zero — and an invariant about the floor that never sees a raised
   floor is not an invariant. Same lesson as the regression below, from the other end.
 
-Current state: **26 pass, 0 fail, 1 known gap** — recorded rather than hidden, because it
+Current state: **31 pass, 0 fail, 1 known gap** — recorded rather than hidden, because it
 is real and not an accident:
 
 | Gap | Shows | Why |
@@ -1948,6 +2109,33 @@ failing check into four passing ones — because the interesting content was nev
 helpless target is not grazed" on its own but the three things it must **not** drag with
 it: bracing is not helplessness, no Agility is not helplessness, and a raised floor is
 still a real blow rather than an off-by-one at the bottom of the axis.
+
+### The harness earned itself again on anticipation
+
+Two of the checks written for §5.13b **failed on first run**, and both were worth having.
+
+**"Setting yourself for a blow softens what gets through" failed on `mean` and on
+`plateau`.** Not because anticipation was wired wrong — because it was wired right and
+walked straight into §5.7b's global gain. Narrowing the Vital band lifted the entire
+curve, so bracing made you *worse off*. That bug had been sitting in `buildCurve` the
+whole time; nothing had ever narrowed Vital sharply enough to expose it, and no check
+had ever asked whether making one band smaller could make the rest of the curve taller.
+
+**"Both ends of the curve are pinned — gain is exactly 1" failed 54 times.** Every
+violation was an unarmoured defender, which is to say the dead-Guard-band half of the
+same fault. Written as an invariant it named the whole class in one line, and it now
+stands as an assertion that no future change reintroduces a global fudge.
+
+A third check failed for a duller reason and is worth recording anyway: the continuity
+test at the seam had a tolerance of 0.02 across an interval of 0.002, so it was
+measuring the **slope** rather than a step. `under` and `over` have different slopes by
+design, so there is a kink at 1 and a kink is fine. Narrowing the interval to ±1e-6 puts
+three orders of magnitude between the slope and the bar. *A check whose tolerance is the
+same size as the effect it ignores is not a check either.*
+
+Writing the checks also turned up a latent one: "Nothing worth aiming at means no Vital
+band" was comparing the Vital **anchor** (a height) against the Wound **width**. It had
+been passing by coincidence.
 
 ### What writing it immediately taught
 

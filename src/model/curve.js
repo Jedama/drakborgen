@@ -5,7 +5,7 @@
 // are computed from stats; the band shapes come from what each band MEANS.
 
 import { K } from "./constants.js";
-import { clamp01 } from "./stats.js";
+import { clamp01, readySplit } from "./stats.js";
 
 export const BANDS = ["Miss", "Graze", "Guard", "Wound", "Vital"];
 
@@ -37,8 +37,12 @@ export function bandWidths({ evasion, placement, coverageEff, guardReady = 0 }) 
   // the width.
   // Guard readiness narrows Vital: covering up is exactly the act of putting
   // something between a blow and the parts of you that end fights. Graded, not a
-  // flag -- a partly-free arm covers partly.
-  const vital = connected * K.VITAL_MAX * p ** K.VITAL_EXP * (1 - K.GUARD_VITALS * clamp01(guardReady));
+  // flag -- a partly-free arm covers partly. Anticipation (§5.13b) narrows it
+  // again, because knowing where the blow is going is what lets the cover be in
+  // the right place rather than merely up.
+  const g = readySplit(guardReady);
+  const vital = connected * K.VITAL_MAX * p ** K.VITAL_EXP
+    * (1 - K.GUARD_VITALS * g.under) * (1 - K.READY_VITALS * g.over);
   const rest = connected - vital;
 
   // What doesn't meet armor meets flesh. Coverage means exactly that.
@@ -208,21 +212,59 @@ const normPdf = (z) => Math.exp(-(z * z) / 2) / Math.sqrt(2 * Math.PI);
  * no resolution to get wrong, and ports as arithmetic.
  */
 export function buildCurve({ widths, anchors, shape, softness = K.SOFTNESS, softGain = K.SOFT_GAIN }) {
-  const xs = boundaries(widths), ys = anchors;
-  const events = riseEvents({ xs, ys, shape, softness, softGain });
-  const sum = (x) => events.reduce((s, e) => s + e.area * normCdf((x - e.at) / e.sigma), 0);
+  const xs = boundaries(widths);
 
   // Start at the Miss boundary -- the Miss band's interior is flat zero by
   // construction -- then step over any band that has no room to happen.
   let j = 1;
   while (j < 5 && widths[j] <= 0) j++;
-  const x0 = xs[j], y0 = Math.max(0, Math.min(100, ys[j]));
+  const x0 = xs[j], y0 = Math.max(0, Math.min(100, anchors[j]));
+
+  // A DEAD BAND CANNOT RISE. §5.7b. `heightAnchors()` chains all five bands with a
+  // monotonicity `max`, which assumes all five happen. When one has no width its
+  // rise is skipped -- so the ladder used to lose that height entirely, and the
+  // global gain silently stretched everything else to make up the total. An
+  // unarmoured defender has no Guard band, which is most fights, so this was the
+  // normal case rather than an edge.
+  //
+  // Collapsing a dead band's end anchor onto its start makes the surviving rises
+  // sum to exactly the height they have to cover. It also fixes a shape bug nobody
+  // had noticed: an unarmoured target's Wound band used to span S_full·1.1 to
+  // S_full·1.12 -- a flat sliver 71 roll-units wide -- and now genuinely climbs
+  // across itself, because it inherits the Graze end it actually follows.
+  const ys = [...anchors];
+  for (let i = j; i < 5; i++) if (widths[i] <= 0) ys[i + 1] = ys[i];
+
+  const events = riseEvents({ xs, ys, shape, softness, softGain });
+  const sum = (x) => events.reduce((s, e) => s + e.area * normCdf((x - e.at) / e.sigma), 0);
+
+  // EACH BUMP DELIVERS ITS WHOLE AUTHORED RISE INSIDE THE AXIS. §5.7b.
+  //
+  // A bump's sigma has a floor (`SOFTNESS`), so a very narrow band gets a bump
+  // wider than the band -- and near x = 100 a large fraction of that bump's mass
+  // falls off the end of the axis. The old code compensated with a GLOBAL gain,
+  // which is where a genuine inversion lived: narrowing the Vital band pushed more
+  // of its mass past 100, which raised the gain, which lifted the ENTIRE CURVE.
+  // Covering your vitals made every ordinary blow worse. Measured, knight overhead
+  // on a gambeson: guard readiness 1 → 2 narrowed Vital 0.83 → 0.42 and raised the
+  // Guard plateau from 44.1 to 47.3.
+  //
+  // Dividing each area by the fraction of that bump lying inside the axis fixes it
+  // where it happens. A narrow top band now delivers its rise as a STEEPER jump
+  // rather than a muted one, which is the honest reading, and `gain` comes out
+  // exactly 1 -- kept, rather than dropped, because it is now a cheap assertion
+  // that both ends really are pinned.
+  for (const e of events) {
+    const inside = normCdf((100 - e.at) / e.sigma) - normCdf((x0 - e.at) / e.sigma);
+    if (inside > 1e-9) e.area /= inside;
+  }
 
   const base = sum(x0);
   const top = sum(100) - base;
-  const gain = top > 1e-9 ? (ys[5] - y0) / top : 0;
+  const gain = top > 1e-9 ? (ys[5] - y0) / top : 0;   // now identically 1 -- an assertion, not a fudge
 
-  return { xs, ys, shape, widths, softness, softGain, events, x0, y0, gain, base, floorBand: BANDS[j] };
+  return { xs, ys, anchorsRaw: anchors, shape, widths, softness, softGain,
+           events, x0, y0, gain, base, floorBand: BANDS[j] };
 }
 
 /** Severity at a given roll. */

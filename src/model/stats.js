@@ -157,10 +157,36 @@ export function placement(precisionEff, aim = 1) {
  *
  * Helplessness therefore requires BOTH to be zero, which is the right bar: not
  * "cannot dodge", not "cannot block", but doing nothing whatsoever.
+ *
+ * Resistance SATURATES at 1 -- anticipation (§5.13b) buys nothing here. The
+ * question this asks is binary in spirit, "is this body doing anything about the
+ * blow", and once the answer is yes there is nothing further to say. Anticipation
+ * already pays in four other places; letting it also degrade the attacker's
+ * placement would be the same fact charged a fifth time.
  */
 export function placedAgainst(p, evadeReady = 1, guardReady = 0) {
   const resistance = Math.max(clamp01(evadeReady), clamp01(guardReady));
   return clamp01(p + (1 - p) * K.AIM_UNRESISTED * (1 - resistance));
+}
+
+/**
+ * Readiness splits at 1. §5.13b.
+ *
+ *   under  0..1  how much of your normal capability you are in a position to use.
+ *                This is what your own action takes away.
+ *   over   0..1  ANTICIPATION. You knew it was coming and set yourself for it.
+ *                Being merely unoccupied never gets you here -- `readinessAt`
+ *                tops out at exactly 1 from occupancy alone, and only a card
+ *                grant lifts it further.
+ *
+ * Every consumer reads `over` through a headroom term, so the entire 0..1 band
+ * behaves exactly as it did before anticipation existed. That is deliberate: it
+ * makes this change strictly additive, and it means a curve built without
+ * readiness is not silently a curve built with bad readiness.
+ */
+export function readySplit(r) {
+  const v = Math.max(0, Math.min(K.READY_MAX, r ?? 1));
+  return { under: Math.min(1, v), over: Math.max(0, v - 1) };
 }
 
 /**
@@ -178,10 +204,21 @@ export function placedAgainst(p, evadeReady = 1, guardReady = 0) {
  * This replaced a `braced` boolean. Bracing is not a different kind of thing --
  * it is simply low evadeReady and high guardReady, a point in a space rather
  * than a flag.
+ *
+ * Above 1 the readiness is ANTICIPATION, and it closes the gap toward a certain
+ * miss rather than scaling Agility further. That is the honest shape: knowing the
+ * blow is coming is exactly what lets a slow body get out of the way, so the
+ * benefit must not be proportional to how nimble you already are.
+ *
+ * It also keeps E <= 1 for free, which the curve needs -- `graze` carries an
+ * `E - E²` term that goes NEGATIVE above 1, and a negative band width is not a
+ * tuning problem, it is a broken axis.
  */
 export function evasionOpportunity(agilityEff, telegraph, evadeReady = 1) {
   const window = telegraph / (telegraph + K.K_T);
-  return (agilityEff / (agilityEff + K.K_A)) * window * clamp01(evadeReady);
+  const { under, over } = readySplit(evadeReady);
+  const base = (agilityEff / (agilityEff + K.K_A)) * window * under;
+  return base + (1 - base) * K.READY_EVADE * over;
 }
 
 /** Weighted sum over a damage-class mix, e.g. { blunt: 0.75, pierce: 0.25 }. */

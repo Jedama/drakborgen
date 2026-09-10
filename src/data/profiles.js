@@ -123,6 +123,11 @@ export const PROFILES = {
     windup: none, travel: none, execution: fixed(70), recovery: none,
     note: "FIXED, because a lung is not a sword -- gathering yourself takes as long as it takes. No exertion, no payoff, and no defence while it happens. The purest card in the game.",
   },
+  set: {
+    name: "Set yourself",
+    windup: fixed(18), travel: none, execution: fixed(55), recovery: fixed(22),
+    note: "FIXED throughout, because getting your weight behind a shield is not a swing -- Strength does not make you brace faster, and a heavy shield does not make you brace slower once it is already up. The real windup is short and the HOLD is the point: this is the only profile whose Execution is what you actually want.",
+  },
 };
 
 export const profileOf = (card) => PROFILES[card.profile];

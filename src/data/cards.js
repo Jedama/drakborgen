@@ -32,6 +32,10 @@
 //   aim            how much of the wielder's Precision applies AT THE MOMENT OF
 //                  CONTACT. A steered thrust ~1.0, a wild swing ~0.5.
 //   classMix       sums to 1. A morningstar is { blunt: 0.75, pierce: 0.25 }.
+//   readiness      optional signed deltas, { evade, guard }, applied on the card's
+//                  own phase envelope. This is the ONLY way readiness exceeds 1:
+//                  occupancy can take readiness away and can leave it alone, but
+//                  nothing that is merely idle is READIER than ready. §5.13b.
 //
 // There is deliberately no `windup`, no `weapon` and no `direction`. All three
 // were hand-authored numbers sitting on top of derived ones that already
@@ -159,6 +163,25 @@ export const CARDS = {
     classMix: {}, moveFactor: 1.0,
     exertion: 0, demands: null,
     effect: "recover",
+  },
+
+  // --- Doing something about the blow instead of throwing one ----------------
+  brace: {
+    // The first card whose whole payoff is `readiness`. No arcs, so no contact and
+    // no curve -- it is not an attack that happens to defend, it buys defence and
+    // nothing else, and what it costs is the time.
+    //
+    // It reads as bracing without the word appearing anywhere: guard climbs past 1
+    // because the grant is +0.9 on top of an almost-unoccupied body, and evade
+    // collapses because -0.35 lands on top of the occupancy every card pays. Low
+    // evade, high guard -- a POINT IN THE READINESS SPACE, which is what a stance
+    // was always supposed to be.
+    name: "Brace", profile: "set", effort: 1.0,
+    arcs: [],
+    readiness: { guard: 0.9, evade: -0.35 },
+    drive: 0, concentration: 0, aim: 0,
+    classMix: {}, moveFactor: 1.0,
+    exertion: 3, demands: null,
   },
 };
 
