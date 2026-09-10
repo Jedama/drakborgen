@@ -1489,6 +1489,8 @@ src/sim/        the fight loop. Ports to C# eventually, but it is the INSTRUMENT
                 rather than the game: there is no draw and no reactions, so cards
                 come from a script or a crude appetite and every blow lands.
   fight.js        turns, between-turn conditions, end conditions, batches
+  sanity.js       §11. Design statements as executable checks — monotonicity,
+                  degenerate cases, and invariants over every matchup
 
 src/data/       content, no logic. ScriptableObjects later.
   gear.js  cards.js  fighters.js
@@ -1572,6 +1574,13 @@ new `sim/` without disturbing what's there.
   the structural ones, and Tripped/Staggered probably fold in.
 - **Pain and Dread poison the draw**, which needs a draw. Nothing above lock-in in §03
   exists — no deck, no hand, no stances. That is the other half of the turn.
+- **A helpless target can still be grazed.** `GRAZE_BASE·(1−p)` has no floor below
+  `p = 1`, so an unconscious, unarmoured target still turns aside 9% of blows from an
+  ordinary attacker. The coup de grâce is not expressible. Wants a **`helpless`** flag
+  driving `p → 1` — the exact mirror of `braced`, which gives up evasion for coverage;
+  helpless gives the attacker unlimited time to place the blow. `p` is already defined as
+  "how much of Precision applies at the moment of contact", and a motionless target is
+  precisely the case where all of it does. Tracked as a known gap in §11.
 - **`S_full` cannot reach its own ceiling.** `severity-ceiling.md` §5.2, diagnosed and
   deliberately not applied — see §5.5b for why it is deferred rather than rejected.
 - **`meanSeverity()` integrates the curve analytically without the output clamp**, so it
@@ -1689,3 +1698,61 @@ wins about a third of the time. Winnable, unpleasant, and a clear argument for l
 The correct play for that duelist is to leave. There is no flee card, nothing chooses to
 disengage, and so every unwinnable or unfavourable matchup reads as a loss rather than a
 decision — which is the exact opposite of what §12 wants.
+
+---
+
+## 11. The sanity harness
+
+`src/sim/sanity.js`. Every check encodes a **design statement**, not an implementation
+detail — so when one fails, either the model is wrong or the statement is, and the
+statement is written out in full so you can tell which.
+
+Three kinds:
+
+- **MONOTONE** — turn one stat up, assert the measured quantity moves the right way.
+- **DEGENERATE** — take a stat to zero and assert the band it governs vanishes. This is
+  the "unarmoured unconscious target" family, and it is where the model's edges live.
+- **INVARIANT** — must hold for *every* curve the game can currently produce: widths
+  partition the axis, `y(0) = 0`, severity stays in 0–100 and never decreases, no band
+  has negative width. Run across every fighter × card × armour combination.
+
+Current state: **18 pass, 0 fail, 2 known gaps** — and both gaps are recorded rather than
+hidden, because both are real and neither is an accident:
+
+| Gap | Shows | Why |
+|---|---|---|
+| A helpless target should not be grazed | graze 9.00 | `GRAZE_BASE·(1−p)` has no floor below `p = 1`. Wants a `helpless` flag driving `p → 1` — the mirror of `braced`. |
+| An ordinary solid Wound should be able to kill | `S_full` 92.0 | Saturating, asymptotic to 100. `severity-ceiling.md` §5.2, deliberately not applied. |
+
+### What writing it immediately taught
+
+The harness exists because of the clamped-Vital bug: with the anchor capped, a flicked
+`quickCut` killed *more often* than a committed `fullSwing`. That is a pure monotonicity
+violation — turn the commitment up, lethality goes down — and it survived a dozen tuning
+passes because nothing ever asked "does turning this up turn that up".
+
+So the regression check was written first. **Then it was tested by reinstating the bug —
+and it passed.**
+
+The baseline was an ordinary adult with an arming sword, and against that target only
+*one* of the two anchors reached 100:
+
+```
+PLAIN baseline      quickCut anchor  91.5    fullSwing anchor 100.0    (no inversion)
+knight → duelist    quickCut anchor 100.0    fullSwing anchor 100.0    (inverted)
+```
+
+A clamp at 100 can only flatten the difference between two values once **both** exceed
+it. Pinned to a strong attacker against a soft target, the check now fails loudly and
+names the cause:
+
+```
+lethal falls, expected rises (1.900 → 1.825)
+vitalAnchor does not move, expected rises (100.000 → 100.000)
+```
+
+**A check that runs outside the regime of the failure is not a check.** That is the more
+valuable lesson than the bug itself, and it applies to every entry in the file: the
+baseline is deliberately boring so that changes read cleanly, which is exactly what makes
+it blind to anything that only goes wrong at the extremes. Degenerate cases and a
+deliberately harsh regression pair are how that blindness is covered.
