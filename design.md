@@ -709,5 +709,5 @@ intimidation and reach). Small and light gets something back.
 - Stat list is a first pass; how to reward skewed builds.
 - Card totals snapping to halves vs quarters.
 - How the player sees the 40-slot timeline, shifts, and the opponent's hints.
-- How fear alters cards (not by shifting the random/intent draw ratio).
+- Fear: how much contamination per fear level; whether it lands in instinct or intent draws.
 - Engagement / binds / grappling.
