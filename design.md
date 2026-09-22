@@ -87,6 +87,17 @@ the stats to answer it.
 Your deck is whatever weapon you're holding plus your general cards. Switching weapons
 swaps a big chunk of options, so weapon choice before a fight is a real decision.
 
+**Archetype and signature cards.** Most cards are archetypes (horizontal swing, thrust,
+block, footwork) written once in code. They only care what *kind* of thing is in your
+hand (long, bladed, pointed, two-handed); the weapon's stats make them behave
+differently. A card is **dressed per weapon** ("Staff sweep" vs "Mallet sweep", weapon on
+the art) so the player sees what will happen. **Signature cards** are what only one
+weapon can do: hilt strike, axe hook, quarterstaff "switch ends". A weapon's deck is its
+eligible archetypes plus its signatures.
+
+Card faces show **computed** values: this card, with your weapon, in your posture, costs
+2.25. Pick up the mallet and it says 3.
+
 Parked: card rarities (e.g. a legendary "Decapitate").
 
 ---
@@ -114,6 +125,17 @@ Parked: card rarities (e.g. a legendary "Decapitate").
 - **Commitment** makes a card a bit quicker and hit harder, but you lose flexibility and
   reaction opportunities (it probably locks in earlier).
 - **Getting hit shoves the timeline.** Stagger delays the rest of your sequence.
+- **Base pattern, computed length.** A card holds a base phase pattern. Smooth
+  computation underneath bends it, and phases snap to quarters (maybe card totals to
+  halves, but two rounding steps can disagree; leaning towards phases driving it).
+  With this many inputs, breakpoints get smeared and nobody chases one stat value.
+- **Modifiers are asymmetric** — different causes stretch different phases:
+  - heavy weapon for you: longer windup (getting it moving) *and* recovery (stopping it)
+  - high celerity: shorter windup
+  - good flow from the previous card: shorter windup
+  - commitment: shorter windup, longer recovery on a miss
+  - pain in that arm: everything a bit slower
+  - the strike itself rarely stretches
 
 ### Posture
 
@@ -215,6 +237,21 @@ if bulky/armored enough it powers through an early cut, delayed slightly.
     long (a timeline shift).
 - Going around a block is **automatic** (computed from stats of attack and block), but a
   very flexible character may also get an offensive reaction opportunity for it.
+- **Blocks track.** A shield covers some cells but can shift toward the incoming attack.
+  "Does it block" is a race: how far the shield must move vs how soon the attack
+  arrives. From the shield side, nothing moves. From the far side, it must cross the
+  body. Light, big shield: easy. Heavy tower shield: covers a lot, moves slowly. Buckler
+  on the wrong arm: hard.
+- **Tracking makes blocks baitable.** A feint drags the shield; the real strike comes
+  low or from the far side and the shield loses the race back. What gets through a
+  "raise shield": going under it (legs), feinting it, hitting hard enough not to care,
+  outlasting its window, or making it move a lot.
+- **Blocks transfer force** into the shield arm, taken by strength, mass, brace and the
+  shield's weight/balance point. A braced knight shrugs it off; a muscle-less skeleton
+  with a flimsy shield gets rattled (timeline shoved, arm knocked wide, shield cracks).
+- **Interrupted paths change posture.** A swing stopped mid-path leaves the hand where it
+  actually stopped, not where the card planned. The next card's flow is measured from
+  there. A block quietly rewrites the attacker's next move.
 
 ### Dodges
 
@@ -282,6 +319,14 @@ reactions:**
 
 Feints also trip an opponent's **await** trigger early.
 
+Against a defender who is *already* defending (no reaction prompt), a feint baits the
+**tracking** instead. Whether the tracking bites is decided by the defender's
+**analysis** (reading the lack of weight behind it). A skeleton bites; a sharp knight
+might not.
+
+Falling for a feint gives **wrong-way brace**: readiness went with the shield, so the real
+hit lands on a body set against the wrong place.
+
 ### Waiting
 
 A card can be "hold until the opponent does something" instead of a fixed duration.
@@ -333,6 +378,58 @@ Players learn tendencies mostly **over runs**.
 - Attacks target **regions** (high/low, side), never named body parts. No "armpit."
 - The contact system still needs a coarse notion of height and side. The grid says
   *where exactly*; contact says *roughly where, and did it get through*.
+- Cards are written in the **attacker's frame** and mirrored onto the defender. The
+  attacker's left is the defender's right.
+- The attacker's 3×3 swing grid is translated onto the defender's 5×5 grid using height.
+
+### What's in a cell
+
+Each cell holds a **list of contents**, each reacting to damage in its own way:
+
+- **skin:** bleeds, hurts
+- **muscle:** hurts, weakens what it moves
+- **bone:** breaks
+- **organs:** eyes, brain, lungs, with special effects (blind, daze, winded)
+
+Contents are not strictly ordered (the head is a cluster, not a stack). Each has roughly:
+
+- **size:** share of the cell (brain ~0.4 of the head, cranium ~0.8)
+- **protected by:** what shields it (brain by cranium, cranium by skin); exposed if none
+- **hardness**, and how it reacts to each damage type
+
+Immunities come free: a skeleton has no skin, so it can't bleed; no nerves, so no pain.
+Nobody writes "skeletons are immune to bleed". **Blunt is good against bone**: it cracks,
+blades skid off, thrusts pass between ribs and hit nothing. Bring the staff to the crypt.
+
+**Deterministic overlap:** no roll for "did it hit the eyes". A blow distributes its force
+by **fraction**: weapon coverage, card path and precision decide what share each content
+receives, and size decides how much there is to cover. A broad club across the face gives
+the eyes a good share; a precise thrust aimed at an eye puts nearly all its force there.
+
+### Penetration and shock
+
+Damage types are mixes of two channels, plus how wide the blow is:
+
+- **penetration:** breaks the protector to reach what's inside (cuts, thrusts)
+- **shock:** passes through the protector without breaking it (mostly blunt)
+
+A staff to the jaw doesn't crack the skull, but shock reaches the soft brain: dazed.
+A sword there cuts skin, maybe chips bone, sends little shock inwards. A skeleton has no
+brain, so it can be broken but never dazed. A blunt hit to an armoured chest still
+knocks the wind out (lungs).
+
+Shock also goes to **the whole body** as disruption (resisted by mass, balance, brace),
+and **location decides which posture field it hits**:
+
+- legs → feet: footing lost, maybe a trip
+- torso → weight: knocked back, balance shifted
+- arms → hands: weapon knocked wide, grip loosened
+- head → some stagger, plus the daze inside
+
+Same force, different place, different outcome. Consequences write back into posture,
+and posture decides what the next card costs.
+
+Pain and disruption are separate: skeletons ignore the *hurt* but still get *shoved*.
 
 ---
 
@@ -345,9 +442,10 @@ Players learn tendencies mostly **over runs**.
 - **Bleeding, broken things, (fatigue?)** carry over. Bleeding is a clock toward the exit.
 - **Adrenaline** rises when hurt and temporarily counteracts bad effects, but falls off
   over turns. Short fights you ride through; long fights the bill arrives.
-- **Brace:** a temporary stat for how ready you are to take a shock (raising a shield
-  braces the shield arm). A braced knight hit on armor might take only −1 footwork and a
-  small stagger.
+- **Brace:** a temporary boost on top of pain tolerance, raised by cards: how ready you
+  are to take a shock, *and where*. Raising a shield braces high; a feint can move it,
+  leaving you braced for the wrong place (effectively negative). A braced knight hit on
+  armor might take only −1 footwork and a small stagger.
 - Leaning: *kind* of injury from weapon + location, *severity* from commitment + how the
   defence went. Not settled.
 
@@ -373,26 +471,110 @@ opportunities (to avoid branching).
 Lessons: think in events; windup is trackable; stagger shoves timelines; rapier vs full
 plate is rough (fine, run away or pick a better weapon).
 
+## Worked meetings: quarterstaff vs skeleton
+
+Human (1.80 m, average mass, strength 55) with a quarterstaff vs a light skeleton
+(1.70 m) with a light wooden shield (left arm) and sword.
+
+**1. Staff sweep vs Raise shield.** The sweep runs attacker-left to right, so it enters
+on the skeleton's sword side. But the big light shield tracks across in time: the staff
+hits wood. A staff is light, so little rattling on either side. The real consequence:
+the staff stopped mid-path, so it's on the "wrong" side for the next card.
+
+**2. Feinted overhead → Low sweep vs Raise shield.** The shield tracks the feint upward
+(low analysis, it bites). The staff is two-ended: the top end went up, the bottom end
+is already low, so the flow into the low sweep is cheap. The shield would have to drop
+the full body height and can't cover legs and head at once. The sweep connects low on a
+skeleton braced the wrong way: a trip. No pain, but feet go to *down*, and getting up
+eats its next turn.
+
 ---
 
-## Stats: design rule
+## Stats
 
 No classes. "Berserker", "ninja" etc. are shorthand for stat combinations. **Every stat
 must be visible at both ends**: high gives a strength, low gives a weakness you feel in
 play. Otherwise it is a dump slot. Builds should be skewed, not hedged in the middle
-(probably via payoffs that grow faster than linearly; parked until the stat list exists).
+(probably via payoffs that grow faster than linearly; parked).
+
+### Character
+
+**Body facts** (not trained): **height**, **mass**. They cut both ways and nudge other
+stats slightly (mass → a little strength and intimidation; height → a little
+intimidation and reach). Small and light gets something back.
+
+**Physical:**
+- **strength:** how hard you push (force, disruption); bail-ease comes from your strength
+  vs your weapon's weight
+- **precision:** finding gaps and weak points
+- **balance:** staying upright
+- **footwork:** moving well
+- **pace:** speed in a charge, and moving through the dungeon
+- **celerity:** hand speed
+- **endurance:** staves off fatigue (fatigue wanted eventually, not in the POC)
+- **pain tolerance:** base for taking hurt; brace is a temporary boost on top
+- **reaction speed:** does a reaction window open at all
+
+**Mental:**
+- **composure:** handles fear, and how long you can hold a wait
+- **imagination:** how many cards you draw at the start of combat (options)
+- **improvisation:** how many cards you draw at a reaction window (changing plans)
+- **intimidation:** high means monsters with self-preservation flee or disengage
+  (charge + battlecry scares them off); low means they see an easy target and you must
+  fight. Mindless things (skeletons) ignore it. Monsters need a self-preservation value.
+- **analysis:** reading one opponent deeply (posture hints, committed or feint)
+- **awareness:** noticing wide (flanks, a second enemy, traps; mostly out of combat,
+  sometimes grants reaction opportunities)
+
+### Weapon
+
+- **weight:** relative to your strength drives speed, bail-ease, redirecting, and force
+- **balance point:** head-heavy (mallet) builds momentum and is hard to stop; centred is
+  easy to control. Feeds commitment/bail-ease, and torque when blocking (blocking a mallet
+  near a sword's tip is hopeless)
+- **reach**
+- **damage type:** default; cards can override (a sword's hilt strike is blunt)
+- **hands:** one, two, either
+- **penetration:** punching *through* armour (war pick yes, rapier no). Finding gaps is
+  precision, not this.
+- **coverage:** how much area it covers when defending. Broad shield vs thin blade.
+  Taking force reuses weight, balance point and strength. Shields and swords are defined
+  the same way.
+- **durability:** later, but wanted (skeletons' wooden shields should splinter)
+- possible: two-ended (quarterstaff), making high and low close in posture
+
+### Card
+
+- **path:** a swing path across a 3×3 grid in the attacker's frame, or a single cell for
+  a thrust. The start cell is where the hand must be (posture), the end cell is where it
+  ends up. Path length gives momentum and recovery: a long horizontal decapitation slash
+  builds force and leaves you twisted on a miss; a top-right-to-centre cut is weaker but
+  recovers fast. A swing crosses several cells unless blocked or lodged, spending
+  momentum on each cell it connects with (lodged → engagement).
+- **phases:** base pattern of windup / strike / recovery with lock-in per slot
+- **drive:** how much of your strength goes in (wrist flick vs full body). Commitment
+  raises it.
+- **footwork:** whether the feet move; moving adds your mass (and pace) to the force
+  (running axe chop, body slam)
+- **hands:** roles, never named hands: weapon hand, other hand, both on one weapon,
+  the arm (a strapped buckler with a free hand). Loadout fills the roles; dual-wielding
+  mirrors cards; dominant hand decides which side is better.
+- **damage type:** override when different from the weapon
+- **requirements:** what kind of weapon it needs (long, bladed, pointed...)
+- **start/end posture:** mostly implied by the path, plus feet and weight
 
 ---
 
 ## Open questions
 
-- Exact data shape of a card: phases, lock-in per slot, start/end posture, what it
-  covers or vacates, disruption and resistance.
 - How posture distance turns into a time cost.
-- What exactly determines armor vs gap, and injury severity.
+- How a swing path's momentum is spent per cell, and when it lodges.
+- How contents' size, protection and hardness turn force into pain, bleeding, broken,
+  daze; what thresholds separate them.
+- How the 3×3 swing grid maps onto the 5×5 target grid with height.
 - How the knight-style "defending already" case skips a reaction cleanly.
-- Final stat list (improvisation, flexibility, quick-footedness, composure, analysis,
-  precision, height, brace, ...), and how to reward skewed builds.
+- Stat list is a first pass; how to reward skewed builds.
+- Card totals snapping to halves vs quarters.
 - How the player sees the 40-slot timeline, shifts, and the opponent's hints.
 - How fear alters cards (not by shifting the random/intent draw ratio).
 - Engagement / binds / grappling.
