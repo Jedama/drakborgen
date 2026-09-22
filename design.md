@@ -98,19 +98,48 @@ Parked: card rarities (e.g. a legendary "Decapitate").
 - Cards cost time. Mallet swing ~3, sword hit ~2, parry ~2.
 - **Flow:** a card can get cheaper when it follows a card that sets it up
   (parry → sword hit, sidestep → rapier thrust). Same hand twice in a row is slower than
-  alternating. Idea: cards carry "ends in" / "starts from" state tags so combos come
-  from tags, not authored pairs.
+  alternating. Flow comes from **posture** (below), not from authored pairs.
 - **Quick characters** should fit roughly 3 actions where a slow one fits 2 or 1.5.
 - **Phases within a card**, roughly:
-  - *windup*: still adjustable, can track a dodge, can be bailed out of
+  - *windup*: still adjustable, can track a dodge or go around a block, can be bailed
+    out of
   - *strike*: locked in, point of no return, where contact happens
   - *recovery*: open, slow to respond
 
   A sidestep during the opponent's windup gets tracked. A sidestep after their strike
-  locks in makes them cut air.
+  locks in makes them cut air. A card's phases can be as small as a quarter, so a
+  1-unit card can still have all of them.
+- **Lock-in ramps up through the windup.** First windup slot: barely committed. Second:
+  mostly committed. One value per phase slot, so there's a gradient without curves.
 - **Commitment** makes a card a bit quicker and hit harder, but you lose flexibility and
   reaction opportunities (it probably locks in earlier).
 - **Getting hit shoves the timeline.** Stagger delays the rest of your sequence.
+
+### Posture
+
+Where your body is right now. Structured fields, not loose tags:
+
+- **feet:** planted, stepping, crouched, airborne, down
+- **weight:** forward, back, left, right, centred
+- **main hand:** high, low, left, right, extended, chambered
+- **off hand:** same, or "shield up"
+
+Each card **starts from** a posture and **ends in** one. Flow is the *distance* between
+where you are and where the next card starts: close means cheap, far means extra time.
+A right-to-left swing into a left-to-right swing is cheap because the hand is already
+there. Same hand twice is a special case.
+
+Posture is also what an opponent's read shows ("leaning left, blade high").
+
+Possible extra fields, not essential yet: **facing** (squared, side-on, turned away),
+**grip** (one/two-handed, choked up, reversed). **Balance** would be derived from feet +
+weight rather than stored.
+
+### Engagement (parked)
+
+Binds, clinches, a weapon stuck in a shield, riding the troll's back. This is state
+belonging to *the pair*, not to one body, so it doesn't live in posture. It changes
+which cards make sense at all (a longsword is useless in a clinch). Later.
 
 ### Resolution thinks in events, not ticks
 
@@ -127,6 +156,82 @@ questions asked were:
 Goal: cards described in one small shared language, plus one resolver that asks these
 questions. No card-vs-card rules.
 
+### The timeline really shifts
+
+Outcomes move things on the timeline, and the timeline then decides the next outcome.
+Resolution is a short event list: find the next meeting, resolve it, apply the shifts,
+look again. Not a tick-by-tick sim.
+
+A cut that lands during a shove's windup delays the shove by a quarter. The delayed
+shove now lands during the swordsman's next card, a dodge, instead of their recovery.
+No rule mentions "cut then dodge"; it falls out.
+
+Concerns considered and accepted:
+- **Cascades:** fine. Players don't plan at quarter-slot precision; the late part of a
+  sequence is loose anyway.
+- **Deterministic but chaotic:** fine, even good, *if conveyed well*. Adaptive cards late
+  in a sequence become insurance against drift. Reaction opportunities change a fight
+  more than delays do.
+- **Showing it:** the hard part, but should be doable.
+
+**End of turn:** cards pushed entirely past t=10 vanish. A card straddling t=10 cancels
+or completes depending on its lock-in. A new turn can't start mid-attack, since intent
+and draws happen again. If one side's card runs over while the other's plan has ended,
+the other side is unscripted and ready to react to it.
+
+**Empty time is not idle.** Unscripted time is the most reaction-ready state; it's
+basically an unwritten await. Leaving slack in a sequence is a real choice.
+
+### Strike meets strike
+
+A simultaneous hit isn't a special case to break. It's the normal "hit mid-card" rule
+happening to both people at once. Both land, and each modifies the other through:
+
+- how much a hit **disrupts** (a shove: lots of mass, a lot; a shortsword cut: a little)
+- how much a strike **resists disruption** (an all-in shove: a lot; an arm swing: a
+  little)
+
+Shove vs cut: the shove barely notices, the cut is spoiled. Two troll clubs: both land
+nearly in full. Two jabs: both land fine.
+
+"Hard to disrupt" and "hard to bail from" share many inputs (commitment, mass, momentum)
+but aren't forced to be the same number.
+
+A heavy, committed attacker in its second windup slot gets no reaction opportunity, but
+if bulky/armored enough it powers through an early cut, delayed slightly.
+
+### Blocks
+
+- Shape: windup (raise), then a **held window**. No recovery: the next card starts from
+  "shield up", or lowers it as part of its own windup.
+- An attack striking inside the window is blocked. During the raise, it catches the shield
+  half up. After, it gets through.
+- **Duration is fixed per card.** More room for unique cards, a narrower decision for the
+  player, easier balance. Examples:
+  - *Raise shield*: no windup, but imprecise. A precise or adaptable attacker can go
+    around it during their windup.
+  - *Awaiting block*: waits for the attack.
+  - *Slamming block*: short window, but if it lands, the attacker's recovery becomes very
+    long (a timeline shift).
+- Going around a block is **automatic** (computed from stats of attack and block), but a
+  very flexible character may also get an offensive reaction opportunity for it.
+
+### Dodges
+
+- Kinds: sidesteps (left, back, right), in place (duck, jump, bend), rolls (if nimble),
+  reactive await-dodges (slower on their own, more adaptable).
+- Same shape as a block: windup, then an **evasive window**. A block *covers* a region;
+  a dodge *vacates* one. Duck escapes high, jump escapes low, a sidestep escapes one line
+  but a wide sweep from the wrong side can chase it.
+- Windup tracking applies: dodge too early and the attack follows.
+- A dodge **changes your posture**, which sets up what flows next (sidestep, then a thrust;
+  duck, then a leg sweep).
+
+**Distance is barely modelled.** Hit-and-run isn't fun to play against, so a backstep
+still leaves you in melee range. A backstep is like a sidestep but worse against charges,
+and its "weight back" posture can add momentum to certain charging follow-ups.
+Disengage is its own card. Ranged weapons exist, mostly for heroes.
+
 ---
 
 ## Reaction opportunities
@@ -139,7 +244,21 @@ You get a small special hand drawn for that kind of moment.
 - **Stall** ("opponent isn't doing anything"): stand your ground, disengage, flee,
   approach, proceed with next card. How many you draw depends on stats
   (imagination / flexibility).
+- **Offensive** ("your attack is about to go wrong"): about to hit a shield, about to
+  cut air. Draws things like redirect, pull into a feint, push through, abort.
 - More kinds later (they fled, you lost your footing...).
+
+**Prompt frequency is a build identity.** High reaction speed, improvisation and
+imagination might get 5–6 prompts a turn; that character plays the fight *live*. Set
+those low and you get almost none; that character plays the fight *on paper*. What
+denies prompts (being locked in) also makes a plan hard to disrupt, so it happens as
+written, through the pain. Ending a fight in 3 time units instead of 3 turns is also
+*safe*: fewer moments for things to go wrong, adrenaline never runs out.
+
+Emergent matchups: a low-reaction character is immune to feints, so the black elf is
+easy for them, while the troll (locked in vs locked in, no way out) is their nightmare.
+The improviser has it the other way round. Weak spot of low reactions: the salvage
+phase, with no fallback once hurt.
 
 Whether you get one: the **card's bail-ease** × the **character's adaptability stats**.
 A troll with a heavy club fails both. An elf with a knife passes both.
@@ -256,14 +375,24 @@ plate is rough (fine, run away or pick a better weapon).
 
 ---
 
+## Stats: design rule
+
+No classes. "Berserker", "ninja" etc. are shorthand for stat combinations. **Every stat
+must be visible at both ends**: high gives a strength, low gives a weakness you feel in
+play. Otherwise it is a dump slot. Builds should be skewed, not hedged in the middle
+(probably via payoffs that grow faster than linearly; parked until the stat list exists).
+
+---
+
 ## Open questions
 
-- Exact representation of phases inside a card, and how commitment / flow / stagger
-  shift them.
-- Two strikes landing on the same slot: who wins?
+- Exact data shape of a card: phases, lock-in per slot, start/end posture, what it
+  covers or vacates, disruption and resistance.
+- How posture distance turns into a time cost.
 - What exactly determines armor vs gap, and injury severity.
 - How the knight-style "defending already" case skips a reaction cleanly.
 - Final stat list (improvisation, flexibility, quick-footedness, composure, analysis,
-  precision, height, brace, ...).
-- How the player sees the 40-slot timeline and the opponent's hints.
+  precision, height, brace, ...), and how to reward skewed builds.
+- How the player sees the 40-slot timeline, shifts, and the opponent's hints.
 - How fear alters cards (not by shifting the random/intent draw ratio).
+- Engagement / binds / grappling.
