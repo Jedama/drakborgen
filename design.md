@@ -146,12 +146,49 @@ Where your body is right now. Structured fields, not loose tags:
 - **main hand:** high, low, left, right, extended, chambered
 - **off hand:** same, or "shield up"
 
-Each card **starts from** a posture and **ends in** one. Flow is the *distance* between
-where you are and where the next card starts: close means cheap, far means extra time.
-A right-to-left swing into a left-to-right swing is cheap because the hand is already
-there. Same hand twice is a special case.
+Each card **starts from** a posture and **ends in** one. Posture is less a map you
+travel across than **"what is this position good for next"**. Per field:
+
+- **hands:** real distance on the 3×3 grid. A staff on the wrong side costs time to bring
+  around. A right-to-left swing into a left-to-right swing is cheap because the hand is
+  already there. Same hand twice is a special case.
+- **feet:** mostly "good start for". Crouched loads a jump, planted suits heavy swings.
+- **weight:** minor. Forward gives run-up to charges; it slightly slows very short, close
+  cards. Otherwise barely matters.
+
+Only a few bonuses and penalties; no big computation per field. When several fields
+must change, they change **in parallel** (the slowest one counts, not the sum).
+
+Cards leave fields they don't care about **blank, and blank is free**. A shield raise
+doesn't care about feet.
+
+**Everything is always playable.** Bad posture makes a card slower and/or weaker, never
+unplayable. You can raise a shield from the ground; it just covers less or takes force
+worse.
 
 Posture is also what an opponent's read shows ("leaning left, blade high").
+
+### Overlap: windups on free body parts
+
+Each card declares which **body parts** it occupies (maybe per phase): an approach uses
+the feet; a staff swing uses both hands, plus hips in a high-drive strike; a shield raise
+uses only the off arm.
+
+**If the next card's windup only needs body parts the current card isn't using, it can
+start early.** Approach into a swing: the swing is readied while walking. Prepping the
+staff while shifting weight: same thing. No separate "ready state".
+
+**Only windups overlap, never strikes.** You can't kick and slash at once; both need too
+much balance and focus. Motions that genuinely happen together (lunge, parry-riposte,
+grab-and-stab, dual-wield double strike) are **single cards** listing more body parts,
+often signature cards.
+
+### Passive coverage
+
+A held shield, a staff across the body, a sword in high guard: **posture, not a card**.
+When a block card ends, the off hand's posture stays *shield up*, giving **passive
+coverage**: less than an active block, no tracking, no brace. That's how you stab from
+behind a shield without playing two cards at once.
 
 Possible extra fields, not essential yet: **facing** (squared, side-on, turned away),
 **grip** (one/two-handed, choked up, reversed). **Balance** would be derived from feet +
@@ -449,6 +486,101 @@ Pain and disruption are separate: skeletons ignore the *hurt* but still get *sho
 - Leaning: *kind* of injury from weapon + location, *severity* from commitment + how the
   defence went. Not settled.
 
+### Severity: graded underneath, labelled on top
+
+Each content has a smooth **severity** number and a ladder of labels over it:
+
+- **bone:** bruised, cracked, broken, shattered
+- **skin:** scratched, cut, gashed (bleeding follows from cuts)
+- **brain:** rattled, dazed, concussed
+
+The player sees "broken shin, −34 pace"; internally that was a 56. A 57 gives −35. Same
+pattern as timing: smooth underneath, clear labels on top.
+
+**Severity adds up.** Bruised + bruised can become cracked. And damage **weakens** the
+content (effective hardness drops), so a cracked bone breaks more easily. Two moderate
+hits on one shin are worse than one on each. Targeting a wound is a real tactic.
+
+### What a hit leaves behind
+
+An injury has separate parts:
+
+- **structural** (the shin can't bear weight well): stays for the rest of the dungeon
+- **pain** (it hurts): fades over time; adrenaline masks it mid-fight
+- **bleeding**, if skin was cut: gets *worse over time* until stopped; a clock (turns in a
+  fight, rooms in the dungeon)
+
+So "−34 pace" might be −20 from the break and −14 from the pain, with adrenaline
+counteracting some of the pain part.
+
+**Blood loss** by stage: a little (anxiety, fast heartbeat → fear); moderate (weakness,
+cold, tiring fast → endurance, strength); a lot (dizziness, confusion, clumsiness → balance,
+reaction speed, analysis), then passing out.
+
+Other results a hit can produce:
+- **winded** (chest or stomach, even through armor): short-lived, hits endurance and
+  celerity hard for a turn or two
+- **dazed** (head): reaction speed, analysis, balance; fades fairly fast; breaks mind
+  states like berserk
+- **numbed or lamed limb**: loosened grip, maybe a dropped weapon at high severity
+- **blinded** (one eye or both): precision, awareness, maybe analysis; possibly lasting
+
+Stopping bleeding is **rare mid-fight**. No bandaging while something charges at you.
+*Apply pressure* is a body state: the off hand holds the wound, bleeding slows, and you
+fight one-handed.
+
+### Fuzzy injuries and "Assess damage"
+
+Mid-fight you know **what** is wrong but not exactly **how much**: "Broken shin −? pace,
+−? balance", with colour or size hinting the level.
+
+**Card faces always tell the truth.** With a broken shin, *Run away* says 4 and takes 4.
+
+*Assess damage* (costs ~1–1.5):
+- reveals the exact numbers
+- lets you **adapt**: you learn to lean on the other leg, so *Run away* drops to maybe 3.
+  Assess + run is roughly as fast as just running.
+- **lowers fear**, and fear lowers reaction speed and improvisation, so it pays off if the
+  thing chases you
+
+Everything is deterministic: the injury follows from the stats of the exchange, and the
+adapted values follow from the injury.
+
+---
+
+## Fear and mind states
+
+**Fear** is a live value, like brace is to pain tolerance: derived from **composure**
+(base), the opponent's **intimidation**, and how the fight is going.
+
+Fear works like pain, through the same machinery (small stat drops plus cards entering
+your draws):
+- slightly slower footing and speed
+- dead-ish cards: **Falter**, **Swallow**. Playing one costs a slot but restores a little
+  composure/nerve. Steady yourself now, or push through with a thinner hand?
+- intent draws get contaminated: pick *charge*, and *back off* and *run away* still show up.
+  You intend to charge, but that's what your mind comes up with.
+
+All on a scale. **Panic emerges**: at high fear your charge hand is mostly run-away and
+falter cards. No hard rule needed; the player sees it coming hand by hand.
+
+Intimidation vs composure: intimidation is how much fear you push into others; composure
+is how much you take and how fast you shake it off.
+
+### Mind states
+
+Persistent states that sit alongside other cards. They use no body parts. (Body states
+are posture: shield held, pressure on a wound.)
+
+- **Berserk** (like Charak Hai in the board game): a **temporary skew**. Pain tolerance
+  and strength way up; reaction speed, analysis, improvisation down to nothing. Lasts
+  until the fight is over, **no voluntary exit**, and locks intent to charge/attack (no
+  flee, no await). Can be broken by a **daze**.
+- Others: focused, calm, and so on.
+
+Each state defines its own endings: end of turn, a card to stop it, or something breaking
+it. States breakable by the opponent become something to play against.
+
 ---
 
 ## Worked example (rough)
@@ -567,10 +699,11 @@ intimidation and reach). Small and light gets something back.
 
 ## Open questions
 
-- How posture distance turns into a time cost.
+- Exact numbers for posture bonuses/penalties, and how bad posture splits into slower vs
+  weaker.
 - How a swing path's momentum is spent per cell, and when it lodges.
-- How contents' size, protection and hardness turn force into pain, bleeding, broken,
-  daze; what thresholds separate them.
+- How contents' size, protection and hardness turn force into a severity number.
+- Label ladders per content type, and how severity maps to structural vs pain penalties.
 - How the 3×3 swing grid maps onto the 5×5 target grid with height.
 - How the knight-style "defending already" case skips a reaction cleanly.
 - Stat list is a first pass; how to reward skewed builds.
