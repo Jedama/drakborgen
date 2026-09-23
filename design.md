@@ -397,9 +397,8 @@ Players learn tendencies mostly **over runs**.
 
 ## Anatomy and height
 
-- Each creature has a **fixed 5×5 anatomy grid**, used only for the *consequences* of a
-  hit that has already connected. Dodging, parrying and blocking are resolved before it,
-  separately.
+- Each creature has a **5×5 anatomy grid**, adjusted by posture before use (below).
+  Dodging, parrying and blocking are resolved before it, separately.
 
   ```
   .          .          Head       .          .
@@ -433,6 +432,55 @@ Contents are not strictly ordered (the head is a cluster, not a stack). Each has
 - **size:** share of the cell (brain ~0.4 of the head, cranium ~0.8)
 - **protected by:** what shields it (brain by cranium, cranium by skin); exposed if none
 - **hardness**, and how it reacts to each damage type
+
+**Armour is just a content**: the outermost thing in the cells it covers. Plate is hard
+(stops penetration, passes shock); padding soaks shock. A monk with arm guards is
+protected exactly on the lower arms. A full helm has coverage ~0.98 with the eyes still
+exposed. No special rules needed.
+
+Words: **size** for anatomy (the brain's share of the head), **coverage** for things worn
+or held.
+
+### Posture adjusts the grid
+
+A small adjustment step runs first, then the grid handles everything (both what the blade
+meets and what the hit does). Considered and rejected: a fully static grid, and a
+separate "contact decides interception" layer. One adjusted grid is simpler.
+
+- **crouch:** legs collapse into fewer rows, the head comes down; a smaller target, so
+  high attacks find nothing
+- **arms:** move within their own 3×3 around the shoulder
+- **weight / jumping:** shift the whole grid relative to the attacker (an offset when
+  mapping the attacker's 3×3 onto it)
+- **shield:** placed into cells by the off-hand posture
+- **non-humanoids** (snake, spider, bat): no posture system at all, so a static grid
+
+**Overlap is the point.** A raised forearm shares a cell with the head; a shield sits in
+front of the chest. No separate depth order is needed — the **protected by** chain does
+it. Posture just rewrites the links, e.g. a stomach cell reading: shield (hardness 0.9,
+covers 0.9) → forearm → skin → ribs → lung. Force filters down the chain: the shield stops
+most, a tenth slips past the rim, the forearm takes some, a sliver reaches the ribs.
+Blocking with your forearm falls out for free.
+
+### Force along a path
+
+- **Swings are sequential.** The blade meets the first cell, that cell takes what it takes,
+  and the remainder carries on. A sweep through an unarmoured arm still has force for the
+  chest; into a plated arm it's mostly spent. Order matters, so which side the swing comes
+  from matters.
+- **Thrusts are sequential too**, but *inwards* along the protected-by chain.
+- **Areas are even.** A body slam isn't a path: chest, stomach and both upper arms take
+  modest shock at once. Both modes exist.
+- **Limbs yield.** An arm can be knocked aside, so it passes more force on than the torso,
+  which has nowhere to go. Severing needs huge force relative to the bone, and should be
+  rare.
+- **Knockdown is checked afterwards**, once every cell has been resolved: total body shock
+  vs mass, balance, current feet posture and brace. Direction decides which posture field
+  moves (a side cut shoves you sideways, a slam backwards).
+
+There is **no separate "loss" step**. Disruption spoils force at the source (step 1), a
+partial dodge changes which cells are reached, a block is just one more thing in the path
+(the shield is armour you're holding), and brace only affects how the receiver takes it.
 
 Immunities come free: a skeleton has no skin, so it can't bleed; no nerves, so no pain.
 Nobody writes "skeletons are immune to bleed". **Blunt is good against bone**: it cracks,
@@ -622,6 +670,47 @@ eats its next turn.
 
 ---
 
+## Making the force
+
+- **body:** strength × drive (commitment raises drive)
+- **moving mass:** mass × card footwork, plus pace for running cards
+- **swing:** arc × weapon weight × leverage (reach, weight distribution)
+- **handling:** strength vs weapon weight — bends force a little and time a lot
+
+Shape: **(body + swing + moving mass) × handling.** The sources add; handling multiplies,
+because a weapon you can't control spoils everything.
+
+A weak character with a heavy weapon is penalised in both, but mostly in time: hard *and*
+slow, not useless. Precision and celerity stay out of force — precision decides where it
+lands, celerity decides time and helps beat a tracking block.
+
+Then the force is **split** (penetration vs shock, by damage type and by narrow vs wide)
+and **spread** (sequentially along a path, evenly over an area).
+
+### Scales
+
+- **Physical values in real units:** height and reach in metres, mass and weapon weight in
+  kilos, working length and width in metres.
+- **Skills 0–100**, with anchors: **0** is the wimpiest malnourished adult alive, **100**
+  is the strongest human alive, **50** is an average adventurer (competent, not
+  necessarily strong — an arbalest specialist might be 35–40 strength). Monsters may
+  exceed both ends; players are capped.
+
+### Not covered by force (parked)
+
+- **Heat** — a third channel beside penetration and shock. Touches what is exposed or
+  outermost, ignores hardness; skin burns, cloth catches, plate shields or cooks. Fits the
+  contents model. Dragonfire and the hero's fireball: powerful and niche, magic costs
+  fatigue, not worth careful balancing.
+- **Sustained force** (a troll's grip, a constrictor, jaws that hold) — engagement.
+- **Things that stay in** (arrows, barbs, a lodged spear) — an injury that keeps going.
+- **Force that goes around coverage** (a flail wrapping over a shield) — too niche.
+- **Poison** — needs resistances; later.
+- Pushes and trips should already work: very wide force moves the body without hurting
+  contents.
+
+---
+
 ## Stats
 
 No classes. "Berserker", "ninja" etc. are shorthand for stat combinations. **Every stat
@@ -664,28 +753,52 @@ intimidation and reach). Small and light gets something back.
 - **balance point:** head-heavy (mallet) builds momentum and is hard to stop; centred is
   easy to control. Feeds commitment/bail-ease, and torque when blocking (blocking a mallet
   near a sword's tip is hopeless)
-- **reach**
+- **reach:** the weapon alone, in metres, from a comfortable grip. **Effective reach** is
+  computed: weapon reach + an arm contribution from height + posture (hand extended,
+  weight forward, a stepping card). A card can say "grip at the tip": more reach, and the
+  costs follow from existing stats (weight distribution moves out, so slower to redirect,
+  harder to bail, easier to twist from your grip, and no second hand).
+  Reach matters because you connect earlier in your swing, before a shorter weapon
+  reaches you; getting inside it is the counterplay.
+- **working length** and **working width** (metres): the surface that can hurt or stop
+  something. Length tells how many of the target's cells a swing crosses; width decides
+  narrow-and-penetrating vs wide-and-shocking; length × width is roughly the area, which
+  *is* coverage when defending, measured against the target's cell size.
+
+  | | working length | width |
+  |---|---|---|
+  | longsword | 0.9 | 0.04 |
+  | spear | 0.05 | 0.04 |
+  | mallet | 0.15 | 0.15 |
+  | shield | 0.6 | 0.6 |
+  | ball and chain | 0.2 | 0.2 |
+
+  A shield 0.6 m across, against a 1.7 m creature whose cells are ~0.34 m, spans about two
+  cells and fills them. The same shield on a 4 m giant covers much less. A sword blocks
+  about a tenth of what a shield does.
 - **damage type:** default; cards can override (a sword's hilt strike is blunt)
 - **hands:** one, two, either
 - **penetration:** punching *through* armour (war pick yes, rapier no). Finding gaps is
   precision, not this.
-- **coverage:** how much area it covers when defending. Broad shield vs thin blade.
-  Taking force reuses weight, balance point and strength. Shields and swords are defined
-  the same way.
 - **durability:** later, but wanted (skeletons' wooden shields should splinter)
 - possible: two-ended (quarterstaff), making high and low close in posture
 
 ### Card
 
-- **path:** a swing path across a 3×3 grid in the attacker's frame, or a single cell for
-  a thrust. The start cell is where the hand must be (posture), the end cell is where it
-  ends up. Path length gives momentum and recovery: a long horizontal decapitation slash
-  builds force and leaves you twisted on a miss; a top-right-to-centre cut is weaker but
-  recovers fast. A swing crosses several cells unless blocked or lodged, spending
-  momentum on each cell it connects with (lodged → engagement).
+- **path:** entry and exit on a 3×3 grid in the attacker's frame, or a single cell for a
+  thrust. The start cell is where the hand must be (posture), the end cell is where it
+  ends up. A swing crosses several cells unless blocked or lodged, spending momentum on
+  each cell it connects with (lodged → engagement). The grid carries *positions only*;
+  swing build-up is **arc**.
 - **phases:** base pattern of windup / strike / recovery with lock-in per slot
 - **drive:** how much of your strength goes in (wrist flick vs full body). Commitment
   raises it.
+- **arc:** how much swing builds up. A thrust ~0, a hip-level cut a little, a big overhead
+  a lot, a ball and chain starting from facing backwards nearly all arc. Multiplies with
+  reach and weight distribution (leverage), and feeds **recovery on a miss** (the big slash
+  that twists you round). Authored, never inferred from computed windup length — otherwise
+  a weak character with a heavy mallet, or a character in pain, would "hit harder" because
+  they're slow.
 - **footwork:** whether the feet move; moving adds your mass (and pace) to the force
   (running axe chop, body slam)
 - **hands:** roles, never named hands: weapon hand, other hand, both on one weapon,
@@ -702,6 +815,8 @@ intimidation and reach). Small and light gets something back.
 - Exact numbers for posture bonuses/penalties, and how bad posture splits into slower vs
   weaker.
 - How a swing path's momentum is spent per cell, and when it lodges.
+- Whether a card can also drop the weapon to bail (ball and chain); dropping swaps your
+  weapon cards out of the deck.
 - How contents' size, protection and hardness turn force into a severity number.
 - Label ladders per content type, and how severity maps to structural vs pain penalties.
 - How the 3×3 swing grid maps onto the 5×5 target grid with height.
