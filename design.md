@@ -274,11 +274,9 @@ if bulky/armored enough it powers through an early cut, delayed slightly.
     long (a timeline shift).
 - Going around a block is **automatic** (computed from stats of attack and block), but a
   very flexible character may also get an offensive reaction opportunity for it.
-- **Blocks track.** A shield covers some cells but can shift toward the incoming attack.
-  "Does it block" is a race: how far the shield must move vs how soon the attack
-  arrives. From the shield side, nothing moves. From the far side, it must cross the
-  body. Light, big shield: easy. Heavy tower shield: covers a lot, moves slowly. Buckler
-  on the wrong arm: hard.
+- **Blocks track.** A shield covers some cells but can shift toward the incoming attack;
+  "does it block" is a race (resolved below). Light and big is easy to move; a heavy tower
+  shield covers a lot but moves slowly; a buckler on the wrong arm is hard.
 - **Tracking makes blocks baitable.** A feint drags the shield; the real strike comes
   low or from the far side and the shield loses the race back. What gets through a
   "raise shield": going under it (legs), feinting it, hitting hard enough not to care,
@@ -290,43 +288,98 @@ if bulky/armored enough it powers through an early cut, delayed slightly.
   actually stopped, not where the card planned. The next card's flow is measured from
   there. A block quietly rewrites the attacker's next move.
 
-#### Resolving a block
+#### Resolving a block or parry
 
-Everything is in **cells** (derived from the creature's height) or **time slots**. Weapon
-sizes are metres and convert to cells against whoever you're facing, so the same shield
-is nearly two cells on a goblin and half a cell on a giant.
+Everything is in **cells** (derived from the creature's height) or **time slots** (1 slot
+= 1 time unit = 1 second; a turn is 10). Weapon sizes are metres and convert to cells
+against whoever you're facing, so the same shield is nearly two cells on a goblin and half
+a cell on a giant.
 
-1. **Telegraph** → how much warning the defender gets. Computed from the attack's windup
-   length, **arc**, and weapon size. A big arcing poleaxe overhead is hugely telegraphed;
-   a dagger jab is nearly invisible. This is also what an analysis-heavy defender reads.
-2. **Distance** → cells from where the shield is (posture) to where the blow arrives.
-3. **Guard speed** → cells per slot, from shield weight vs strength, and celerity.
+1. **Telegraph** → how much warning the defender gets. From the attack's windup length,
+   **arc**, and weapon size. A big arcing poleaxe overhead is hugely telegraphed; a dagger
+   jab is nearly invisible. This is also what an analysis-heavy defender reads.
+   A **feint eats the warning**: the early part was spent tracking the wrong thing, so the
+   real strike's clock starts late. That is where feints bite.
+2. **Distance** → cells from where the guard is (posture) to where the blow arrives. A
+   block card places the guard on the *likely* line, so an honest attack is ~0.5 cells
+   away. Distance represents a **wrong read** (a feint, an unexpected line), not the normal
+   case.
+3. **Guard speed** → cells per slot: `6 × celerityF / drag`, where
+   `drag = (weapon kg / 1.4) / strengthF`. Round shield ~4.2, sword ~6, buckler ~8.4.
 4. **Travel time** (distance ÷ guard speed) vs **warning**:
-   - travel ≤ warning: the shield arrives, centred. Clean block.
+   - travel ≤ warning: it got where you sent it.
    - otherwise it falls **short** by `distance − warning × guard speed` cells.
-5. **Shortfall vs the weapon's half-extent**: if the shortfall is inside the half-extent,
-   the edge is still over the blow and coverage is `1 − shortfall ÷ half-extent`; beyond
-   it, nothing is there. Half-extents come from working length/width (a 0.6 m shield is
-   0.3 m ≈ 0.9 cells each way), and should be **direction-aware** — a sword covers well
-   along its blade and almost nothing across it, which is what makes it a bad shield.
-6. Coverage decides how much force goes into the shield and how much carries on.
+5. **Aim error** — arriving is not the same as being exactly right:
+   `angular error (from precision) × distance from hand to the blocking surface`.
+   A strapped shield's surface is at the hand (~0.1 m), so sloppiness barely moves it; a
+   sword parries 0.4 m out, so the same angular error is multiplied. This is why close
+   parries near the hilt are good: less aim error *and* less torque.
+6. **Total offset (shortfall + aim error) vs the effective half-extent.** Inside it, the
+   edge still covers the blow: `coverage = 1 − offset ÷ half-extent`. Beyond it, nothing.
+7. Coverage decides how much force goes into the guard and how much carries on. The offset
+   also says **where on the object** contact happened — centre, edge, or out near the tip —
+   which feeds torque and deflection.
 
-Worked (0.34 m cells, 0.55 m shield ⇒ half-extent 0.81 cells, guard speed ~2.1 cells/slot,
-warning 0.54):
-- **Honest cut**, 1.41 cells away: travel 0.67 > 0.54, short by 0.28 cells → coverage 0.65.
-  Caught, off-centre.
-- **Feinted** (shield dragged high), 2.24 cells away: travel 1.07, short by 1.11 cells,
-  beyond the half-extent → coverage 0. The whole blow lands.
+**Effective half-extent** blends the weapon's two sizes by the *attacker's* arc:
+`half-width + (half-length − half-width) × arc`. A high-arc swing sweeps a long line, so
+anything standing in it catches the blow; a thrust arrives at a point and needs real width.
+Shields are therefore good against thrusts, swords parry swings well, and a thrust is the
+answer to someone waving a big weapon around — with **no blade orientation tracked**.
 
-Size is not a bonus bolted on: it answers "you didn't get there, but is any of you there
-anyway?" A big shield forgives being late; a buckler must be nearly right.
+| defence | vs cut (arc 0.6) | vs thrust (arc 0.05) | aim error |
+|---|---|---|---|
+| round shield 0.55 m, 2 kg | 0.81 cells | 0.81 | 0.03 |
+| buckler 0.35 m, 1 kg | 0.51 | 0.51 | 0.03 |
+| sword 0.8 × 0.05 m, 1.4 kg | 0.74 | **0.13** | 0.13 |
 
-The same five steps should work for **parrying with a weapon** and probably for **dodges**,
-with "how far you must move" in place of "how far the shield must move".
+Worked, defender with strength 48, celerity 52, precision 45, cells 0.34 m:
+
+| | honest cut (0.5 cells, warning 0.54) | feinted (2.24 cells, warning 0.2) | rapier thrust (1.0 cell, warning 0.31) |
+|---|---|---|---|
+| round shield | **0.96** | **0** | **0.96** |
+| buckler | **0.95** | **0** | **0.95** |
+| sword | **0.82** | **0** | **0** (precision 70 → 0.35) |
+
+A hugely telegraphed mallet overhead (warning 0.8) is caught by everyone, even the sword
+at 0.88. Its answer is force going *through* the guard, not beating it.
+
+So: block cards work when the read is honest, feints beat everything, thrusts punish thin
+parries, big swings are easy to catch and hard to survive, and parrying rewards precision
+while shield-blocking does not.
+
+#### Parries differ after contact
+
+Same geometry, different consequences:
+
+- **A shield absorbs; a blade deflects.** `redirected share = parry force ÷ (parry force +
+  incoming force)`, where a parry has its own force (drive, arc, weapon), made like an
+  attack. A passive held shield has parry force 0 and takes the lot. A firm parry (40 vs
+  53) redirects 0.43. A desperate flick (10 vs 53) redirects 0.16 and you eat the rest.
+  Whatever is redirected is applied **to the attacker**: blade off line, posture changed,
+  recovery lengthened. Meeting a troll's club with a light parry is therefore a bad idea.
+- **It costs a hand** — whichever hand holds the parrying thing. A shield leaves the weapon
+  hand free; that is the real reason to carry one.
+- **Torque and disarms.** Both sides are force × a distance in metres, so no new constant:
+  - `twisting = force transferred × contact distance from the hand`
+  - `holding = strength × grip span`, where grip span is hand width (derived from height)
+    one-handed, or a **weapon field** two-handed (a staff's is long, a longsword's ~0.35).
+    Cards can modify it (choke up, grip at the tip). A numbed or broken hand cuts it.
+
+  | defence | contact | twisting | holding | result |
+  |---|---|---|---|---|
+  | round shield, 0.28 cells off centre | 0.095 m | 1.5 | 14.4 | never in danger |
+  | sword parry near the hilt | 0.10 m | 2.1 | 5.8 | solid |
+  | sword parry near the tip, one hand | 0.40 m | 8.4 | 5.8 | knocked aside |
+  | same, two hands | 0.40 m | 8.4 | 16.8 | holds |
+
+  Bands: below 1× you hold; 1–2× the weapon is knocked aside (posture changes, recovery
+  grows); above 2× disarmed. In between, a loosened grip can persist, making the next
+  twist easier.
+- **Ending posture** tends to favour a counter, which is what makes parry-riposte natural.
+- **Durability:** blades suffer from parrying edge-on much more than shields do.
 
 Rejected along the way: travel speeds in m/s, dividing two invented numbers, a flat size
-bonus, and an authored nonlinear distance exponent. The nonlinearity comes for free from
-a half-arrived shield only overlapping the edge of the attack.
+bonus, an authored nonlinear distance exponent, and tracking blade orientation.
 
 ### Dodges
 
@@ -866,8 +919,8 @@ intimidation and reach). Small and light gets something back.
 
 ## Open questions
 
-- Whether weapon half-extents are direction-aware (leaning yes) or one number from area.
-- Guard speed's base rate in cells per slot; the telegraph formula's weights.
+- Angular error per point of precision; the base guard speed of 6 cells/slot.
+- Whether the deflection share is authored per parry card or computed from the angle.
 - Exact numbers for posture bonuses/penalties, and how bad posture splits into slower vs
   weaker.
 - How a swing path's momentum is spent per cell, and when it lodges.
