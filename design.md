@@ -290,6 +290,44 @@ if bulky/armored enough it powers through an early cut, delayed slightly.
   actually stopped, not where the card planned. The next card's flow is measured from
   there. A block quietly rewrites the attacker's next move.
 
+#### Resolving a block
+
+Everything is in **cells** (derived from the creature's height) or **time slots**. Weapon
+sizes are metres and convert to cells against whoever you're facing, so the same shield
+is nearly two cells on a goblin and half a cell on a giant.
+
+1. **Telegraph** → how much warning the defender gets. Computed from the attack's windup
+   length, **arc**, and weapon size. A big arcing poleaxe overhead is hugely telegraphed;
+   a dagger jab is nearly invisible. This is also what an analysis-heavy defender reads.
+2. **Distance** → cells from where the shield is (posture) to where the blow arrives.
+3. **Guard speed** → cells per slot, from shield weight vs strength, and celerity.
+4. **Travel time** (distance ÷ guard speed) vs **warning**:
+   - travel ≤ warning: the shield arrives, centred. Clean block.
+   - otherwise it falls **short** by `distance − warning × guard speed` cells.
+5. **Shortfall vs the weapon's half-extent**: if the shortfall is inside the half-extent,
+   the edge is still over the blow and coverage is `1 − shortfall ÷ half-extent`; beyond
+   it, nothing is there. Half-extents come from working length/width (a 0.6 m shield is
+   0.3 m ≈ 0.9 cells each way), and should be **direction-aware** — a sword covers well
+   along its blade and almost nothing across it, which is what makes it a bad shield.
+6. Coverage decides how much force goes into the shield and how much carries on.
+
+Worked (0.34 m cells, 0.55 m shield ⇒ half-extent 0.81 cells, guard speed ~2.1 cells/slot,
+warning 0.54):
+- **Honest cut**, 1.41 cells away: travel 0.67 > 0.54, short by 0.28 cells → coverage 0.65.
+  Caught, off-centre.
+- **Feinted** (shield dragged high), 2.24 cells away: travel 1.07, short by 1.11 cells,
+  beyond the half-extent → coverage 0. The whole blow lands.
+
+Size is not a bonus bolted on: it answers "you didn't get there, but is any of you there
+anyway?" A big shield forgives being late; a buckler must be nearly right.
+
+The same five steps should work for **parrying with a weapon** and probably for **dodges**,
+with "how far you must move" in place of "how far the shield must move".
+
+Rejected along the way: travel speeds in m/s, dividing two invented numbers, a flat size
+bonus, and an authored nonlinear distance exponent. The nonlinearity comes for free from
+a half-arrived shield only overlapping the edge of the attack.
+
 ### Dodges
 
 - Kinds: sidesteps (left, back, right), in place (duck, jump, bend), rolls (if nimble),
@@ -687,6 +725,22 @@ lands, celerity decides time and helps beat a tracking block.
 Then the force is **split** (penetration vs shock, by damage type and by narrow vs wide)
 and **spread** (sequentially along a path, evenly over an area).
 
+### House rules for the maths
+
+Learned from a first worked example that got too clever:
+
+- **Two currencies only: cells and time slots.** Metres exist for *shape* (weapon sizes,
+  cell sizes) and convert to cells at the point of use. Never m/s, never a speed in
+  metres.
+- **Compare like with like.** Prefer "time needed vs time available" and "cells short vs
+  cells of reach" over ratios of invented quantities.
+- **One shape for modifiers:** `base × (1 ± small terms)`, terms from `stat/50 − 1`. No
+  powers, no roots.
+- **No flat bonuses tacked on the end.** If something helps, it should help *because of
+  what it is* (a wide shield covers its width).
+- Deliberate balance knobs are fine; accidental ones are what sank attempt 1. Keep them
+  few, named, and in one place.
+
 ### Scales
 
 - **Physical values in real units:** height and reach in metres, mass and weapon weight in
@@ -812,6 +866,8 @@ intimidation and reach). Small and light gets something back.
 
 ## Open questions
 
+- Whether weapon half-extents are direction-aware (leaning yes) or one number from area.
+- Guard speed's base rate in cells per slot; the telegraph formula's weights.
 - Exact numbers for posture bonuses/penalties, and how bad posture splits into slower vs
   weaker.
 - How a swing path's momentum is spent per cell, and when it lodges.
