@@ -860,6 +860,12 @@ intimidation and reach). Small and light gets something back.
 - **balance point:** head-heavy (mallet) builds momentum and is hard to stop; centred is
   easy to control. Feeds commitment/bail-ease, and torque when blocking (blocking a mallet
   near a sword's tip is hopeless)
+- **grip span** (m): the distance between the hands in two-handed use — long on a staff,
+  ~0.35 on a longsword. One-handed use takes hand width, derived from height. Cards can
+  modify it (choke up, widen, grip at the tip). Feeds `holding` against torque.
+- **hand-to-surface distance** (m): how far the blocking/striking surface sits from the
+  hand. ~0.1 for a strapped shield, ~0.4 for a sword parrying mid-blade. Multiplies aim
+  error, and sets the lever for torque.
 - **reach:** the weapon alone, in metres, from a comfortable grip. **Effective reach** is
   computed: weapon reach + an arm contribution from height + posture (hand extended,
   weight forward, a stepping card). A card can say "grip at the tip": more reach, and the
