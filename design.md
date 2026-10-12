@@ -187,7 +187,7 @@ often signature cards.
 
 A held shield, a staff across the body, a sword in high guard: **posture, not a card**.
 When a block card ends, the off hand's posture stays *shield up*, giving **passive
-coverage**: less than an active block, no tracking, no brace. That's how you stab from
+coverage**: it is just an object in the way — it intercepts nothing and gives no brace. That's how you stab from
 behind a shield without playing two cards at once.
 
 Possible extra fields, not essential yet: **facing** (squared, side-on, turned away),
@@ -261,125 +261,197 @@ if bulky/armored enough it powers through an early cut, delayed slightly.
 
 ### Blocks
 
-- Shape: windup (raise), then a **held window**. No recovery: the next card starts from
-  "shield up", or lowers it as part of its own windup.
-- An attack striking inside the window is blocked. During the raise, it catches the shield
-  half up. After, it gets through.
-- **Duration is fixed per card.** More room for unique cards, a narrower decision for the
-  player, easier balance. Examples:
-  - *Raise shield*: no windup, but imprecise. A precise or adaptable attacker can go
-    around it during their windup.
-  - *Awaiting block*: waits for the attack.
-  - *Slamming block*: short window, but if it lands, the attacker's recovery becomes very
-    long (a timeline shift).
-- Going around a block is **automatic** (computed from stats of attack and block), but a
-  very flexible character may also get an offensive reaction opportunity for it.
-- **Blocks track.** A shield covers some cells but can shift toward the incoming attack;
-  "does it block" is a race (resolved below). Light and big is easy to move; a heavy tower
-  shield covers a lot but moves slowly; a buckler on the wrong arm is hard.
-- **Tracking makes blocks baitable.** A feint drags the shield; the real strike comes
-  low or from the far side and the shield loses the race back. What gets through a
-  "raise shield": going under it (legs), feinting it, hitting hard enough not to care,
-  outlasting its window, or making it move a lot.
-- **Blocks transfer force** into the shield arm, taken by strength, mass, brace and the
-  shield's weight/balance point. A braced knight shrugs it off; a muscle-less skeleton
-  with a flimsy shield gets rattled (timeline shoved, arm knocked wide, shield cracks).
+**The core idea: a block is active interception.** If you play a block card, you are
+focusing on the attack and putting all your effort into meeting it. If they swing from the
+right, the shield goes right; if they thrust, it goes there. The shield **ends up where it
+needs to be**. There is no travel time, no race, no shortfall.
+
+This replaces an earlier, much more complicated model (recorded at the end of this
+section, with the reasons it failed).
+
+- **Interception is binary.** Either the guard is on the blow or it isn't. All the grading
+  lives in the **force consequences**, which already grade well: a blocked dagger is
+  nothing, a blocked mallet still breaks your arm.
+- **One block card intercepts one attack.** You can't play *Raise shield* and then idle
+  behind it. This is also the handle for flurries and many-limbed monsters: attack twice
+  in the time of one block and the second arrives unguarded. (Multiple opponents: out of
+  scope for now.)
+- **Windows sort the card varieties** by *how long you're willing to not know*:
+  - *Hold until hit* — long, and as soon as you block something the next card fires. An
+    open-ended wait, so it uses the **await** mechanism: everything you wrote afterwards
+    slides, and you hand over the tempo of the turn. If nothing comes, that's the stall
+    prompt.
+  - *Bunker down* — holds effectively forever.
+  - *Snap block* — a narrow guess at a moment.
+  - *Slamming block* — short, and spends effort to shove them (returns force).
+- **No recovery:** afterwards the shield is still *held*, which is posture, giving
+  **passive coverage** of the cell it's in and nothing else. Passive coverage intercepts
+  nothing; it's just an object in the way.
+- **Blocked is not safe.** Force still arrives: shock into the shield arm (taken by
+  strength, mass, brace, the shield's weight and balance point), posture shoved, timeline
+  delayed, shield durability spent. A braced knight shrugs it off; a muscle-less skeleton
+  with a flimsy shield gets rattled.
+- **Return force.** The block card has its own force, made like an attack (drive, arc,
+  weapon). `redirected share = block force ÷ (block force + incoming force)`. A passive
+  held shield has zero and takes the lot; a firm slam redirects plenty. Whatever is
+  redirected is applied **to the attacker** — blade off line, posture changed, recovery
+  lengthened. Meeting a troll's club with a light parry is a bad idea.
 - **Interrupted paths change posture.** A swing stopped mid-path leaves the hand where it
-  actually stopped, not where the card planned. The next card's flow is measured from
-  there. A block quietly rewrites the attacker's next move.
+  actually stopped, not where the card planned, and the next card's flow is measured from
+  there.
 
-#### Resolving a block or parry
+#### What beats a block
 
-Everything is in **cells** (derived from the creature's height) or **time slots** (1 slot
-= 1 time unit = 1 second; a turn is 10). Weapon sizes are metres and convert to cells
-against whoever you're facing, so the same shield is nearly two cells on a goblin and half
-a cell on a giant.
+Not geometry. Four things:
 
-1. **Telegraph** → how much warning the defender gets. From the attack's windup length,
-   **arc**, and weapon size. A big arcing poleaxe overhead is hugely telegraphed; a dagger
-   jab is nearly invisible. This is also what an analysis-heavy defender reads.
-   A **feint eats the warning**: the early part was spent tracking the wrong thing, so the
-   real strike's clock starts late. That is where feints bite.
-2. **Distance** → cells from where the guard is (posture) to where the blow arrives. A
-   block card places the guard on the *likely* line, so an honest attack is ~0.5 cells
-   away. Distance represents a **wrong read** (a feint, an unexpected line), not the normal
-   case.
-3. **Guard speed** → cells per slot: `6 × celerityF / drag`, where
-   `drag = (weapon kg / 1.4) / strengthF`. Round shield ~4.2, sword ~6, buckler ~8.4.
-4. **Travel time** (distance ÷ guard speed) vs **warning**:
-   - travel ≤ warning: it got where you sent it.
-   - otherwise it falls **short** by `distance − warning × guard speed` cells.
-5. **Aim error** — arriving is not the same as being exactly right:
-   `angular error (from precision) × distance from hand to the blocking surface`.
-   A strapped shield's surface is at the hand (~0.1 m), so sloppiness barely moves it; a
-   sword parries 0.4 m out, so the same angular error is multiplied. This is why close
-   parries near the hilt are good: less aim error *and* less torque.
-6. **Total offset (shortfall + aim error) vs the effective half-extent.** Inside it, the
-   edge still covers the blow: `coverage = 1 − offset ÷ half-extent`. Beyond it, nothing.
-7. Coverage decides how much force goes into the guard and how much carries on. The offset
-   also says **where on the object** contact happened — centre, edge, or out near the tip —
-   which feeds torque and deflection.
+1. **Feints.** The main mechanic. A chain like *R→L horizontal cut (feint) → R→L low cut*
+   continues the **same motion with no new windup**, so you have already spent your one
+   interception on the first destination. It cuts around the shield. Likewise *cut (feint)
+   → kick*: the kick arrives from a channel the defender was never attending to.
+2. **Attention, which is just your next card.** No eye-tracking system: what you wrote
+   next *is* what you were assuming.
+   - *Raise shield → counter-cut* says "the blow is coming, I'll take it and hit back".
+     If it was a feint, you're committed to swinging at someone who never swung.
+   - *Raise shield → slamming block* says "I don't trust this", so the feint finds you
+     still there — no reaction opportunity needed.
 
-**Effective half-extent** blends the weapon's two sizes by the *attacker's* arc:
-`half-width + (half-length − half-width) × arc`. A high-arc swing sweeps a long line, so
-anything standing in it catches the blow; a thrust arrives at a point and needs real width.
-Shields are therefore good against thrusts, swords parry swings well, and a thrust is the
-answer to someone waving a big weapon around — with **no blade orientation tracked**.
+   Granularity is **the next card only**. This also prices wariness honestly: the
+   distrustful line gets nothing when they were honest, the greedy line gets a counter-hit
+   into someone mid-swing. A turtling plan can be deliberate: let them wear themselves out
+   (overexert/underexert wanted in some form; fatigue still parked).
+3. **Overwhelming it.** Mass and momentum: the troll doesn't beat your guard, he destroys
+   it. A wooden shield splinters (breaking system later); a metal one holds and *you* get
+   moved.
+4. **Attacks it can't answer.** Grapples, trips, shoves, fire — things that don't care
+   what's in front of your chest.
 
-| defence | vs cut (arc 0.6) | vs thrust (arc 0.05) | aim error |
-|---|---|---|---|
-| round shield 0.55 m, 2 kg | 0.81 cells | 0.81 | 0.03 |
-| buckler 0.35 m, 1 kg | 0.51 | 0.51 | 0.03 |
-| sword 0.8 × 0.05 m, 1.4 kg | 0.74 | **0.13** | 0.13 |
+**Partial blocks are *caused*, not computed.** Corner cases rather than the main path: an
+improvised block from a reaction opportunity is poor; a feinted defender with a big enough
+shield still has something there. So shield **size matters exactly when you were wrong** —
+a buckler punishes it, a tower shield forgives it.
 
-Worked, defender with strength 48, celerity 52, precision 45, cells 0.34 m:
+#### Coverage, overhang and precision
 
-| | honest cut (0.5 cells, warning 0.54) | feinted (2.24 cells, warning 0.2) | rapier thrust (1.0 cell, warning 0.31) |
-|---|---|---|---|
-| round shield | **0.96** | **0** | **0.96** |
-| buckler | **0.95** | **0** | **0.95** |
-| sword | **0.82** | **0** | **0** (precision 70 → 0.35) |
+Held defences occupy cells (placed by the posture step that adjusts the grid), and size
+spills into neighbouring cells. Two things fall out for free:
 
-A hugely telegraphed mallet overhead (warning 0.8) is caught by everyone, even the sword
-at 0.88. Its answer is force going *through* the guard, not beating it.
+- **Overhang:** a big attack covers several cells at once, so a giant's palm meets your
+  shield *and* your shoulder and hip. No rule needed.
+- **Partially covered cells** are where **precision** comes in: low precision hits the
+  shield, high precision finds the uncovered sliver.
 
-So: block cards work when the read is honest, feints beat everything, thrusts punish thin
-parries, big swings are easy to catch and hard to survive, and parrying rewards precision
-while shield-blocking does not.
+Worn armour and held defences are the same kind of thing — stuff occupying cells with
+coverage fractions — except armour is **static** and a held defence is **aimed**. Aiming
+picks the cells, size decides how many, precision contests the partial ones.
 
-#### Parries differ after contact
+Precision is gated so it isn't a general armour bypass:
 
-Same geometry, different consequences:
+- **The weapon must fit.** Gap size comes from numbers we already have: a 0.34 m cell is
+  ~0.116 m², so a helm at 0.98 coverage leaves ~0.002 m² — a 4–5 cm square, about an eye
+  slit. A rapier point fits, a sword's 4 cm blade is marginal, a mallet head is nowhere
+  close. So precision bypass is a *dagger, rapier, spike* affair: you can see the gap
+  perfectly and still hold the wrong tool.
+- **Aiming small costs.** Less drive, worse angle, or a longer windup — and falling short
+  means hitting the hardest part of the armour for nothing. A bet, not a free upgrade.
+  Cards can author it (*precision strike*).
+- **The target's state matters**, as a passive bonus against a compromised opponent.
+  Braced, moving and watching is very different from prone, dazed or bound. So precision
+  builds play like duelists: engineer the opening, then exploit it. Brutes break the
+  shield; duelists make you stumble and then put a point where it hurts.
 
-- **A shield absorbs; a blade deflects.** `redirected share = parry force ÷ (parry force +
-  incoming force)`, where a parry has its own force (drive, arc, weapon), made like an
-  attack. A passive held shield has parry force 0 and takes the lot. A firm parry (40 vs
-  53) redirects 0.43. A desperate flick (10 vs 53) redirects 0.16 and you eat the rest.
-  Whatever is redirected is applied **to the attacker**: blade off line, posture changed,
-  recovery lengthened. Meeting a troll's club with a light parry is therefore a bad idea.
+#### Weapon parries
+
+Same core (active interception), but the difference from a shield should be **general,
+from weapon stats**, not authored per card. The asymmetry is what each side presents and
+offers:
+
+- a swinging blade **presents** a long moving line, so nearly anything held in its way
+  meets it; a thrust presents a **point**, which you must meet exactly
+- a shield **offers** a broad face (no accuracy needed); a sword offers a thin edge (it has
+  to be right)
+
+So an interception has a **required accuracy**, from the attack's arc and working size
+against the defending object's working length and width, compared once against precision.
+Deterministic, one comparison, no race. Shields need no accuracy; a sword parrying a
+thrust needs a lot; a sword parrying a big sweep is easy.
+
+After contact, parries differ from shields:
+
+- **A shield absorbs; a blade deflects** (the return-force rule above).
 - **It costs a hand** — whichever hand holds the parrying thing. A shield leaves the weapon
-  hand free; that is the real reason to carry one.
+  hand free, which is the real reason to carry one.
 - **Torque and disarms.** Both sides are force × a distance in metres, so no new constant:
   - `twisting = force transferred × contact distance from the hand`
-  - `holding = strength × grip span`, where grip span is hand width (derived from height)
-    one-handed, or a **weapon field** two-handed (a staff's is long, a longsword's ~0.35).
-    Cards can modify it (choke up, grip at the tip). A numbed or broken hand cuts it.
+  - `holding = strength × grip span` — hand width (from height) one-handed, or the weapon's
+    **grip span** field two-handed (long on a staff, ~0.35 on a longsword). Cards can
+    modify it (choke up, grip at the tip). A numbed or broken hand cuts it.
 
   | defence | contact | twisting | holding | result |
   |---|---|---|---|---|
-  | round shield, 0.28 cells off centre | 0.095 m | 1.5 | 14.4 | never in danger |
+  | round shield, near centre | 0.095 m | 1.5 | 14.4 | never in danger |
   | sword parry near the hilt | 0.10 m | 2.1 | 5.8 | solid |
   | sword parry near the tip, one hand | 0.40 m | 8.4 | 5.8 | knocked aside |
   | same, two hands | 0.40 m | 8.4 | 16.8 | holds |
 
   Bands: below 1× you hold; 1–2× the weapon is knocked aside (posture changes, recovery
-  grows); above 2× disarmed. In between, a loosened grip can persist, making the next
-  twist easier.
+  grows); above 2× disarmed. In between, a loosened grip can persist.
 - **Ending posture** tends to favour a counter, which is what makes parry-riposte natural.
 - **Durability:** blades suffer from parrying edge-on much more than shields do.
 
-Rejected along the way: travel speeds in m/s, dividing two invented numbers, a flat size
-bonus, an authored nonlinear distance exponent, and tracking blade orientation.
+#### Shields are strong, and that's realistic
+
+For most of history, anyone fighting on foot with a free hand carried a shield. What ended
+that was cost, not a counter: plate armour made shields redundant, two-handed weapons and
+polearms out-traded them, and weight, fatigue and the lost hand always hurt. Shields also
+shine in formation, which a lone dungeoneer doesn't have.
+
+So a metal shield can be near-impervious to honest blows. The counterweights are:
+
+- **the midnight clock** — a shield doesn't make you win, it makes you *not lose slowly*,
+  and not losing slowly burns the only resource that matters
+- **weight** slowing you through the dungeon (Iril's two-rooms-per-turn is the opposite
+  build)
+- **one hand gone**, so no two-handers and a different deck
+- **fatigue**, once it exists
+
+And the monster roster carries the rest, each with its own answer:
+
+| monster | answer to a shield |
+|---|---|
+| skeletons (wooden shields) | trivialised — and that's the lesson: bring blunt and a shield to the crypt |
+| troll | mass and momentum; the guard holds and you don't |
+| many-limbed things | more attacks than you have interceptions |
+| bats, snakes, low crawlers | lines a raised shield was never watching |
+| grabbers | the shield is irrelevant once it has your arm |
+| fire | doesn't care at all |
+
+No battle is trivial anyway: one mistake and the injury consequences are large.
+
+Skill curve this supports: first survival, then survival plus loot, and only when you are
+good do you worry about the clock and going deep to the treasure chamber. A new player
+takes Rohan and a shield and tries not to die; an experienced one takes Iril for pace or
+Yubara for stealth and avoids fights entirely.
+
+#### Rejected: the travel-race model (and why)
+
+The first version resolved a block as: **telegraph** → warning in slots; **distance** in
+cells from the guard's position; **guard speed** in cells per slot from weight-for-you and
+celerity; **travel time vs warning** → a shortfall in cells; **aim error** = angular error
+(from precision) × hand-to-surface distance; shortfall + aim error against an
+**arc-blended half-extent** → a coverage fraction. Plus feints eating warning, and block
+cards placing the guard on the likely line.
+
+It produced sane-looking numbers and was still wrong:
+
+- **Five mechanisms for one question.** The player only ever asks *did my shield stop it?*
+- **Every wrong case added a term.** Each fix was local; the stack was never redesigned.
+- **It drifted into physics.** Cells per slot kept being sanity-checked as m/s.
+- **A played card could fail for reasons the player couldn't feel.** If you commit a card
+  to blocking, the block should happen; being beaten should be a *decision* you lost (a
+  feint, a wrong assumption), not a race you didn't know you were in.
+
+Kept from it: return force, torque vs grip span, the presented-vs-offered idea (now a
+single required-accuracy comparison), and the force consequences of a successful block.
 
 ### Dodges
 
@@ -447,10 +519,12 @@ reactions:**
 
 Feints also trip an opponent's **await** trigger early.
 
-Against a defender who is *already* defending (no reaction prompt), a feint baits the
-**tracking** instead. Whether the tracking bites is decided by the defender's
-**analysis** (reading the lack of weight behind it). A skeleton bites; a sharp knight
-might not.
+Against a defender who is *already* defending (no reaction prompt), a feint spends their
+**one interception**: a chain that continues the same motion with no new windup arrives
+somewhere the guard has already committed to (see Blocks). Whether they are caught also
+depends on what their *next* card assumed — a wary follow-up is still watching, a greedy
+one is not — and on **analysis** (reading the lack of weight behind it). A skeleton bites;
+a sharp knight might not.
 
 Falling for a feint gives **wrong-way brace**: readiness went with the shield, so the real
 hit lands on a body set against the wrong place.
@@ -747,15 +821,14 @@ plate is rough (fine, run away or pick a better weapon).
 Human (1.80 m, average mass, strength 55) with a quarterstaff vs a light skeleton
 (1.70 m) with a light wooden shield (left arm) and sword.
 
-**1. Staff sweep vs Raise shield.** The sweep runs attacker-left to right, so it enters
-on the skeleton's sword side. But the big light shield tracks across in time: the staff
-hits wood. A staff is light, so little rattling on either side. The real consequence:
+**1. Staff sweep vs Raise shield.** The skeleton is focused on intercepting, so the shield
+is where the sweep arrives: the staff hits wood. A staff is light, so little rattling on either side. The real consequence:
 the staff stopped mid-path, so it's on the "wrong" side for the next card.
 
-**2. Feinted overhead → Low sweep vs Raise shield.** The shield tracks the feint upward
-(low analysis, it bites). The staff is two-ended: the top end went up, the bottom end
-is already low, so the flow into the low sweep is cheap. The shield would have to drop
-the full body height and can't cover legs and head at once. The sweep connects low on a
+**2. Feinted overhead → Low sweep vs Raise shield.** The feint spends the skeleton's one
+interception (low analysis, it bites), and the low sweep continues the same motion with no
+new windup. The staff is two-ended: the top end went up, the bottom end is already low, so
+the flow into the low sweep is cheap. The sweep connects low on a
 skeleton braced the wrong way: a trip. No pain, but feet go to *down*, and getting up
 eats its next turn.
 
@@ -773,7 +846,7 @@ because a weapon you can't control spoils everything.
 
 A weak character with a heavy weapon is penalised in both, but mostly in time: hard *and*
 slow, not useless. Precision and celerity stay out of force — precision decides where it
-lands, celerity decides time and helps beat a tracking block.
+lands, celerity decides time.
 
 Then the force is **split** (penetration vs shock, by damage type and by narrow vs wide)
 and **spread** (sequentially along a path, evenly over an area).
@@ -925,8 +998,11 @@ intimidation and reach). Small and light gets something back.
 
 ## Open questions
 
-- Angular error per point of precision; the base guard speed of 6 cells/slot.
-- Whether the deflection share is authored per parry card or computed from the angle.
+- How required accuracy is computed from the attack (arc, working size) against the
+  defending object (working length, width), and what precision it demands.
+- How precision and armour coverage combine in general (fraction bypassed? gap targeted?).
+- Dodges: the same rethink blocks just had. Capacity per card and phases for timing were
+  the last sketch; planned footwork vs reactive dodging still unresolved.
 - Exact numbers for posture bonuses/penalties, and how bad posture splits into slower vs
   weaker.
 - How a swing path's momentum is spent per cell, and when it lodges.
