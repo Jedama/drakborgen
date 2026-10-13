@@ -743,11 +743,29 @@ Each cell holds a **list of contents**, each reacting to damage in its own way:
 - **bone:** breaks
 - **organs:** eyes, brain, lungs, with special effects (blind, daze, winded)
 
-Contents are not strictly ordered (the head is a cluster, not a stack). Each has roughly:
+Contents are not strictly ordered (the head is a cluster, not a stack). Each has:
 
 - **size:** share of the cell (brain ~0.4 of the head, cranium ~0.8)
 - **protected by:** what shields it (brain by cranium, cranium by skin); exposed if none
-- **hardness**, and how it reacts to each damage type
+- **two reference forces** — the force that half-ruins it through each channel: one for
+  **penetration**, one for **shock**. In the *same units as force*, so the comparison is
+  like with like and there is no hardness constant. Authoring them asks questions a human
+  can answer: "how hard must you hit a shin to break it?"
+- **steepness:** how fast severity climbs once it's in trouble. Bone is brittle (steep);
+  skin just gets a longer cut (shallow).
+- **sensitivity:** pain produced per point of severity. A shin or a kneecap hurts out of all
+  proportion to the damage; muscle hurts less per point but costs far more function.
+- **what it passes on:** skin passes nearly everything; muscle soaks penetration; bone stops
+  penetration and transmits shock.
+- **its own penalty mapping:** bone → weight-bearing and balance, muscle → push-off and
+  strength, and so on. No hierarchy between contents: a severed calf muscle cripples a leg
+  about as badly as a broken tibia.
+- optional tags such as **needs-an-opening** (a tendon reachable from behind, something
+  only available while they're prone), so sneak and flanking cards have specific prizes
+  without mapping any body geometry.
+
+Skin, muscle and bone are authored once and shared almost everywhere; a cell then adds two
+or three extras — kneecap, tendon, eye, brain, lung.
 
 **Armour is just a content**: the outermost thing in the cells it covers. Plate is hard
 (stops penetration, passes shock); padding soaks shock. A monk with arm guards is
@@ -809,10 +827,32 @@ the eyes a good share; a precise thrust aimed at an eye puts nearly all its forc
 
 ### Penetration and shock
 
-Damage types are mixes of two channels, plus how wide the blow is:
+Two channels, and **neither is an authored damage type** — they're derived from the contact:
 
 - **penetration:** breaks the protector to reach what's inside (cuts, thrusts)
 - **shock:** passes through the protector without breaking it (mostly blunt)
+
+`concentration = reference contact area ÷ actual contact area`, with the reference being
+about a staff's end (~0.0009 m²). The **penetrating share** of the force rises with
+concentration × **keenness** (a weapon stat); the rest is shock. Contact area comes from
+working length and width, so:
+
+- **point** (small × small): enormous pressure → deep and narrow
+- **edge** (long × thin): high pressure along a line → wide and shallow
+- **face** (wide × wide): low pressure → nothing penetrates, everything transmits
+
+A spiked morningstar lands in the middle honestly: small contacts on a heavy head. Cut,
+pierce and crush all emerge, and so do the awkward cases — a thrust with a shield is blunt
+force, and the same sword chops or slices depending on the card's travel along its edge.
+
+**The contact geometry does two separate jobs**, and both are needed:
+
+- **concentration** (force ÷ area) decides **how deep** it goes
+- **contact width** decides **how much got cut** — the extent of the wound, which scales
+  severity
+
+Without the second, a rapier puncture would disable a calf as badly as an eight-centimetre
+slash. With it, the puncture is shallow in consequence, real in pain and bleeding.
 
 A staff to the jaw doesn't crack the skull, but shock reaches the soft brain: dazed.
 A sword there cuts skin, maybe chips bone, sends little shock inwards. A skeleton has no
@@ -854,18 +894,72 @@ Pain and disruption are separate: skeletons ignore the *hurt* but still get *sho
 
 ### Severity: graded underneath, labelled on top
 
-Each content has a smooth **severity** number and a ladder of labels over it:
+Per content, compare what arrived through each channel against that content's reference
+force for that channel:
 
-- **bone:** bruised, cracked, broken, shattered
-- **skin:** scratched, cut, gashed (bleeding follows from cuts)
-- **brain:** rattled, dazed, concussed
+```
+severity = 50 × (arriving ÷ reference) ^ steepness        (capped at 100)
+```
 
-The player sees "broken shin, −34 pace"; internally that was a 56. A 57 gives −35. Same
-pattern as timing: smooth underneath, clear labels on top.
+scaled by the wound's **extent** (contact width) for the penetration channel. Then the
+remainder passes inward along the **protected by** chain.
+
+That's the whole calculation. The only shared constants are the reference contact area and
+the 50; everything else is a property of the content or the contact.
+
+**Ladders are fine-grained, with intensity words doing the smoothing**, because labels
+jumping from "bruised" to "broken" feels discrete even when the number underneath isn't:
+
+- **bone:** 0–10 bruised · 10–25 badly bruised · 25–45 hairline crack → cracked ·
+  45–70 broken · 70+ shattered
+- **skin:** scratched · cut · gashed (bleeding follows)
+- **brain:** rattled · dazed · concussed
+
+**Penalties interpolate inside a rung**, so a 46 and a 68 both read "broken" and cost
+different amounts of pace and balance. The label says what happened; the number says how
+much it matters. A second hit on a cracked shin can keep saying "cracked" while the penalty
+creeps, until it tips into broken — a limb deteriorating rather than flipping states.
+
+A few contents keep a **hard line**, where the fiction demands it: a severed tendon isn't a
+worse strain, and an eye isn't partly lost.
+
+Presentation (later): a hit rocks the screen and throws up a stack of short brutal phrases —
+"Tibia cracked", "Severe pain", "Off balance", "Reeling" — rather than one tidy line.
 
 **Severity adds up.** Bruised + bruised can become cracked. And damage **weakens** the
-content (effective hardness drops), so a cracked bone breaks more easily. Two moderate
+content — its reference forces drop — so a cracked bone breaks more easily. Two moderate
 hits on one shin are worse than one on each. Targeting a wound is a real tactic.
+
+### Worked example: three weapons into an unarmoured shin
+
+Placeholder numbers, to show the shape. Lower-leg contents:
+
+| content | pen ref | shock ref | steepness | sensitivity |
+|---|---|---|---|---|
+| skin | 6 | 60 | 1.0 | 0.8 |
+| muscle | 25 | 50 | 1.0 | 0.6 |
+| bone (tibia) | 90 | 45 | 2.0 (brittle) | 1.4 |
+
+**Committed quarterstaff strike** — force 50, contact 3×3 cm (concentration 1.0), keenness 0
+→ **pen 2.5, shock 47.5**
+- skin 40 *bruised* · muscle 47 *deep bruise, cramping* · bone 44 ÷ 45, squared → **48,
+  broken**
+- a casual tap at force 25 gives bone 14, *bruised*. **Calibration anchor:** a committed
+  two-handed staff strike breaks a shin; a tap does not.
+
+**Sword cut** — force 53, edge contact ~8 cm × 1.5 mm (concentration 7.5), keenness 0.9
+→ **pen 39, shock 14**
+- skin *gashed*, bleeding, passes 33 on · muscle 65 *cut deep*, push-off gone ·
+  bone severity 4, *notched but intact*
+
+**Rapier thrust** — force 30, point 4×4 mm (concentration 56), keenness 0.95
+→ **pen 28.5, shock 1.5**
+- skin *pierced* · muscle: 22.5 vs 25 would be severity 45, but the extent is ~0.15 of the
+  sword's, so **7** — a puncture that hurts (sensitivity), bleeds a little, and leaves the
+  leg mostly working · bone untouched
+
+Three completely different outcomes on the same target, from one set of numbers and no
+authored damage types. A staff breaks shins, a sword opens them, a rapier punctures them.
 
 ### What a hit leaves behind
 
@@ -1119,6 +1213,9 @@ intimidation and reach). Small and light gets something back.
 - **hands:** one, two, either
 - **penetration:** punching *through* armour (war pick yes, rapier no). Finding gaps is
   precision, not this.
+- **keenness** (0–1): edge quality. Same geometry, very different behaviour between a sharp
+  axe and a blunted one; it raises the penetrating share of the force. Degrades with use,
+  which gives maintenance something to do later.
 - **durability:** later, but wanted (skeletons' wooden shields should splinter)
 - possible: two-ended (quarterstaff), making high and low close in posture
 
@@ -1162,8 +1259,11 @@ intimidation and reach). Small and light gets something back.
 - How a swing path's momentum is spent per cell, and when it lodges.
 - Whether a card can also drop the weapon to bail (ball and chain); dropping swaps your
   weapon cards out of the deck.
-- How contents' size, protection and hardness turn force into a severity number.
-- Label ladders per content type, and how severity maps to structural vs pain penalties.
+- The anchor list: the handful of sentences that calibrate reference forces (first one: a
+  committed two-handed staff strike breaks a shin, a tap does not).
+- How armour behaves in the two channels as a content (plate stops penetration and passes
+  shock; padding soaks shock).
+- Each content's penalty mapping, and how severity splits into structural vs pain.
 - How the 3×3 swing grid maps onto the 5×5 target grid with height.
 - How the knight-style "defending already" case skips a reaction cleanly.
 - Stat list is a first pass; how to reward skewed builds.

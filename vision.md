@@ -251,6 +251,18 @@ out. A skeleton is immune to bleeding because it has no skin, not because someon
 off. A dodge works against a particular attack because of that attack's own arc and footwork,
 not a lookup table. Add a monster and the existing cards already know what to do with it.
 
+There are **no damage types** either. How much of a blow penetrates and how much shakes
+through comes from the pressure of the contact — a point, an edge or a face — and the
+weapon's keenness. So cut, pierce and crush aren't categories, they're what the geometry
+produces, and the awkward middles handle themselves: a shield thrust is blunt, a spiked
+morningstar is both, and the same sword chops or slices depending on the card.
+
+**Numbers should mean something you can argue about.** Each thing in a body carries the
+force that would half-ruin it — "how hard do you have to hit a shin to break it?" — in the
+same units as the force arriving. Compare like with like, and authoring becomes a question
+of judgement rather than tuning. The anchors are sentences anyone can check: a committed
+two-handed staff strike breaks a shin; a tap doesn't.
+
 **Every stat visible at both ends.** High gives you something, low *costs* you something you
 feel. Otherwise it's a dump slot. Low composure means you break first in a standoff; low
 intimidation means monsters see an easy target and you have to fight the ones that would
