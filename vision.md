@@ -402,6 +402,13 @@ being stunned by the wall you dived into; **position in the room**; **heat** as 
 damage channel for dragonfire and the one fireball; **poison**; monster AI (random is fine
 for the proof of concept); and how the whole turn looks on screen.
 
+**Luck** is further along as an idea than as a design. The shape: it never randomises
+anything, it only nudges results that were already borderline, it fires on its own because
+anything you can spend deliberately isn't luck, and it accrues on a pity timer plus prayer,
+shrines, relics and suffering. Bad luck exists only where you brought it on yourself —
+desecration, or playing Yūshugom, who is **Faithless**: no blessings, no curses, no praying,
+and a luck score that runs negative. Everything numeric about it is guesswork so far.
+
 ## Where things live
 
 - **`vision.md`** — this. Stance, philosophy, reasoning, mistakes.

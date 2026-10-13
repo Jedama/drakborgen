@@ -1227,6 +1227,119 @@ Learned from a first worked example that got too clever:
 
 ---
 
+## Luck — IDEA PHASE
+
+**Status: barely set in sand.** The shape below is agreed in principle; the accrual rates,
+the price function, and the thresholds that define a "grey band" are all unsettled. Treat
+every number here as a placeholder and the whole section as provisional.
+
+The board game has five stats and one of them is luck. We have nothing like it, and it could
+give us some uncertainty back without reintroducing dice. **Aelfric's signature stat.**
+
+### What it does
+
+- **It never randomises an outcome.** Luck acts only in **grey bands** — results that land
+  within a hair of a threshold. A thrust two points short of the heart clips the rib
+  instead: *"Lucky! Vital narrowly missed."*
+- **Decisive outcomes are immune.** Being trampled by a troll has no grey band to work with;
+  everything is already disastrous. Only a *lot* of luck should touch something decisive, if
+  ever.
+- **This is self-policing.** Bad decisions mostly produce decisive outcomes, so luck can't
+  erase them. When a bad decision happens to leave a near-miss, having it tip your way is
+  fine — it was near anyway. So luck can touch anything (even a feint you fell for, if your
+  shield is big and the real blow only just gets past it), but only ever as a nudge.
+- **The player has no agency over spending.** The moment you can plan around it, it stops
+  being luck and becomes a worse-named precision. It fires on its own.
+- **Price is keyed to the consequence delta**, with some interplay with the size of the
+  nudge: the same two centimetres is cheap when it turns a gash into a graze and ruinous
+  when it turns a severed throat into a scratch. If the ledger can pay, it spends.
+- **Hidden.** No visible number. You notice it in the messages, and you learn its rhythm by
+  feel — *"no procs for a while, I'm probably due."*
+- **No cap**, and **no carry-over between runs**. If you're sitting on a lot, take more risks.
+
+### Accrual
+
+A **pity timer** as the engine: fortune accrues from the gap since your last proc, scaled by
+the luck stat. It can't be farmed, needs no risk detection, and it makes luck a *rhythm*
+rather than a resource — fortune arrives spaced out, the way it reads in fiction.
+
+Additional sources, which are where deliberate choice lives:
+
+- **prayer** — out of combat, and a quick-prayer card mid-fight, both paying in time
+- **shrines and the chapel** in the castle; respecting liturgical imagery
+- **relics and charms** as loot: an amulet that raises your accrual rate, a saint's bone,
+  holy water. And a cursed one that quietly drains you — very much in genre, and good in a
+  game where loot is the only reward.
+- **suffering** — being badly hurt earns you one, the universe owing you a favour. A comeback
+  lever that suits the salvage phase, and not farmable because injuries are too expensive.
+- possibly **compensation for a bad draft**, since drafting will have randomness in it
+
+### Bad luck
+
+**Ruled against as a general mechanic** — it would just feel bad. It exists only where it is
+**self-inflicted**:
+
+- **desecration** — disrespecting liturgical imagery earns misfortune. Fair, because you
+  wrought it. (And there may be a reason to do it: a relic worth taking, at a price.)
+- the **Faithless** trait (below).
+
+Misfortune runs the same ledger with the opposite sign, spending itself to turn your grazes
+into gashes and your near-misses into hits.
+
+### Monsters
+
+Monsters don't have luck. Fallback if combat proves too predictable: spawn them with a
+hidden random amount, never shown to the player.
+
+### Rejected
+
+- **Luck as "precision 2".** The difference isn't magnitude, it's **agency**: precision is a
+  tool you aim, luck is something that happens to you. Anything you choose to spend is not
+  luck.
+- **A player-spent pool.** Same reason.
+- **Risk-based accrual.** Appealing — fortune favours the bold, and it kills the degenerate
+  tiptoe-to-the-treasure line — but it rewards a *style* rather than a *choice*, and the game
+  can't tell a brainless charge from a calculated gamble. Commitment-based accrual has the
+  same flaw: it pays the barbarian and not the strategist.
+- **Accruing from doing nothing.** Avoiding all risk shouldn't be the best way to get lucky.
+
+---
+
+## Traits — IDEA PHASE
+
+Discrete flags set at character creation, as opposed to continuous stats. "Traits" as the
+category; more will exist.
+
+**Faithless** (Yūshugom, who refuses anything magical — rings, amulets, the lot):
+
+- **no blessings and no curses.** His weakness and his immunity are the same trait: a cursed
+  amulet does nothing to him, so he can loot relics purely for their material worth.
+- **cannot pray at all.** That door is simply shut.
+- **luck runs negative.** The pity timer accrues *misfortune* for him, spending itself in the
+  same grey bands with the opposite sign. A long run can genuinely bury him under
+  accumulated bad fortune — which is a hell of a way to lose, and arguably the point of
+  playing him.
+- compensated by raw ability: three swords, the most health.
+
+Other names considered for the trait: Godless, Unblessed, Unfavoured, Self-reliant. Other
+names considered for the category: creeds, vows, convictions.
+
+---
+
+## Strategy — IDEA PHASE
+
+A possible stat, not settled, with two readings that are really separate things:
+
+- **deck-shaping at creation** — purge cards you never want, draft a few you do. The
+  strategist's deck is small and sharp, so their draws are more reliable. Mechanically the
+  *opposite* of imagination, which is a nice tension: fewer options, better options.
+- **run-level preparation** — your plan going in: more of the map known, a chosen approach,
+  supplies, a pre-planned escape route. Dungeon-layer rather than combat.
+
+One combat-layer idea: strategy lets you **carry a card over** between turns, so your plan
+survives the turn boundary while everyone else's hand is swept away.
+---
+
 ## Stats
 
 No classes. "Berserker", "ninja" etc. are shorthand for stat combinations. **Every stat
@@ -1235,6 +1348,9 @@ play. Otherwise it is a dump slot. Builds should be skewed, not hedged in the mi
 (probably via payoffs that grow faster than linearly; parked).
 
 ### Character
+
+Luck is a candidate stat (see Luck above, idea phase); strategy and decisiveness are
+candidates too. Traits are discrete flags, not stats.
 
 **Body facts** (not trained): **height**, **mass**. They cut both ways and nudge other
 stats slightly (mass → a little strength and intimidation; height → a little
@@ -1363,3 +1479,5 @@ intimidation and reach). Small and light gets something back.
 - How pain cards autoplay onto the timeline: when they appear, how much time they take,
   whether they can be worked around or displaced.
 - Engagement / binds / grappling.
+- Luck: accrual rates, the price function, and what counts as a grey band. All unsettled.
+- Whether strategy and decisiveness become stats, and what else belongs in traits.
