@@ -455,20 +455,164 @@ single required-accuracy comparison), and the force consequences of a successful
 
 ### Dodges
 
-- Kinds: sidesteps (left, back, right), in place (duck, jump, bend), rolls (if nimble),
-  reactive await-dodges (slower on their own, more adaptable).
-- Same shape as a block: windup, then an **evasive window**. A block *covers* a region;
-  a dodge *vacates* one. Duck escapes high, jump escapes low, a sidestep escapes one line
-  but a wide sweep from the wrong side can chase it.
-- Windup tracking applies: dodge too early and the attack follows.
-- A dodge **changes your posture**, which sets up what flows next (sidestep, then a thrust;
-  duck, then a leg sweep).
+Rebuilt with the same principle as blocks: **if you commit a card to dodging, the dodge
+happens.** Losing should be a decision you lost, not a race you didn't know about.
 
-**Distance is barely modelled.** Hit-and-run isn't fun to play against, so a backstep
-still leaves you in melee range. A backstep is like a sidestep but worse against charges,
-and its "weight back" posture can add momentum to certain charging follow-ups.
-Disengage is its own card. Ranged weapons exist, mostly for heroes.
+**Dodges are all-or-nothing.** A block *converts* an attack (you still take force, just not
+a cut); a dodge *erases* it. So there is nowhere for grading to live, and that is the
+character difference: blocks are reliable conversion, dodges are a gamble. The shield build
+grinds down, the nimble build bets. It's also why the shield was the historical default and
+dodging is the specialist's game.
 
+**What a dodge answers is a condition over properties the attack already has** — arc, line,
+reach, footwork — not an explicit tag pairing and not a per-card matchup table. Adding a
+weapon or a monster attack doesn't touch the dodges; adding a dodge doesn't touch the
+attacks. A monster's attack profile therefore implies which dodges work on it for free.
+
+As with blocks:
+- **one evasion per dodge card** (a flurry beats it — the second blow lands while your
+  movement is spent)
+- **varieties sorted by how long you're willing to not know**: a late slip is a narrow
+  guess, a hold-until-attacked void is the await version, a dive is committed early
+- **attention is your next card**: *sidestep → counter-thrust* assumes they committed;
+  *sidestep → slip* says you don't trust them. Feints punish the first.
+- **partial is caused, not computed**: an improvised dodge off a reaction prompt is poor; a
+  dodge that only partly answers the attack gets you clipped
+- **posture writeback** already handles where you end up and what flows next
+
+**The cost is different.** A block costs your hand and converts the damage. A dodge costs
+your **position and your counter**: out of the way, but out of the fight for a beat, maybe
+prone or airborne.
+
+#### How viable is dodging, really
+
+Standalone evasion is weak in real fighting, and the reasons shaped the above:
+
+- backing straight up is a mistake: you lose structure, can't hit from there, and he steps
+  with you — you get run down or hit a wall
+- voids are small and specific (slip the head, pull the arm, rotate off the line) and
+  almost always glued to a parry or counter
+- blade reach makes leaning out of a cut unrealistic; boxing-style head movement works
+  because fists are short, slow and edgeless
+- being lightly armed means *more* caution, not more dodging: distance and point control
+
+So the realistic dodges are small, cheap and keep you in the fight; the flashy ones are big,
+expensive and take you out of it. **Realism vs cool resolves through scarcity**: dives,
+rolls and leaps are rare cards or hero signatures (Iril's roll), so they land once a fight
+and feel earned instead of being the default answer.
+
+#### The lineup
+
+| card | answers | fails against |
+|---|---|---|
+| **slip** (upper-body shift) | narrow attacks aimed high — jabs, pecks, head thrusts. Tiny, cheap, stays in range to counter | anything wide, anything low, long weapons covering the torso |
+| **void the limb** | attacks aimed at a limb you've extended (the counter to someone sniping your sword arm) | body attacks |
+| **backstep** | planted attacks — the arc passes through where you were | pursuing cards, charges; and it costs your own counter |
+| **sidestep** | narrow attacks, straight-line closers | wide arcs, where you move *along* the sweep |
+| **duck** | horizontal sweeps, head-height attacks | downward chops and stomps — you move *into* them |
+| **jump** | low sweeps, trips, tail swipes | everything else; airborne means no steering, no bail, easy knockdown |
+| **dive / roll** | nearly anything, including areas | prone, long recovery, no counter, needs space |
+| **step in / jam** | long weapons (inside reach − working length), undeveloped big arcs | short weapons, knees, shield bashes, grapplers |
+| **give ground on contact** | blunt and heavy (the blow spends itself chasing you) — mitigation, not evasion | points and edges |
+| **flinch** (fear/pain card) | sometimes helps by accident | mostly wastes the beat |
+
+#### Pursuit
+
+The genuinely new thing with no block equivalent, and it's carried by the card's existing
+**footwork** field (which already decides whether your mass joins the force):
+
+- **planted** cards can't pursue: the 360 mallet swing, a rooted heavy cut. Huge force, and
+  a backstep beats them outright.
+- **stepping** cards pursue: the lunge, the charging chop. They follow you *and* carry your
+  mass, which is why they hit hardest.
+- **holding** cards don't want to pursue: the prod, the spear poke to keep something at bay.
+  If that meets a backstep, the attacker got what they wanted — a control tool rather than a
+  damage tool, which is a good thing for spears to own.
+
+Pursuit is **free** — no extra time cost. Any correlation between a card's time and its
+pursuit is authored, not derived; this is primarily card interaction.
+
+Rejected: displacement capacity in cells plus clearance-needed sums (the dodge version of
+the travel-race model), and clearance multipliers per direction.
+---
+
+## Measure (distance)
+
+No metres, no tracked positions, no per-part depth layers. **Three shared bands** between
+the two fighters:
+
+- **far** — only long weapons threaten. A polearm user's or a long-armed troll's home.
+- **normal** — where most fighting happens, because that's where you have room to swing.
+- **near** — bodies colliding, touching distance. You can't really swing here, so it is
+  **inherently unstable**: you bounce back out unless you keep acting to stay (grappling is
+  parked under engagement).
+
+Possibly a **very far** beyond that, where you start and where only ranged weapons do
+anything — ranged options are meant to be few.
+
+**Near is held by continuity, not a timer.** As long as your next card also wants to be
+there, you stay; a beat of nothing, or a card that needs room, defaults you back out. The
+defender can expel you too: their dodge takes them away, their block bounces you off.
+
+This is the same device as attention being your next card — the sequence expresses
+continuity, so nothing extra is tracked.
+
+It gives the dagger a real identity: a **pressure fighter who must never let the rhythm
+break**. Every card in the string keeps him in; one pause and he's back at a band where he
+has nothing. Precarious and terrifying, which is right.
+
+**Whoever wins an exchange sets the measure afterwards** — not a fixed rule about weapon
+length. And the quality of the defence is already a byproduct of resolution, so this needs
+no new per-card data:
+
+- a clean dodge, a block with force behind it, a shove, a kick → he dictated terms, measure
+  resets to his band
+- an improvised dodge off a reaction prompt, a partial block, a stagger, a shoved timeline →
+  he survived without dictating anything, so you're still inside
+
+That hands **reaction dodges** the cost they were missing: you live, and you lose the
+position. He's still in your face and you're the one scrambling. Planned defence is
+therefore better than panicked defence without panic being useless.
+
+Cards can override the general rule as needed — a toss throws you to very far, and plenty of
+things will depend.
+
+**Crossing far is the interesting part.** Against a sword, nobody cares; you're both at
+normal immediately. Against a polearm, reaching normal means spending time inside his good
+band, and once you're there he's in trouble. The prod's job is to shove measure back open.
+So reach is **upside at one band and a liability at another**, and the fight is about which
+band you're in.
+
+### What measure has to cover
+
+- **reach advantages** → the far band, where only he can reach
+- **stepping in to the harmless part of a swing** → going near against a long weapon, where
+  the shaft is what's between you (reach − working length)
+- **a short-range fighter needing to close** → a dagger only threatens at near, must cross
+  two bands, and can't rest there
+- **attacking and pulling back extended limbs** → *not* a measure question. Your arm is
+  extended because you're mid-attack, so "extended" is a **phase**, not a position: a
+  snipe-the-limb card requires its target to be in strike or early recovery, which makes it
+  a read. The void answers that and nothing else.
+
+### Rejected
+
+- **metres and tracked positions.** Too precise to maintain, and it invited hit-and-run,
+  which isn't fun to play against.
+- **a 5×5×3 grid.** Two of the three layers would be nearly empty; 75 cells per creature to
+  author, and the player reads three pictures instead of one.
+- **depth as a per-part attribute.** It answers a narrower question (contact ordering, a
+  sniped limb) and is really the 5×5×3 in disguise; a hand also moves between cells during a
+  swing anyway.
+- **a sticky "closed" flag.** Near isn't somewhere you can camp — you need space to swing
+  and manoeuvre, so continuity is what holds it.
+- **distance embedded entirely in cards, with no state at all.** Side effects were too big:
+  the dagger pays its approach forever instead of once, reach becomes pure upside with no
+  close-quarters liability, you can't exploit an opening you just created, and giving ground
+  never accumulates.
+
+Later, separately: **position in the room** — obstacles and walls, so diving or stepping
+back into one stuns you.
 ---
 
 ## Reaction opportunities
@@ -1001,8 +1145,9 @@ intimidation and reach). Small and light gets something back.
 - How required accuracy is computed from the attack (arc, working size) against the
   defending object (working length, width), and what precision it demands.
 - How precision and armour coverage combine in general (fraction bypassed? gap targeted?).
-- Dodges: the same rethink blocks just had. Capacity per card and phases for timing were
-  the last sketch; planned footwork vs reactive dodging still unresolved.
+- Whether a fourth "very far" band exists, and what a fight opens at.
+- How a defence's quality maps to who sets the measure afterwards.
+- Which dodge cards are rare or hero signatures, to keep the flashy ones scarce.
 - Exact numbers for posture bonuses/penalties, and how bad posture splits into slower vs
   weaker.
 - How a swing path's momentum is spent per cell, and when it lodges.
