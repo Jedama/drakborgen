@@ -1083,13 +1083,13 @@ intimidation and reach). Small and light gets something back.
 - **hand-to-surface distance** (m): how far the blocking/striking surface sits from the
   hand. ~0.1 for a strapped shield, ~0.4 for a sword parrying mid-blade. Multiplies aim
   error, and sets the lever for torque.
-- **reach:** the weapon alone, in metres, from a comfortable grip. **Effective reach** is
-  computed: weapon reach + an arm contribution from height + posture (hand extended,
-  weight forward, a stepping card). A card can say "grip at the tip": more reach, and the
-  costs follow from existing stats (weight distribution moves out, so slower to redirect,
-  harder to bail, easier to twist from your grip, and no second hand).
-  Reach matters because you connect earlier in your swing, before a shorter weapon
-  reaches you; getting inside it is the counterplay.
+- **reach:** the weapon alone, in metres, from a comfortable grip, plus an arm contribution
+  from height. Its main job is deciding **which measure bands you threaten at** (see
+  Measure): a polearm owns *far*, a sword *normal*, a dagger only *near*. So reach is
+  upside at one band and a liability at another, and getting inside it is the counterplay.
+  A card can say "grip at the tip": more reach, with the costs following from existing
+  stats (weight distribution moves out, so slower to redirect, harder to bail, easier to
+  twist from your grip, and no second hand).
 - **working length** and **working width** (metres): the surface that can hurt or stop
   something. Length tells how many of the target's cells a swing crosses; width decides
   narrow-and-penetrating vs wide-and-shocking; length × width is roughly the area, which
