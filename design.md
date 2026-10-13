@@ -15,7 +15,7 @@ navigation and the rest come later. Without combat there is no game.
 
 ## What we kept from attempt 1
 
-- Declaring intent
+- Declaring stance
 - Cards and decks
 - Fear and pain altering stats and cards
 - No damage numbers, no HP
@@ -58,19 +58,22 @@ committed blow, "take a breath" first.
 
 ## Turn structure
 
+**Terminology:** *stance* and *intent* are the same thing — you pick an intent and enter a
+stance that signals it to the enemy. One word is enough, and the word is **stance**.
+
 1. Both sides arrive and see each other.
-2. Draw **~4 random cards** (instinct). These influence which intent you pick.
-3. Choose **intent**, blind: charge / attack / await / defend / flee.
+2. Draw **~4 random cards** (instinct). These influence which stance you pick.
+3. Choose **stance**, blind: charge / attack / await / defend / flee.
    This is the board game's ABC choice.
-4. Draw **~6 cards from that intent**.
-5. Intents are revealed (always visible to both).
+4. Draw **~6 cards from that stance**.
+5. Stances are revealed (always visible to both).
 6. Each side **writes and locks a sequence** of cards filling the turn.
 7. Resolve.
 
-Intents have **no built-in RPS rules**. Their relationships emerge from the cards they
+Stances have **no built-in RPS rules**. Their relationships emerge from the cards they
 draw and how those cards meet.
 
-Layering: coarse blind guess (intent), then a detailed informed plan (sequence).
+Layering: coarse blind guess (stance), then a detailed informed plan (sequence).
 ABC grows into XYZ-and-beyond.
 
 Possible add-on: monsters lock in some cards first, and an analysis-type stat lets the
@@ -238,7 +241,7 @@ Concerns considered and accepted:
 - **Showing it:** the hard part, but should be doable.
 
 **End of turn:** cards pushed entirely past t=10 vanish. A card straddling t=10 cancels
-or completes depending on its lock-in. A new turn can't start mid-attack, since intent
+or completes depending on its lock-in. A new turn can't start mid-attack, since stance
 and draws happen again. If one side's card runs over while the other's plan has ended,
 the other side is unscripted and ready to react to it.
 
@@ -625,7 +628,7 @@ A reaction opportunity is **any moment where the written plan runs out of script
 You get a small special hand drawn for that kind of moment.
 
 - **Danger** ("you're about to get hit"): duck, backstep, parry.
-  Reaction cards are in the normal deck but carry no intent tag, so you rarely hold them.
+  Reaction cards are in the normal deck but carry no stance tag, so you rarely hold them.
 - **Stall** ("opponent isn't doing anything"): stand your ground, disengage, flee,
   approach, proceed with next card. How many you draw depends on stats
   (imagination / flexibility).
@@ -921,7 +924,7 @@ your draws):
 - slightly slower footing and speed
 - dead-ish cards: **Falter**, **Swallow**. Playing one costs a slot but restores a little
   composure/nerve. Steady yourself now, or push through with a thinner hand?
-- intent draws get contaminated: pick *charge*, and *back off* and *run away* still show up.
+- stance draws get contaminated: pick *charge*, and *back off* and *run away* still show up.
   You intend to charge, but that's what your mind comes up with.
 
 All on a scale. **Panic emerges**: at high fear your charge hand is mostly run-away and
@@ -937,7 +940,7 @@ are posture: shield held, pressure on a wound.)
 
 - **Berserk** (like Charak Hai in the board game): a **temporary skew**. Pain tolerance
   and strength way up; reaction speed, analysis, improvisation down to nothing. Lasts
-  until the fight is over, **no voluntary exit**, and locks intent to charge/attack (no
+  until the fight is over, **no voluntary exit**, and locks stance to charge/attack (no
   flee, no await). Can be broken by a **daze**.
 - Others: focused, calm, and so on.
 
@@ -1166,7 +1169,7 @@ intimidation and reach). Small and light gets something back.
 - Stat list is a first pass; how to reward skewed builds.
 - Card totals snapping to halves vs quarters.
 - How the player sees the 40-slot timeline, shifts, and the opponent's hints.
-- Fear: how much contamination per fear level; whether it lands in instinct or intent draws.
+- Fear: how much contamination per fear level; whether it lands in instinct or stance draws.
 - How pain cards autoplay onto the timeline: when they appear, how much time they take,
   whether they can be worked around or displaced.
 - Engagement / binds / grappling.

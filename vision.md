@@ -3,7 +3,7 @@
 This is the document to read first. It's the *why* — the feel we're chasing, the
 philosophies behind the mechanics, and the reasoning that produced them. `design.md` is the
 *what*: the decisions, the numbers, the fields on a card. If the two ever disagree, this one
-is the intent and that one is the implementation.
+is the intention and that one is the implementation.
 
 It's written for whoever arrives next and needs to think with us: a fresh AI session, a
 collaborator, or us in three weeks having forgotten the half of it.
@@ -77,17 +77,36 @@ Undecided, deliberately. The ideas on the table:
 **Four default heroes**, each a different answer to the dungeon, and each defined as much by
 their kit as their stats:
 
-- **Rohan** — armour, shield, sword. The sturdy one.
-- **Siger** — axe and buckler.
-- **Aelfric** — quarterstaff and morningstar.
-- **Bardhor** — crossbow, shortsword and shield.
+- **Riddar Rohan** — armour, shield, sword. The sturdy one.
+- **Sigeir Skarpyxe** — axe and buckler.
+- **Aelfric Brunkåpa** — quarterstaff and morningstar.
+- **Bardhor Bågman** — crossbow, shortsword and shield. The one who gets real value out of
+  the opening, while everyone is still crossing the ground.
 
 A **character creator** unlocked after you've run each of them, so you learn what the stats
 mean through pre-built characters before building your own.
 
-Beyond those four there are other heroes, not available at the start: **Iril**, who moves
-two rooms in a turn and therefore laughs at the clock; **Yubara**, who avoids fights through
-stealth; **Charak Hai**, who goes berserk and ends fights before they develop.
+The rest of the board game's roster, not available at the start:
+
+| hero | what they are |
+|---|---|
+| **Iril Fëaneline** | moves two rooms in a turn, and therefore laughs at the clock |
+| **Yūbara Tori-Jima** | avoids fights through stealth |
+| **Chārāk-Hai Vargdödaren** | goes berserk and ends fights before they develop |
+| **Yūshugom Bogd-Uul** | three swords, the most health, refuses magic |
+| **Mrishnahk magikern** | fireballs, invisibility, walking through walls, stopping time |
+| **Dzála Náryn** | a ball of light, and a draconic dog, Oracaz |
+| **Durim Dolkspänne** | throws knives, picks locks, useless in a fight |
+| **Thargrim den mörke** | the dark one |
+
+The re-release added variants of the base four — **Béla Snabbskäkt**, **Riddar Rut**,
+**Sigrunn Skiöldkross**, **Astrid Gråsyster**. We don't care about those much; support them
+later or not at all.
+
+Mrishnahk is a warning sign as much as a hero: stopping time and walking through walls are
+not things this combat model has any notion of. Magic costs fatigue in our version, and the
+big effects (dragonfire, the one fireball) are deliberately powerful, niche and not balanced
+carefully. Whether a full wizard is expressible at all is a question for much later.
 
 A lovely idea we want to find room for: **the other heroes are also in the dungeon, racing
 you.** You round a corner and there's Thargrim, and your hand fills with fear cards. Beat
@@ -373,7 +392,7 @@ for the proof of concept); and how the whole turn looks on screen.
 
 ## Where things live
 
-- **`vision.md`** — this. Intent, philosophy, reasoning, mistakes.
+- **`vision.md`** — this. Stance, philosophy, reasoning, mistakes.
 - **`design.md`** — the decisions in detail: stats, fields, formulas, worked examples, open
   questions.
 - **`attempt1/`** — the first attempt, kept as a record. The curves, the splines, the
