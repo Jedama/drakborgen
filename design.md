@@ -339,7 +339,7 @@ a buckler punishes it, a tower shield forgives it.
 
 #### Coverage, overhang and precision
 
-Held defences occupy cells (placed by the posture step that adjusts the grid), and size
+Held defences occupy cells (placed by the posture step that adjusts the layout), and size
 spills into neighbouring cells. Two things fall out for free:
 
 - **Overhang:** a big attack covers several cells at once, so a giant's palm meets your
@@ -711,46 +711,102 @@ Players learn tendencies mostly **over runs**.
 
 ---
 
-## Anatomy and height
+## Anatomy
 
-- Each creature has a **5×5 anatomy grid**, adjusted by posture before use (below).
-  Dodging, parrying and blocking are resolved before it, separately.
+A creature's body is **a set of named regions with proportional bounds**. A rectangular
+X×Y grid is just the easy way to author one. Regions are used for the *consequences* of a
+hit that has already connected; dodging, parrying and blocking are resolved before it.
 
-  ```
-  .          .          Head       .          .
-  .          Upper arm  Chest      Upper arm  .
-  .          Lower arm  Stomach    Lower arm  .
-  .          .          Upper legs .          .
-  .          .          Lower legs .          .
-  ```
+A blow arrives as a **footprint in real units** — the weapon's working length, positioned by
+height and by the card's path — and we ask which regions it overlaps. No cell indices, no
+per-creature special cases.
 
-  A low trip covers row 4. Monster grids can be weird (a serpent, a spider).
-- **Height is a stat.** It decides which rows you can reach. A 1.60 m human never
-  reaches a 4 m giant's head, and a goblin doesn't reach yours unless you're down.
-- Attacks target **regions** (high/low, side), never named body parts. No "armpit."
-- The contact system still needs a coarse notion of height and side. The grid says
-  *where exactly*; contact says *roughly where, and did it get through*.
-- Cards are written in the **attacker's frame** and mirrored onto the defender. The
+### The humanoid layout
+
+Three columns (side, midline, side) and seven uneven rows. Columns are three slices of the
+*body*, roughly cheek to cheek — not arms held out wide. Rows are named and proportional:
+
+| row | ~share of height |
+|---|---|
+| head | 13% |
+| neck | 4% |
+| chest | 18% |
+| belly | 12% |
+| hips | 10% |
+| thighs | 23% |
+| shins | 20% |
+
+```
+           side              midline            side
+  head   temple, cheek     face, skull       temple, cheek
+  neck   side of neck      throat, spine     side of neck
+  chest  ribs, lung,       sternum,          ribs, lung,
+         shoulder          heart (left-of-   shoulder
+                           centre, so it
+                           sits in the left
+                           side column)
+  belly  flank, kidney,    gut, spine        flank, kidney
+         liver (right)
+  hips   hip, joint        groin             hip, joint
+  shins  shin, calf        (stance gap)      shin, calf
+  …thighs likewise
+```
+
+- **The midline is the duelist's line**: throat, sternum, gut, groin. Exactly what thrusts
+  and straight chops are for.
+- **The heart is left-of-centre**, so it lives in a side column. Aiming for it is a
+  *specific* choice rather than the obvious one.
+- **The head sides are mostly skull** with little in them; their real job is telling us
+  which direction the blow came from.
+- **The bottom middle is air** — a wide stance leaves a gap, so thrusting between someone's
+  legs hits nothing. The model says so for free.
+- **Cells are tall and narrow**, not square: on a 1.7 m human, roughly 15 cm × 34 cm. The
+  gap arithmetic survives — a head cell is ~0.05 m², so a helm at 0.98 coverage leaves about
+  a 3 cm square, which is an eye slit.
+- **No outer columns.** A reaching arm or a shield held wide isn't geography; being extended
+  is a **phase** (you're mid-attack), as decided under Measure. Arms default to the side
+  columns, sharing those cells with ribs and flank, which is where they actually hang;
+  posture moves them (up a row for a high guard, and so on).
+- **Small rows are the valuable ones.** The neck is a twentieth of the body, so hitting it
+  deliberately is a precision feat and hitting it by accident nearly never happens. That is
+  the gate *decapitate* needs — no special rule, just a small row.
+- **Targeting:** ordinary attacks land high or low relative to the attacker's own height;
+  specific cards may name a row.
+- **Reach by height falls out.** Regions have absolute heights derived from the creature's
+  height, so a 1.6 m human cannot overlap a 4 m giant's head regions, and a goblin cannot
+  reach yours unless you are down.
+- Cards are written in the **attacker's frame** and mirrored onto the defender: the
   attacker's left is the defender's right.
-- The attacker's 3×3 swing grid is translated onto the defender's 5×5 grid using height.
 
-### What's in a cell
+### Containers
 
-Each cell holds a **list of contents**, each reacting to damage in its own way:
+Within a region, body parts are **containers** — "left lower leg" — authored once and
+instanced (left, right, and reused by any creature with legs). A container holds its layers,
+its features, and whatever armour is worn over it, and it is the natural home for
+**limb-level state**: this leg is broken, this arm's grip is weakened.
 
-- **skin:** bleeds, hurts
-- **muscle:** hurts, weakens what it moves
-- **bone:** breaks
-- **organs:** eyes, brain, lungs, with special effects (blind, daze, winded)
+Left and right stay distinct with no pairing rule, because they're in different columns.
+Nothing inside a region has coordinates — the region is the resolution limit for *where*.
+**Direction picks the side; precision picks the feature.**
 
-Contents are not strictly ordered (the head is a cluster, not a stack). Each has:
+### Layers and features
 
-- **size:** share of the cell (brain ~0.4 of the head, cranium ~0.8)
-- **protected by:** what shields it (brain by cranium, cranium by skin); exposed if none
-- **two reference forces** — the force that half-ruins it through each channel: one for
-  **penetration**, one for **shock**. In the *same units as force*, so the comparison is
-  like with like and there is no hardness constant. Authoring them asks questions a human
-  can answer: "how hard must you hit a shin to break it?"
+Contents come in two kinds, which stops "share" from meaning two different things:
+
+- **Layers** fill their container at a depth and a blow always meets them in order: skin,
+  then muscle, then bone. The brain is a layer too — one that fills the inside of the
+  cranium. Muscle doesn't need a percentage; it simply *is* what you go through.
+- **Features** are localised: Achilles, kneecap, eye, throat, the gap in a visor. Their
+  share is really a **precision cost**, not a volume, and they can carry tags like
+  **needs-an-opening** (reachable from behind, or only while they're prone) so sneak and
+  flanking cards have specific prizes without any body geometry being mapped.
+
+Each content (layer or feature) carries:
+
+- **two reference forces** — the force that half-ruins it through each channel, one for
+  **penetration** and one for **shock**. In the *same units as force*, so the comparison is
+  like with like and there is no hardness constant. Authoring asks a question a human can
+  answer: "how hard must you hit a shin to break it?"
 - **steepness:** how fast severity climbs once it's in trouble. Bone is brittle (steep);
   skin just gets a longer cut (shallow).
 - **sensitivity:** pain produced per point of severity. A shin or a kneecap hurts out of all
@@ -758,36 +814,69 @@ Contents are not strictly ordered (the head is a cluster, not a stack). Each has
 - **what it passes on:** skin passes nearly everything; muscle soaks penetration; bone stops
   penetration and transmits shock.
 - **its own penalty mapping:** bone → weight-bearing and balance, muscle → push-off and
-  strength, and so on. No hierarchy between contents: a severed calf muscle cripples a leg
-  about as badly as a broken tibia.
-- optional tags such as **needs-an-opening** (a tendon reachable from behind, something
-  only available while they're prone), so sneak and flanking cards have specific prizes
-  without mapping any body geometry.
+  strength. No hierarchy between contents — a severed calf cripples a leg about as badly as
+  a broken tibia.
 
-Skin, muscle and bone are authored once and shared almost everywhere; a cell then adds two
-or three extras — kneecap, tendon, eye, brain, lung.
+Skin, muscle and bone are authored once and shared almost everywhere; a container then adds
+two or three features.
 
-**Armour is just a content**: the outermost thing in the cells it covers. Plate is hard
-(stops penetration, passes shock); padding soaks shock. A monk with arm guards is
-protected exactly on the lower arms. A full helm has coverage ~0.98 with the eyes still
-exposed. No special rules needed.
+**Armour attaches to containers and contents, not to regions**, with a coverage fraction —
+which is how "front only" gets expressed:
 
-Words: **size** for anatomy (the brain's share of the head), **coverage** for things worn
-or held.
+| piece | protects | coverage |
+|---|---|---|
+| sabaton | foot | ~0.9 |
+| greave | lower leg, front only | ~0.5 — which is why the Achilles stays a target |
+| mail chausses | lower leg, all round | ~0.95 |
+| padded hose | lower leg | poor against penetration, good at soaking shock |
+| full helm | head | ~0.98, eyes exposed in the remainder |
 
-### Posture adjusts the grid
+Plate is hard: it stops penetration and passes shock. Padding soaks shock. Armour **does
+not** change a region's size — the coverage fraction says everything needed, and recomputing
+the layout every time someone puts a boot on would buy nothing.
 
-A small adjustment step runs first, then the grid handles everything (both what the blade
-meets and what the hit does). Considered and rejected: a fully static grid, and a
-separate "contact decides interception" layer. One adjusted grid is simpler.
+Words: **size** for anatomy, **coverage** for things worn or held.
 
-- **crouch:** legs collapse into fewer rows, the head comes down; a smaller target, so
-  high attacks find nothing
+### Other bodies
+
+The humanoid layout is written once and shared by every humanoid — skeletons, goblins,
+bandits, the other heroes. A creature only needs its own layout when its body genuinely
+differs:
+
+- **bat:** 3 × 1 — wing, body, wing, at roughly 42 / 16 / 42 — with a tiny absolute height
+  and width, which is what makes it hard to hit. Your weapon's footprint may cover the whole
+  creature, so the problem is connecting at all rather than choosing where.
+- **spider:** wide and low, with eight leg containers around a body.
+- **giant slug:** two rows, a handful of columns, nothing but flank. Its job is to make you
+  turn around unless you brought something specific — so its interest lives in its contents
+  and hide rather than its layout.
+- **dragon:** a body plus a neck and tail whose regions *move*, which is where monster
+  posture comes in.
+
+### Rejected along the way
+
+- **A uniform 5×5 with the legs stacked in the middle column.** Legs don't live on your
+  midline; the midline is the high-value target line, and between the legs is air.
+- **4×5**, which gives clean left/right but loses the midline — head, sternum, spine and
+  groin would all straddle two cells, which is worse.
+- **Sub-cell positions or an ordering of containers within a cell**, i.e. mapping anatomy
+  inside a region. Direction of attack and precision cover what that was for.
+- **Outer columns as cells**, for reaching arms and held shields: nearly always empty, and
+  better expressed as the extended *phase*.
+- **Depth as a third axis or a per-part attribute** (see Measure).
+### Posture adjusts the layout
+
+A small adjustment step runs first, then the regions handle everything (both what the blade
+meets and what the hit does). Considered and rejected: a fully static layout, and a
+separate "contact decides interception" layer. One adjusted layout is simpler.
+
+- **crouch:** the leg rows compress and the head comes down; a smaller target, so high
+  attacks find nothing
 - **arms:** move within their own 3×3 around the shoulder
-- **weight / jumping:** shift the whole grid relative to the attacker (an offset when
-  mapping the attacker's 3×3 onto it)
-- **shield:** placed into cells by the off-hand posture
-- **non-humanoids** (snake, spider, bat): no posture system at all, so a static grid
+- **weight / jumping:** shift the whole layout relative to the attacker (an offset when
+  mapping the attacker's swing onto it)
+- **shield:** placed into regions by the off-hand posture
+- **non-humanoids** (snake, spider, bat): no posture system at all, so a static layout
 
 **Overlap is the point.** A raised forearm shares a cell with the head; a shield sits in
 front of the chest. No separate depth order is needed — the **protected by** chain does
@@ -1264,7 +1353,8 @@ intimidation and reach). Small and light gets something back.
 - How armour behaves in the two channels as a content (plate stops penetration and passes
   shock; padding soaks shock).
 - Each content's penalty mapping, and how severity splits into structural vs pain.
-- How the 3×3 swing grid maps onto the 5×5 target grid with height.
+- How the attacker's 3×3 swing grid maps onto the target's regions (proportional overlap of
+  a real-unit footprint, positioned by height).
 - How the knight-style "defending already" case skips a reaction cleanly.
 - Stat list is a first pass; how to reward skewed builds.
 - Card totals snapping to halves vs quarters.
