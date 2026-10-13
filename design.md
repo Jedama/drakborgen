@@ -835,7 +835,9 @@ Pain and disruption are separate: skeletons ignore the *hurt* but still get *sho
 
 - **Stats have base and current values.** Display: a small footwork icon with
   `41 −8`. Hover: `Pain: left shin −8`.
-- **Pain:** modest. Lowers stats, may add a **Wince** card. Fades *gradually* between
+- **Pain:** modest. Lowers stats, and adds cards like **Wince**. Pain should do more than
+  narrow your options: these cards may **autoplay**, putting themselves onto your timeline so
+  you have to build around them (you don't choose to wince). Exact shape undecided. Fades *gradually* between
   fights depending on severity, so rushing into the next room means going in hurt.
 - **Bleeding, broken things, (fatigue?)** carry over. Bleeding is a clock toward the exit.
 - **Adrenaline** rises when hurt and temporarily counteracts bad effects, but falls off
@@ -1165,4 +1167,6 @@ intimidation and reach). Small and light gets something back.
 - Card totals snapping to halves vs quarters.
 - How the player sees the 40-slot timeline, shifts, and the opponent's hints.
 - Fear: how much contamination per fear level; whether it lands in instinct or intent draws.
+- How pain cards autoplay onto the timeline: when they appear, how much time they take,
+  whether they can be worked around or displaced.
 - Engagement / binds / grappling.

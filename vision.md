@@ -15,7 +15,7 @@ collaborator, or us in three weeks having forgotten the half of it.
 It's a reimagining of **Drakborgen** — the Swedish board game known elsewhere as
 DungeonQuest. You enter a dragon's castle, work through its rooms, try to reach the treasure
 chamber, and try to be out again before midnight. The board game is famous for killing you.
-Most players die. That's the joke and the appeal.
+Most players die. That's the appeal.
 
 We want to keep the cards, the art style, the monsters and the heroes. An ideal we'd be
 delighted to hit: **every card in the board game can be expressed in some form in ours.**
@@ -54,10 +54,11 @@ running away is a *skilled play*, not a failure state. If your sword can't pierc
 hide, the correct answer is to leave, and the game should never make you feel you left value
 on the table. Fights are obstacles, not content to be farmed.
 
-**The clock is the real enemy.** Midnight is the deadline, and time is the resource that
-every safe choice spends. A turtle in heavy armour behind a steel shield survives every
-fight he takes and gets caught in the dungeon at midnight. That's how defence gets balanced
-— not by making shields weaker, but by making safety slow.
+**The clock stops you lingering.** The monsters and the traps are what kill you; midnight is
+what stops you taking forever about it. But that's enough to make time the resource every
+safe choice spends, and it's how defence gets balanced — not by making shields weaker, but
+by making safety slow. A turtle in heavy armour behind a steel shield survives every fight
+he takes and gets caught in the dungeon at midnight.
 
 The skill curve we want runs in three stages:
 
@@ -73,11 +74,20 @@ resources.
 
 Undecided, deliberately. The ideas on the table:
 
-Four default heroes to start with, each a different answer to the dungeon — one who's hard
-to kill, one (Iril) who moves two rooms in a turn and therefore laughs at the clock, one
-(Yubara) who avoids fights through stealth, one (Charak Hai) who goes berserk and ends
-fights before they develop. A **character creator** unlocked after you've run each of them,
-so you learn what the stats mean through pre-built characters before building your own.
+**Four default heroes**, each a different answer to the dungeon, and each defined as much by
+their kit as their stats:
+
+- **Rohan** — armour, shield, sword. The sturdy one.
+- **Siger** — axe and buckler.
+- **Aelfric** — quarterstaff and morningstar.
+- **Bardhor** — crossbow, shortsword and shield.
+
+A **character creator** unlocked after you've run each of them, so you learn what the stats
+mean through pre-built characters before building your own.
+
+Beyond those four there are other heroes, not available at the start: **Iril**, who moves
+two rooms in a turn and therefore laughs at the clock; **Yubara**, who avoids fights through
+stealth; **Charak Hai**, who goes berserk and ends fights before they develop.
 
 A lovely idea we want to find room for: **the other heroes are also in the dungeon, racing
 you.** You round a corner and there's Thargrim, and your hand fills with fear cards. Beat
@@ -95,12 +105,16 @@ building collapses. No solution yet. Parked.
 
 Both sides arrive, see each other, and the exchange goes like this.
 
-You **draw**. Some cards come at random (your instinct — what your body offers), and the
-rest come from your declared intent (your plan). Then you pick an **intent**, blind:
-charge, attack, await, defend or flee. That's the board game's ABC choice, preserved: a
-coarse, simultaneous guess made before you know anything. Intents are then revealed, and
-*now* you write your detailed plan knowing roughly what they mean to do. Coarse blind guess
-first, fine informed plan second.
+1. **Draw your instinct cards** — a few at random. What your body offers, before you've
+   decided anything.
+2. **Pick your stance**, blind: charge, attack, await, defend or flee. You choose it knowing
+   what you're facing and what your instinct handed you, but not what they'll do. That's the
+   board game's ABC choice, preserved.
+3. **Draw your stance cards** — the rest of your hand, drawn from that stance.
+4. **See their stance.**
+5. **Build your sequence**, now knowing roughly what they mean to do.
+
+Coarse blind guess first, fine informed plan second.
 
 **Your hand is the point.** The deck is everything you can do — all the ways you know how to
 swing that weapon, every bit of footwork, every trick. But your hand is what you *came up
@@ -112,7 +126,9 @@ amount of work:
   number, it's your mind offering you worse ideas. Pick charge while terrified and the game
   hands you run-away cards anyway. You intended to charge; that's just not what came to
   mind.
-- Pain shuffles *wince* into your deck. Injury means fewer real choices.
+- Pain shuffles *wince* into your deck. And pain should do more than narrow your options:
+  these cards may **play themselves**, dropping onto your timeline so you have to build
+  around them. You don't choose to wince. Exact shape undecided.
 - Panic doesn't need a rule. As fear rises, your hand quietly becomes nothing but flinching,
   and you can see it coming, hand by hand.
 
