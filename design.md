@@ -4,6 +4,10 @@ A record of the brainstorm that restarted the combat design. It captures decisio
 open questions, not a spec. The first attempt (splines, curves, bands, rolled hit
 location, millisecond timeline) is archived in `attempt1/` for reference.
 
+**Read [`vision.md`](vision.md) first** — it explains the game, the feel we're chasing, the
+philosophies behind these decisions, and the mistakes that produced them. This document is
+the *what*; that one is the *why*.
+
 Scope right now: **a proof of concept for the combat engine.** Traps, dungeon
 navigation and the rest come later. Without combat there is no game.
 
