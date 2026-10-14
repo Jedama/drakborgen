@@ -28,7 +28,8 @@ navigation and the rest come later. Without combat there is no game.
 - Resolution curves, bands, splines
 - Hit location rolled from a curve
 - Continuous millisecond timeline with approach speeds
-- Per-turn energy/stamina budget (parked; may return for balance)
+- Per-turn energy/stamina budget — it said the same thing as the time budget. Replaced by
+  drifting Exhaustion and Fatigue (see that section)
 
 ---
 
@@ -541,6 +542,118 @@ pursuit is authored, not derived; this is primarily card interaction.
 
 Rejected: displacement capacity in cells plus clearance-needed sums (the dodge version of
 the travel-race model), and clearance multipliers per direction.
+---
+
+## The opening of a fight
+
+Fights start at **very far**, so turn one is structurally different — someone has to cross
+the ground. (Very far returns later only via a disengage, a toss, or a successful flight.)
+
+**Stance decides who crosses:**
+
+- **charge** — cross fast, and the crossing feeds your mass into the first blow
+- **attack** — cross normally
+- **await / defend** — don't cross; let them come and spend the beat on preparation
+- **flee** — the cheapest exit in the game, since nobody has closed yet
+
+**Nothing should discourage you from crossing.** We want melee. The waiting party gets a
+beat, but that beat must not be enough to make engaging feel punished; the risk of the fight
+itself is discouragement enough. The distinction is **crossing** (safe, as it should be)
+versus **charging** (committing your mass, which is what gets punished).
+
+**Crossing eats slots off the front of the turn**, which puts pace on the timeline where it
+can be seen: the troll's crossing takes three units, so his first swing lands late and you
+watch it coming.
+
+**Pace decides the cost**, and the consequences are all legible:
+
+- a **fast** enemy (bat, black elf) is on you at once, so you get no preparation beat
+- a **slow** one gives you a long beat — breathe, analyse, loose a bolt, set a weapon
+- the **slug** may not reach you within the turn at all, which is the whole point of the
+  slug: you can simply leave
+- the same stat decides whether you can **outrun** something, so fleeing the slug is trivial
+  and fleeing the elf is not
+- a much faster fighter **chooses the measure** every turn — closing and opening at will,
+  with the slower side unable to prevent it. That's Iril's character, and it's what makes a
+  disengage stick or fail.
+
+**If both wait**, nobody closes and we're in the standoff machinery: stall prompts, composure
+deciding who breaks first, and the clock burning.
+
+**Showing the cost.** Stances are revealed before you build, so the game knows whether they
+are closing too (both crossing ⇒ you meet in the middle, each paying about half). What it
+can't always know is **their pace** — so the first time you meet something the estimate is
+hazy, and once you know how a black elf moves it's precise. Same learning curve as knowing
+that elves feint.
+
+**The waiter's cards** come from situational weighting, not new machinery: at very far,
+await and defend draws lean toward steady yourself, analyse them, draw a different weapon,
+set your spear, loose a bolt.
+
+**Ranged gets its one honest window** here — a thrown rock, a bolt, Bardhor's whole reason to
+exist. A crossbow is slow to reload, so it's one shot and then melee, or turns spent cranking
+while something walks at you.
+
+### Charging onto a set weapon
+
+A planted spear, a braced pike, a boar spear with a crossbar — these exist precisely because
+things run at you. The mechanism needs no new rule: force already takes mass from a card's
+footwork, and here it is the **charger's** closing mass feeding the **defender's** blow. A
+set spear against a stationary opponent is a modest poke; against someone sprinting onto it,
+lethal.
+
+It isn't an auto-win, because the charger may get a reaction prompt — "you're about to run
+onto that point" — and pull up short. Composed, improvisational characters can abort;
+committed brutes can't.
+
+---
+
+## Exhaustion and fatigue
+
+Two tiers, each with a stat that resists it:
+
+| | stat | resource |
+|---|---|---|
+| within a fight | **Stamina** | **Exhaustion** |
+| across the run | **Endurance** | **Fatigue** |
+
+This replaces the per-turn stamina budget we parked long ago, which was wrong because it
+said the same thing as the time budget. Exhaustion is a **drifting state**, not a budget.
+
+**Why it matters beyond flavour:** deterministic resolution has a staleness problem, since
+the same two cards always produce the same result. Exhaustion drifting through a fight means
+the fourth swing of that mallet is genuinely a little slower and weaker than the first, and
+the exchange doesn't repeat. **Variation without randomness**, from something the player can
+feel and reason about.
+
+**Exhaustion rises** with effort — drive, arc, crossing ground, armour weight — and **falls**
+when you take a breath, disengage, or spend a turn doing little. That is the
+overexert/underexert idea arriving naturally: spend big now and be slower later, or pace
+yourself and stay sharp.
+
+**What it costs:** small drops to celerity, force and pace. And when you're *really*
+exhausted, the mental stats go too — imagination, reaction speed, analysis. Not a lot at any
+one step; enough that the late fight is a different fight.
+
+It pairs badly (for you) with **adrenaline**, which masks pain but decays: a long fight
+erodes your body *and* stops hiding the damage. Two clocks both saying finish this.
+
+**Cards:** *gasp* or *catch your breath* arriving uninvited at high exhaustion, the same way
+*wince* does for pain — and possibly autoplaying, since at some point your body takes the
+breath whether you planned it or not. Same mechanism, nothing new.
+
+**Fatigue** accrues across the run — rooms walked, fights fought, weight carried, wounds
+nursed — and barely recovers; resting costs the one thing you can't spare. **Magic costs
+fatigue**, which is the right price for effects that one-shot.
+
+**The coupling: fatigue lowers your effective stamina.** Fresh on hour one you can push hard
+and recover; five rooms deep you're winded by the second exchange. That makes the long
+resource felt in every fight rather than only at the end.
+
+**Chases work because of it.** Running from something faster isn't hopeless — it has to
+sprint to catch you, taxing its exhaustion. You arrive at the fight tired, but so does it.
+
+Considered and dropped: fear burning exhaustion. One coupling too many.
 ---
 
 ## Measure (distance)
@@ -1364,7 +1477,8 @@ intimidation and reach). Small and light gets something back.
 - **footwork:** moving well
 - **pace:** speed in a charge, and moving through the dungeon
 - **celerity:** hand speed
-- **endurance:** staves off fatigue (fatigue wanted eventually, not in the POC)
+- **stamina:** resists **Exhaustion**, the within-a-fight resource
+- **endurance:** resists **Fatigue**, the across-the-run resource
 - **pain tolerance:** base for taking hurt; brace is a temporary boost on top
 - **reaction speed:** does a reaction window open at all
 
@@ -1481,3 +1595,4 @@ intimidation and reach). Small and light gets something back.
 - Engagement / binds / grappling.
 - Luck: accrual rates, the price function, and what counts as a grey band. All unsettled.
 - Whether strategy and decisiveness become stats, and what else belongs in traits.
+- Exhaustion and fatigue rates, and how much of a penalty each step is worth.
