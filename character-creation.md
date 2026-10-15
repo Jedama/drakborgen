@@ -173,8 +173,19 @@ The mechanic has two independent controls, and no point budget for the player to
 
 ### Worked example: Aelfric
 
-Primary **Footwork**, secondary **Instinct**, tertiary **Precision**, quaternary
-**Composure**.
+**Frame:** 1.74 m, 68 kg, lean and narrow.
+**Notches:** primary **Footwork**, secondary **Instinct**, tertiary **Precision**,
+quaternary **Composure**.
+**Soul:** faithful — which is where his luck comes from.
+
+Chosen by searching all 65 536 placements against a target profile, then judging the
+shortlist by eye. The best correlation (primary Precision, secondary Pace) was rejected:
+it matched the broad middle but put Footwork on top and Precision sixth, and a character
+reads by its peaks and its floor rather than its middle.
+
+The binding constraint is that **composure and endurance both need a narrow notch and
+there is only one spare**, because precision claims the other. Composure wins; he is a
+meditating monk before he is a walker.
 
 | | | | | |
 |---|---|---|---|---|
@@ -189,8 +200,23 @@ Primary **Footwork**, secondary **Instinct**, tertiary **Precision**, quaternary
 | Endurance | 3.0 | | | |
 
 Categories: Muscle 6.2, **Sinew 24.0**, Brain 7.2, **Nerve 21.0**. Spread 11.6×, with 77%
-of him in his top two categories. Signature composure and precision, almost no strength —
-which is the character.
+of him in his top two categories.
+
+All four of the board game's numbers survive the translation:
+
+| Board game | Wheel |
+|---|---|
+| Styrka 4 — weak | Strength 0.8, at the floor |
+| Vighet 7 — agile | Sinew 24.0, his largest category |
+| Kroppspoäng 15 — fragile | Pain tolerance 0.8, at the floor |
+| Tur 8 — lucky | the soul hub, via *faithful* |
+
+One consequence to be aware of rather than fix: **imagination 0.8 and improvisation 1.1
+put him among the lowest card-draws in the game**, at the start of combat and at reaction
+windows alike. That is a coherent reading — a narrow drilled repertoire executed
+perfectly, answering with training rather than invention — but it means he is played as a
+man with few options and the precision to make them land, which is a real choice about
+how he feels at the table.
 
 ---
 
