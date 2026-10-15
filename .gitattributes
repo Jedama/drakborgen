@@ -1,0 +1,13 @@
+# Line endings belong to the repository, not to whichever git happens to run.
+#
+# Two gits share this working tree: Windows git (core.autocrlf=true) and WSL git
+# (core.autocrlf=false) reaching it through /mnt/c. Without this file they disagree
+# about every text file -- Windows writes CRLF to disk, the repository stores LF,
+# and WSL then reports all tracked files as modified when nothing has changed.
+#
+#   text=auto   normalise to LF inside the repository, whatever the worktree holds
+#   eol=lf      and check out LF everywhere, so both gits see identical bytes
+#
+# Binary files are still detected automatically and left untouched.
+
+* text=auto eol=lf
