@@ -1185,7 +1185,7 @@ Other results a hit can produce:
 - **dazed** (head): reaction speed, analysis, balance; fades fairly fast; breaks mind
   states like berserk
 - **numbed or lamed limb**: loosened grip, maybe a dropped weapon at high severity
-- **blinded** (one eye or both): precision, awareness, maybe analysis; possibly lasting
+- **blinded** (one eye or both): precision, instinct, maybe analysis; possibly lasting
 
 Stopping bleeding is **rare mid-fight**. No bandaging while something charges at you.
 *Apply pressure* is a body state: the off hand holds the wound, bleeding slows, and you
@@ -1320,10 +1320,15 @@ Learned from a first worked example that got too clever:
 
 - **Physical values in real units:** height and reach in metres, mass and weapon weight in
   kilos, working length and width in metres.
-- **Skills 0–100**, with anchors: **0** is the wimpiest malnourished adult alive, **100**
-  is the strongest human alive, **50** is an average adventurer (competent, not
-  necessarily strong — an arbalest specialist might be 35–40 strength). Monsters may
-  exceed both ends; players are capped.
+- **Skills: no abstract scale.** Stat values are the sums produced by the stat wheel
+  (`character-creation.md`), and the maths here is written against those numbers rather
+  than the reverse. They are meaningful only relative to each other and to monsters built
+  the same way.
+
+  *Superseded:* skills were on a 0–100 scale anchored at 0 = the wimpiest adult alive,
+  100 = the strongest human alive, 50 = an average adventurer. Dropped for the reason
+  attempt 1 already recorded about its own version (`attempt1/combat-model.md` §4.0): no
+  defined average, no ceiling, and no way to answer "is a giant 150 or 300".
 
 ### Not covered by force (parked)
 
@@ -1347,7 +1352,11 @@ the price function, and the thresholds that define a "grey band" are all unsettl
 every number here as a placeholder and the whole section as provisional.
 
 The board game has five stats and one of them is luck. We have nothing like it, and it could
-give us some uncertainty back without reintroducing dice. **Aelfric's signature stat.**
+give us some uncertainty back without reintroducing dice. **Aelfric's signature.**
+
+**Luck is not a wheel stat.** It lives in the soul hub at the centre of the stat wheel and
+comes from traits, tied to religion and divine favour — which also ties it to chapels, a
+location the board game already has. See `character-creation.md` §8.
 
 ### What it does
 
@@ -1462,36 +1471,52 @@ play. Otherwise it is a dump slot. Builds should be skewed, not hedged in the mi
 
 ### Character
 
-Luck is a candidate stat (see Luck above, idea phase); strategy and decisiveness are
-candidates too. Traits are discrete flags, not stats.
+Stats are set on the **stat wheel** — sixteen stats in four categories, shaped by four
+notches. `character-creation.md` has the wheel, the ordering and the numbers; this section
+is what each stat *does* once combat reads it.
 
-**Body facts** (not trained): **height**, **mass**. They cut both ways and nudge other
-stats slightly (mass → a little strength and intimidation; height → a little
-intimidation and reach). Small and light gets something back.
+The wheel produces **set** values. Combat reads **effective** values: exhaustion and pain
+scale them down, frame and gear feed some of them up.
 
-**Physical:**
+**Body facts** (not trained; the Frame screen): **height**, **mass**. They cut both ways
+and feed other stats (mass → movement force, shove resistance, a little intimidation;
+height → reach, region heights, a little intimidation). Small and light gets something
+back.
+
+**Muscle:**
 - **strength:** how hard you push (force, disruption); bail-ease comes from your strength
   vs your weapon's weight
-- **precision:** finding gaps and weak points
-- **balance:** staying upright
-- **footwork:** moving well
-- **pace:** speed in a charge, and moving through the dungeon
-- **celerity:** hand speed
+- **pain tolerance:** base for taking hurt; brace is a temporary boost on top
 - **stamina:** resists **Exhaustion**, the within-a-fight resource
 - **endurance:** resists **Fatigue**, the across-the-run resource
-- **pain tolerance:** base for taking hurt; brace is a temporary boost on top
-- **reaction speed:** does a reaction window open at all
 
-**Mental:**
-- **composure:** handles fear, and how long you can hold a wait
-- **imagination:** how many cards you draw at the start of combat (options)
+**Sinew:**
+- **pace:** speed in a charge, and moving through the dungeon
+- **footwork:** moving well, dodging, adjusting mid-commitment
+- **reaction speed:** does a reaction window open at all
+- **precision:** finding gaps and weak points
+
+**Brain:**
+- **analysis:** reading one opponent deeply (posture hints, committed or feint)
 - **improvisation:** how many cards you draw at a reaction window (changing plans)
+- **imagination:** how many cards you draw at the start of combat (options)
+- **strategy:** deck shaping at creation, and planning before embarking
+
+**Nerve:**
+- **decisiveness:** how tightly the hand concentrates on the chosen stance
+- **instinct:** noticing wide (flanks, a second enemy, traps; mostly out of combat,
+  sometimes grants reaction opportunities)
+- **composure:** handles fear, and how long you can hold a wait
 - **intimidation:** high means monsters with self-preservation flee or disengage
   (charge + battlecry scares them off); low means they see an easy target and you must
   fight. Mindless things (skeletons) ignore it. Monsters need a self-preservation value.
-- **analysis:** reading one opponent deeply (posture hints, committed or feint)
-- **awareness:** noticing wide (flanks, a second enemy, traps; mostly out of combat,
-  sometimes grants reaction opportunities)
+  Effective intimidation is this stat plus frame and gear, so a small character can still
+  build presence but pays more for it.
+
+**Cut:** balance (overlapped mass and footwork) and celerity (folded away). **Moved:**
+awareness renamed **instinct** and moved to Nerve; **luck** left the stat list for the
+soul hub. **Promoted:** strategy and decisiveness are now stats rather than candidates.
+Traits remain discrete flags, not stats, and live in the hub beside luck.
 
 ### Weapon
 
@@ -1586,7 +1611,15 @@ intimidation and reach). Small and light gets something back.
 - How the attacker's 3×3 swing grid maps onto the target's regions (proportional overlap of
   a real-unit footprint, positioned by height).
 - How the knight-style "defending already" case skips a reaction cleanly.
-- Stat list is a first pass; how to reward skewed builds.
+- How stat values feed the combat maths at all — the wheel's numbers exist, nothing reads
+  them yet. (Skewed builds are answered: the wheel's notch curves produce them
+  structurally. See `character-creation.md`.)
+- **Celerity has no home.** It is not on the stat wheel, but this document still leans on
+  it in five places: windup length (§Timing), aim error (§Dodges), what exhaustion costs
+  (§Exhaustion), what a numbed limb costs (§What a hit leaves behind), and the split
+  "precision decides where it lands, celerity decides time" (§Making the force). Either
+  reaction speed absorbs hand speed, or weapon weight against strength carries it, or
+  celerity returns to the wheel. Nothing should be rewritten until this is decided.
 - Card totals snapping to halves vs quarters.
 - How the player sees the 40-slot timeline, shifts, and the opponent's hints.
 - Fear: how much contamination per fear level; whether it lands in instinct or stance draws.
@@ -1594,5 +1627,6 @@ intimidation and reach). Small and light gets something back.
   whether they can be worked around or displaced.
 - Engagement / binds / grappling.
 - Luck: accrual rates, the price function, and what counts as a grey band. All unsettled.
-- Whether strategy and decisiveness become stats, and what else belongs in traits.
+- What else belongs in traits and the soul hub beside luck — willpower, drive, will to
+  live — and whether the soul becomes a fifth sector of the wheel.
 - Exhaustion and fatigue rates, and how much of a penalty each step is worth.

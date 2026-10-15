@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stat Wheel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans+SC:wght@500;700&family=Alegreya+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3efe6; --panel:#fbf8f2; --fg:#2a2620; --muted:#6d655a; --rule:#d8cfbf;
+  --brass:#a3782c; --brass-soft:#e9dcc0;
+  --muscle:#c4532c; --sinew:#1f8a68; --brain:#6b62c9; --nerve:#a8721a;
+  --display:"Alegreya Sans SC","Trebuchet MS",sans-serif;
+  --body:"Alegreya Sans","Trebuchet MS",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#191714; --panel:#221f1b; --fg:#ece6da; --muted:#a59c8e; --rule:#3a352d;
+  --brass:#d0a654; --brass-soft:#3a3122;
+  --muscle:#e57a52; --sinew:#47b892; --brain:#9a92ea; --nerve:#d39c3e;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#191714; --panel:#221f1b; --fg:#ece6da; --muted:#a59c8e; --rule:#3a352d;
+  --brass:#d0a654; --brass-soft:#3a3122;
+  --muscle:#e57a52; --sinew:#47b892; --brain:#9a92ea; --nerve:#d39c3e;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);
+  padding:24px max(16px,env(safe-area-inset-left,0px)) 40px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;gap:24px}
+h1{font:700 1.9rem/1.1 var(--display);letter-spacing:.02em;margin:0}
+.lead{margin:6px 0 0;color:var(--muted);max-width:66ch}
+.main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.main{grid-template-columns:1fr}}
+.wheel{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:8px}
+svg{display:block;width:100%;height:auto}
+.panel{display:grid;gap:18px;min-width:0}
+.group{display:grid;gap:10px}
+.label{font:500 .78rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.row{display:grid;grid-template-columns:104px minmax(0,1fr) 112px;gap:10px;align-items:center}
+.row>span:first-child{font:500 .82rem var(--mono);color:var(--muted)}
+.row>span:last-child{font:500 .92rem var(--body)}
+input[type=range]{width:100%;accent-color:var(--brass)}
+.opts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,.tog{font:500 .9rem var(--body);border:1px solid var(--rule);background:var(--panel);
+  color:var(--fg);border-radius:6px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--brass)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.tog{display:flex;align-items:center;gap:6px}
+.tog input{accent-color:var(--brass)}
+.prof{font:.82rem/1.5 var(--mono);color:var(--muted);display:grid;gap:2px}
+.prof b{color:var(--fg);font-weight:500;display:inline-block;min-width:92px}
+.spread{display:flex;gap:16px;flex-wrap:wrap;font:.9rem var(--body)}
+.spread span{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--fg)}
+.totals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tot{border-top:3px solid var(--c);padding-top:6px}
+.tot b{display:block;font:700 .95rem var(--display);letter-spacing:.03em}
+.tot span{font:500 1.15rem var(--mono);font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+td{padding:3px 6px;border-bottom:1px solid var(--rule);vertical-align:middle}
+td.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;width:3.4em}
+td.b{width:46px;padding-left:0}
+.mb{height:7px;border-radius:2px;background:var(--c)}
+.sw{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--c);margin-right:6px}
+.tables{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.tables{grid-template-columns:1fr}.row{grid-template-columns:86px minmax(0,1fr) 96px}}
+.note{font-size:.86rem;color:var(--muted);margin:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Stat wheel prototype</h1>
+    <p class="lead">Sixteen stats in four categories. Each notch raises the stat it sits on and
+      spreads across its neighbours according to its own curve. Wide notches use bells and define a
+      region; narrow notches use convex spikes and define a single stat. Every notch peaks at the same
+      height, so width alone decides total influence and the primary always sets the shape.</p>
+  </header>
+  <div class="main">
+    <div class="wheel">
+      <svg id="w" viewBox="0 0 680 580" role="img" aria-label="Stat wheel showing each notch's contribution per stat"></svg>
+    </div>
+    <div class="panel">
+      <div class="group">
+        <div class="label">Notches</div>
+        <div id="sliders"></div>
+      </div>
+      <div class="group">
+        <div class="label">Curves</div>
+        <div class="opts">
+          <label class="tog"><input type="checkbox" id="linear"> Linear fade (the old triangle)</label>
+          <label class="tog"><input type="checkbox" id="quat" checked> Quaternary notch</label>
+        </div>
+        <div class="row">
+          <span>Bell K</span>
+          <input type="range" id="bellk" min="2" max="5" step="0.1" value="3.5">
+          <span id="bellkL"></span>
+        </div>
+        <div class="row">
+          <span>Spike p</span>
+          <input type="range" id="sharp" min="1" max="4" step="0.1" value="2.5">
+          <span id="sharpL"></span>
+        </div>
+        <p class="note">Bell K tightens the two wide notches without changing their reach:
+          2.3 is the old raised-cosine, higher pulls the shoulders in so the outer stats
+          get almost nothing. Spike p sharpens the two narrow ones; 1.0 is a plain triangle.</p>
+      </div>
+      <div class="group">
+        <div class="label">Notch profiles</div>
+        <div class="prof" id="prof"></div>
+      </div>
+      <div class="group">
+        <div class="label">Presets</div>
+        <div class="opts">
+          <button data-p="5,13,7,14">Aelfric</button>
+          <button data-p="1,1,1,2">Focused</button>
+          <button data-p="0,4,9,13">Spread</button>
+          <button data-p="3,1,7,15">Split</button>
+        </div>
+      </div>
+      <div class="group">
+        <div class="label">Spread</div>
+        <div class="spread" id="spread"></div>
+      </div>
+      <div class="group">
+        <div class="label">Category totals</div>
+        <div class="totals" id="tot"></div>
+      </div>
+      <div class="group">
+        <div class="label">Stat values</div>
+        <div class="tables" id="tbl"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Tunable constants. Everything the design can change lives here; the drawing
+   code below reads it and needs no edits.
+   --------------------------------------------------------------------------- */
+
+const STATS = [
+  ["Strength",0],["Pain tolerance",0],["Stamina",0],["Endurance",0],
+  ["Pace",1],["Footwork",1],["Reaction speed",1],["Precision",1],
+  ["Analysis",2],["Improvisation",2],["Imagination",2],["Strategy",2],
+  ["Decisiveness",3],["Instinct",3],["Composure",3],["Intimidation",3]
+];
+const CATS = ["Muscle","Sinew","Brain","Nerve"];
+const CVAR = ["--muscle","--sinew","--brain","--nerve"];
+
+/* Notch roles.
+     h     reach each side, so the notch covers 2h+1 stats
+     kind  'bell'  gaussian: rounded top, then collapses. Raises a REGION, which
+                   is the right shape for a core focus. Its real width is sigma,
+                   derived from BELL_K; h only truncates the far tail, so the
+                   reach stays the same while the outer stats lose their share.
+           'spike' convex, concentrates the budget on the centre.
+                   Defines ONE stat - the right shape for a specialty.
+           'tri'   the original straight-line fade, kept for comparison.
+     p     shape parameter: exponent for 'spike', unused for 'bell' (whose sigma
+           comes from BELL_K) and for 'tri'.
+
+   SCALING decides what is held equal between notches:
+     'peak'   every notch peaks at UNIT. Width then sets total influence, so the
+              primary dominates and the quaternary is a small sharpener. A bell
+              still costs nothing (its budget is h+1, same as the triangle), but
+              a spike pays for its concentration in points it simply gives up.
+     'budget' every notch totals UNIT * (h + 1), so narrow notches trade their
+              shoulders for a taller peak and can out-peak the primary. */
+/* peak is per notch so the heights can be graduated later (6.5/6/5.5/5, or
+   8/7/6/5) without touching anything else. All 5 for now: measured against
+   this build, graduating them moves only ~3 points of budget share onto the
+   primary, so it is a weak lever next to BELL_K. */
+const NOTCHES = [
+  { name:"Primary",    h:6, kind:"bell",  p:0,   peak:5 },
+  { name:"Secondary",  h:4, kind:"bell",  p:0,   peak:5 },
+  { name:"Tertiary",   h:2, kind:"spike", p:2.5, peak:5 },
+  { name:"Quaternary", h:1, kind:"spike", p:3,   peak:5 }
+];
+const SCALING   = "peak";  // "peak" | "budget" - see the note above
+const UNIT      = 5;    // peak height (SCALING "peak") or points per budget unit
+const SPIKE_REF = 2.5;  // slider value at which each spike uses its configured p
+/* Bell width: sigma = (h + 1) / BELL_K. Larger K is tighter. K = 2.3 reproduces
+   the raised-cosine bell this replaced, which leaked badly at the shoulders. */
+const BELL_K    = 3.5;
+const OPACITY   = [0.95, 0.70, 0.48, 0.30];  // ring shading, widest notch first
+const R_HUB    = 58;   // inner radius where bars start
+const R_SPAN   = 128;  // px the tallest possible bar may use
+
+/* --------------------------------------------------------------------------- */
+
+const N = STATS.length, ns = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+const w = $("w");
+const CX = 340, CY = 290;
+
+/* --- curves ---------------------------------------------------------------- */
+
+function rawShape(d, h, kind, p) {
+  const a = Math.abs(d);
+  if (a > h) return 0;
+  if (kind === "bell") return Math.exp(-(d * d) / (2 * p * p));   // p is sigma
+  const f = 1 - a / (h + 1);
+  return kind === "spike" ? Math.pow(f, p) : f;
+}
+function rawBudget(h, kind, p) {
+  let s = 0;
+  for (let d = -h; d <= h; d++) s += rawShape(d, h, kind, p);
+  return s;
+}
+/* Resolve the live notch config from the controls. */
+function config() {
+  const lin = $("linear").checked, p = +$("sharp").value, k = +$("bellk").value;
+  return NOTCHES.map(nt => {
+    const kind = lin ? "tri" : nt.kind;
+    /* The spike slider scales every spike proportionally, so each notch keeps
+       the relative sharpness set in NOTCHES rather than being flattened to one
+       p. The bell slider sets every bell's sigma from its own width. */
+    const pp = kind === "spike" ? nt.p * p / SPIKE_REF
+             : kind === "bell" ? (nt.h + 1) / k
+             : nt.p;
+    const raw = rawBudget(nt.h, kind, pp);
+    const unit = nt.peak != null ? nt.peak : UNIT;
+    const scale = SCALING === "budget" ? unit * (nt.h + 1) / raw : unit;
+    return { name:nt.name, h:nt.h, kind, p:pp, scale, total: scale * raw };
+  });
+}
+/* Points a notch centred on stat `c` gives stat `i`. */
+function contrib(i, c, nt) {
+  let d = ((i - c) % N + N) % N;
+  if (d > N / 2) d -= N;
+  return nt.scale * rawShape(d, nt.h, nt.kind, nt.p);
+}
+
+/* --- static wheel furniture ------------------------------------------------ */
+
+function pt(i, r) {
+  const a = (i * (360 / N) + 180 / N) * Math.PI / 180;
+  return [CX + r * Math.sin(a), CY - r * Math.cos(a)];
+}
+function el(t, a, txt) {
+  const e = document.createElementNS(ns, t);
+  for (const k in a) e.setAttribute(k, a[k]);
+  if (txt != null) e.textContent = txt;
+  return e;
+}
+w.appendChild(el("circle", { cx:CX, cy:CY, r:198, fill:"none", stroke:"var(--rule)", "stroke-width":1 }));
+for (let i = 0; i < N; i++) {
+  const [a,b] = pt(i - 0.5, 192), [c,d] = pt(i - 0.5, 204);
+  w.appendChild(el("line", { x1:a, y1:b, x2:c, y2:d, stroke:"var(--rule)", "stroke-width":1 }));
+}
+const bars  = el("g", {}); w.appendChild(bars);
+const marks = el("g", {}); w.appendChild(marks);
+w.appendChild(el("circle", { cx:CX, cy:CY, r:52, fill:"var(--brass-soft)",
+  stroke:"var(--brass)", "stroke-width":1, "stroke-dasharray":"4 3" }));
+w.appendChild(el("text", { x:CX, y:CY-6, "text-anchor":"middle", "dominant-baseline":"central",
+  fill:"var(--fg)", "font-family":"var(--display)", "font-size":17, "font-weight":700 }, "Soul"));
+w.appendChild(el("text", { x:CX, y:CY+14, "text-anchor":"middle", "dominant-baseline":"central",
+  fill:"var(--muted)", "font-size":13 }, "traits"));
+
+const valText = [];
+STATS.forEach((s, i) => {
+  const [x,y] = pt(i, 250);
+  w.appendChild(el("text", { x, y, "text-anchor":"middle", "dominant-baseline":"central",
+    fill:"var(" + CVAR[s[1]] + ")", "font-size":14, "font-weight":500 }, s[0]));
+  const [a,b] = pt(i, 222);
+  const t = el("text", { x:a, y:b, "text-anchor":"middle", "dominant-baseline":"central",
+    fill:"var(--muted)", "font-size":11.5, "font-family":"var(--mono)" });
+  w.appendChild(t); valText.push(t);
+});
+
+/* --- sliders --------------------------------------------------------------- */
+
+$("sliders").append(...NOTCHES.map((nt, j) => {
+  const row = document.createElement("div");
+  row.className = "row";
+  row.innerHTML = "<span>" + nt.name + " &middot; " + (2*nt.h+1) + "</span>"
+    + '<input type="range" id="n' + j + '" min="0" max="' + (N-1) + '" value="0">'
+    + '<span id="l' + j + '"></span>';
+  return row;
+}));
+
+/* --- draw ------------------------------------------------------------------ */
+
+function draw() {
+  const useQuat = $("quat").checked;
+  const cfg = config().filter((_, j) => j < 3 || useQuat);
+  $("n3").disabled = !useQuat;
+  $("sharp").disabled = $("bellk").disabled = $("linear").checked;
+  $("sharpL").textContent = $("linear").checked ? "n/a" : (+$("sharp").value).toFixed(1);
+  $("bellkL").textContent = $("linear").checked ? "n/a"
+    : "σ " + cfg.filter(n => n.kind === "bell").map(n => n.p.toFixed(1)).join(" / ");
+
+  const centres = NOTCHES.map((_, j) => +$("n" + j).value);
+  NOTCHES.forEach((_, j) => {
+    $("l" + j).textContent = (j === 3 && !useQuat) ? "off" : STATS[centres[j]][0];
+  });
+
+  /* Tallest bar possible with this config, so the wheel never overflows. */
+  const peakSum = cfg.reduce((a, nt) => a + nt.scale, 0);
+  const SC = R_SPAN / peakSum;
+
+  bars.replaceChildren();
+  marks.replaceChildren();
+  const totals = [0,0,0,0], vals = [];
+
+  STATS.forEach((s, i) => {
+    let r = R_HUB, sum = 0;
+    cfg.forEach((nt, j) => {
+      const v = contrib(i, centres[j], nt);
+      if (v <= 0) return;
+      const r2 = r + v * SC;
+      const [a,b] = pt(i, r), [p,q] = pt(i, r2);
+      bars.appendChild(el("line", { x1:a, y1:b, x2:p, y2:q,
+        stroke:"var(" + CVAR[s[1]] + ")", "stroke-width":20, opacity:OPACITY[j] }));
+      r = r2; sum += v;
+    });
+    totals[s[1]] += sum;
+    vals.push(sum);
+    valText[i].textContent = sum ? sum.toFixed(1) : "0";
+  });
+
+  cfg.forEach((nt, j) => {
+    const [x,y] = pt(centres[j], 198);
+    const g = el("g", {});
+    g.appendChild(el("circle", { cx:x, cy:y, r:9, fill:"var(--brass)",
+      stroke:"var(--panel)", "stroke-width":2 }));
+    g.appendChild(el("text", { x, y, "text-anchor":"middle", "dominant-baseline":"central",
+      fill:"var(--panel)", "font-size":11, "font-weight":700,
+      "font-family":"var(--mono)" }, String(j+1)));
+    marks.appendChild(g);
+  });
+
+  /* notch profiles */
+  $("prof").replaceChildren(...cfg.map(nt => {
+    const row = document.createElement("div");
+    const seq = [];
+    for (let d = 0; d <= nt.h; d++) seq.push((nt.scale * rawShape(d, nt.h, nt.kind, nt.p)).toFixed(2));
+    const pct = (100 * nt.scale / nt.total).toFixed(0);
+    row.innerHTML = "<b>" + nt.name + "</b>" + seq.join("  ")
+      + '<span style="opacity:.7">  &mdash; total ' + nt.total.toFixed(1) + ", centre " + pct + "%</span>";
+    return row;
+  }));
+
+  /* spread. "top 2 cats" is how much of the character landed in its two
+     strongest categories - the direct measure of specialist vs generalist. */
+  const hi = Math.max(...vals), lo = Math.min(...vals);
+  const grand = vals.reduce((a,b) => a+b, 0);
+  const top2 = [...totals].sort((a,b) => b-a).slice(0,2).reduce((a,b) => a+b, 0);
+  const top = STATS[vals.indexOf(hi)][0], bot = STATS[vals.indexOf(lo)][0];
+  $("spread").innerHTML =
+      "best <span>" + hi.toFixed(2) + "</span> (" + top + ")"
+    + "&ensp;worst <span>" + lo.toFixed(2) + "</span> (" + bot + ")"
+    + "&ensp;ratio <span>" + (lo > 0.01 ? (hi/lo).toFixed(1) + "×" : "∞") + "</span>"
+    + "&ensp;sum <span>" + grand.toFixed(1) + "</span>"
+    + "&ensp;top 2 cats <span>" + (100 * top2 / grand).toFixed(0) + "%</span>";
+
+  /* category totals */
+  $("tot").replaceChildren(...CATS.map((nm, i) => {
+    const d = document.createElement("div");
+    d.className = "tot";
+    d.style.setProperty("--c", "var(" + CVAR[i] + ")");
+    d.innerHTML = "<b>" + nm + "</b><span>" + totals[i].toFixed(1) + "</span>";
+    return d;
+  }));
+
+  /* stat table, in wheel order, with a bar for instant shape reading */
+  $("tbl").replaceChildren(...[0,1].map(half => {
+    const t = document.createElement("table");
+    STATS.slice(half*8, half*8+8).forEach((s, k) => {
+      const i = half*8 + k, tr = t.insertRow();
+      tr.innerHTML =
+          '<td><span class="sw" style="--c:var(' + CVAR[s[1]] + ')"></span>' + s[0] + "</td>"
+        + '<td class="n">' + vals[i].toFixed(1) + "</td>"
+        + '<td class="b"><div class="mb" style="--c:var(' + CVAR[s[1]] + ');'
+        + "width:" + Math.max(2, 100*vals[i]/hi) + '%"></div></td>';
+    });
+    return t;
+  }));
+}
+
+const setCentres = a => { a.forEach((v, j) => $("n"+j).value = v); draw(); };
+document.querySelectorAll("[data-p]").forEach(b =>
+  b.onclick = () => setCentres(b.dataset.p.split(",").map(Number)));
+["linear","quat","sharp","bellk"].concat(NOTCHES.map((_, j) => "n"+j))
+  .forEach(id => $(id).addEventListener("input", draw));
+
+setCentres([5,13,7,14]);   /* open on Aelfric */
+</script>
+</body>
+</html>
