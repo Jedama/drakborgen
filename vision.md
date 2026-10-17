@@ -414,5 +414,7 @@ and a luck score that runs negative. Everything numeric about it is guesswork so
 - **`vision.md`** — this. Stance, philosophy, reasoning, mistakes.
 - **`design.md`** — the decisions in detail: stats, fields, formulas, worked examples, open
   questions.
+- **`character-creation.md`** — the stat wheel: notches, curves, the soul hub.
+- **`ideas.md`** — the scratchpad: unsettled ideas, options left open, half-thoughts.
 - **`attempt1/`** — the first attempt, kept as a record. The curves, the splines, the
   millisecond timeline and the prototype that ran them.

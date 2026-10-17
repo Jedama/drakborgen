@@ -826,15 +826,21 @@ Players learn tendencies mostly **over runs**.
 
 ## Anatomy
 
-A creature's body is **a set of named regions with proportional bounds**. A rectangular
-X×Y grid is just the easy way to author one. Regions are used for the *consequences* of a
-hit that has already connected; dodging, parrying and blocking are resolved before it.
+A body is two things:
+
+- an **anatomy graph**, one per creature: every element of the body, and what lies behind
+  what
+- a **grid** over the creature's front, which says which *surface* elements a blow landing
+  in each cell can meet
+
+Both are used for the *consequences* of a hit that has already connected; dodging, parrying
+and blocking are resolved before it.
 
 A blow arrives as a **footprint in real units** — the weapon's working length, positioned by
-height and by the card's path — and we ask which regions it overlaps. No cell indices, no
-per-creature special cases.
+height and by the card's path — and we ask which cells it overlaps. From there, the graph
+takes over.
 
-### The humanoid layout
+### The grid: the humanoid layout
 
 Three columns (side, midline, side) and seven uneven rows. Columns are three slices of the
 *body*, roughly cheek to cheek — not arms held out wide. Rows are named and proportional:
@@ -865,56 +871,61 @@ Three columns (side, midline, side) and seven uneven rows. Columns are three sli
   …thighs likewise
 ```
 
+A cell lists its surface elements and their **shares**, which add up to 1. That is all a
+cell knows. Everything beneath the surface lives in the graph, shared across cells.
+
 - **The midline is the duelist's line**: throat, sternum, gut, groin. Exactly what thrusts
   and straight chops are for.
 - **The heart is left-of-centre**, so it lives in a side column. Aiming for it is a
   *specific* choice rather than the obvious one.
-- **The head sides are mostly skull** with little in them; their real job is telling us
-  which direction the blow came from.
 - **The bottom middle is air** — a wide stance leaves a gap, so thrusting between someone's
   legs hits nothing. The model says so for free.
-- **Cells are tall and narrow**, not square: on a 1.7 m human, roughly 15 cm × 34 cm. The
-  gap arithmetic survives — a head cell is ~0.05 m², so a helm at 0.98 coverage leaves about
-  a 3 cm square, which is an eye slit.
+- **Cells are tall and narrow**, not square: on a 1.7 m human, roughly 15 cm × 34 cm.
 - **No outer columns.** A reaching arm or a shield held wide isn't geography; being extended
   is a **phase** (you're mid-attack), as decided under Measure. Arms default to the side
-  columns, sharing those cells with ribs and flank, which is where they actually hang;
-  posture moves them (up a row for a high guard, and so on).
+  columns, in front of ribs and flank, which is where they actually hang; posture moves them
+  (up a row for a high guard, and so on).
 - **Small rows are the valuable ones.** The neck is a twentieth of the body, so hitting it
   deliberately is a precision feat and hitting it by accident nearly never happens. That is
   the gate *decapitate* needs — no special rule, just a small row.
 - **Targeting:** ordinary attacks land high or low relative to the attacker's own height;
   specific cards may name a row.
-- **Reach by height falls out.** Regions have absolute heights derived from the creature's
-  height, so a 1.6 m human cannot overlap a 4 m giant's head regions, and a goblin cannot
-  reach yours unless you are down.
+- **Reach by height falls out.** Cells have absolute heights derived from the creature's
+  height, so a 1.6 m human cannot overlap a 4 m giant's head, and a goblin cannot reach yours
+  unless you are down.
 - Cards are written in the **attacker's frame** and mirrored onto the defender: the
   attacker's left is the defender's right.
 
-### Containers
+### The anatomy graph
 
-Within a region, body parts are **containers** — "left lower leg" — authored once and
-instanced (left, right, and reused by any creature with legs). A container holds its layers,
-its features, and whatever armour is worn over it, and it is the natural home for
-**limb-level state**: this leg is broken, this arm's grip is weakened.
+One graph per creature, not one per cell. Its nodes are **elements** (skin, cranium, brain,
+the left eye, a helm) and its arrows mean **"behind me is"**. Each arrow carries a **share**:
+how much of this element leads to that one.
 
-Left and right stay distinct with no pairing rule, because they're in different columns.
-Nothing inside a region has coordinates — the region is the resolution limit for *where*.
-**Direction picks the side; precision picks the feature.**
+- **Shares live on the arrows**, not on the elements, so an element can split to several
+  things behind it (cheek skin → cheekbone and teeth) and merge from several in front of it
+  (the brain sits behind the cranium, both temples and both eyes) without anyone having to
+  decide which side owns the fraction.
+- **Deep elements are shared across cells.** There is one brain, reached from three head
+  cells and five ways in. Only the surface is per cell.
+- **Tiers** — outer, surface, inner, deep — are for reading and drawing it. The arrows are
+  what count. Outer is hair, beard, armour, and whatever posture puts in front (a raised
+  forearm, a shield).
+- **A blow lands on the cell's surface elements by their shares and follows the arrows
+  inward.** Penetration and shock travel the same arrows; each element takes what it takes
+  and passes on the rest (see Penetration and shock).
+- **The graph forgets the way in.** Once a blow reaches an element, it carries on by that
+  element's shares, whichever arrow it arrived by. That only goes wrong when different
+  parts of one element lead to different things — then **split the element**. A tool, not a
+  rule; it should rarely be needed.
+- **Nothing is placed.** No coordinates inside a cell, no ordering beyond the arrows.
 
-### Layers and features
+The natural picture of a graph like this is a **Sankey diagram**, one column per tier, band
+widths as shares. A viewer (later an editor) is wanted for authoring.
 
-Contents come in two kinds, which stops "share" from meaning two different things:
+### Elements
 
-- **Layers** fill their container at a depth and a blow always meets them in order: skin,
-  then muscle, then bone. The brain is a layer too — one that fills the inside of the
-  cranium. Muscle doesn't need a percentage; it simply *is* what you go through.
-- **Features** are localised: Achilles, kneecap, eye, throat, the gap in a visor. Their
-  share is really a **precision cost**, not a volume, and they can carry tags like
-  **needs-an-opening** (reachable from behind, or only while they're prone) so sneak and
-  flanking cards have specific prizes without any body geometry being mapped.
-
-Each content (layer or feature) carries:
+Each element says what it is made of:
 
 - **two reference forces** — the force that half-ruins it through each channel, one for
   **penetration** and one for **shock**. In the *same units as force*, so the comparison is
@@ -927,44 +938,130 @@ Each content (layer or feature) carries:
 - **what it passes on:** skin passes nearly everything; muscle soaks penetration; bone stops
   penetration and transmits shock.
 - **its own penalty mapping:** bone → weight-bearing and balance, muscle → push-off and
-  strength. No hierarchy between contents — a severed calf cripples a leg about as badly as
+  strength. No hierarchy between elements — a severed calf cripples a leg about as badly as
   a broken tibia.
+- **holes**, if it has any (below).
+- **its own effects**, added freely where the anatomy calls for them: a hit to the jaw
+  dazes, the inner ear upsets balance, a broken nose makes the eyes water, a cracked temple
+  starts a slow internal bleed. These are properties of the element, not rules about
+  routes.
 
-Skin, muscle and bone are authored once and shared almost everywhere; a container then adds
-two or three features.
+Skin, muscle and bone are authored once and reused almost everywhere. Some elements keep a
+**hard line** where the fiction demands it (an eye is lost or it isn't).
 
-**Armour attaches to containers and contents, not to regions**, with a coverage fraction —
-which is how "front only" gets expressed:
+Small flavour elements are welcome even when they do nothing in a fight yet — eyebrows,
+hair, a beard. They cost almost nothing, and they give later systems something to hold on
+to: a beard to grab in a clinch, hair to catch fire, a face for a character creator.
 
-| piece | protects | coverage |
+### Holes
+
+Some elements are solid with openings: ribs, the eye sockets, a visor slit, mail. An
+element with holes has a **hole width** and a **hole count**. How solid it is falls out of
+the two (open area = count × hole size); it isn't authored.
+
+**A contact passes through a hole only if its widest side fits.** Contact area is already
+x × y (from working length and width); compare the larger of the two against the hole
+width. Holes are treated as symmetric and orientation is ignored. A contact that doesn't fit
+meets the solid part. One that fits can pass without touching it — and either way, what's
+next is whatever lies behind the element.
+
+| element | holes | what it does |
 |---|---|---|
-| sabaton | foot | ~0.9 |
-| greave | lower leg, front only | ~0.5 — which is why the Achilles stays a target |
-| mail chausses | lower leg, all round | ~0.95 |
-| padded hose | lower leg | poor against penetration, good at soaking shock |
-| full helm | head | ~0.98, eyes exposed in the remainder |
+| **ribs** | many, narrow | A point can slip between; swings and blunt blows meet bone. The lung is behind either way. A skeleton's ribs have nothing behind them, so a perfect thrust arrives nowhere. |
+| **orbit** (eye sockets, with the eyebrows) | two, eye-sized | A fist or mallet face is too wide: it cracks the orbit (swelling shut, double vision) and the eye is spared. A staff end, a thumb or a point fits and reaches the eye. |
+| **visor** | one slit | A point gets through; a mace doesn't. |
+| **mail** | many, tiny | Stops cuts, leaks to points — if mail ends up modelled with holes at all. |
 
-Plate is hard: it stops penetration and passes shock. Padding soaks shock. Armour **does
-not** change a region's size — the coverage fraction says everything needed, and recomputing
-the layout every time someone puts a boot on would buy nothing.
+Hole width is a fraction of the cell's width, so it scales with the creature; the contact
+converts through the cell size like everything else. This is deliberately coarse — refine
+it only if it turns out not fine enough to model something we care about.
 
-Words: **size** for anatomy, **coverage** for things worn or held.
+### Armour
+
+**Armour is outer elements**, in front of the elements it covers. It doesn't change the grid.
+An open-faced helm simply doesn't cover the face; it needs no hole. A **visor** is its own
+element in front of the orbit, so a point through its slit reaches the eyes and not the
+forehead.
+
+| piece | in front of |
+|---|---|
+| sabaton | the foot |
+| greave | the shin |
+| mail chausses | the lower leg, with tiny holes |
+| padded hose | the lower leg: poor against penetration, good at soaking shock |
+| helm | scalp, forehead, temples |
+| visor | the orbit, with a slit |
+
+Plate is hard: it stops penetration and passes shock. Padding soaks shock. (An earlier
+version of this table had the greave as front-only, leaving the Achilles open. That needs
+attacks to have a direction, which is shelved — see `ideas.md`.)
+
+Words: **share** for how much of the body an element is, **coverage** for things worn or
+held.
+
+### Containers
+
+A **container** is a named group of elements — "left lower leg", "head" — and nothing more.
+It owns no rules. It is how the game talks to the player ("your left leg is broken"), and how
+anatomy gets authored once and reused (left and right are mirrored, and any creature with
+legs can borrow a leg).
+
+### Worked example: the head
+
+Shares are placeholders. Left and right are mirrored.
+
+**Grid.** Centre head cell: forehead skin 0.25, jaw skin 0.21, cheek skin 0.10 each side,
+lips 0.10, nose 0.08, orbit 0.08, scalp skin 0.08. Each side cell: scalp skin 0.25, cheek
+skin 0.20, jaw skin 0.20, temple skin 0.20, ear 0.15.
+
+**Graph**, outside in:
+
+```
+hair       → scalp skin
+beard      → jaw skin (most), lips (a little)
+
+scalp skin    → cranium → brain
+forehead skin → cranium
+temple skin   → temple (thin bone) → brain
+orbit         → left eye, right eye → brain       two eye-sized holes; eyebrows
+nose          (dead end)                          bleeds, waters the eyes
+ear           → inner ear                         balance
+cheek skin    → cheekbone, teeth
+lips          → teeth → tongue → throat (neck)
+jaw skin      → jawbone                           dazes
+
+brain         → brainstem                         deep; a backstab target
+```
+
+What it shows:
+
+- **The brain has five ways in**: the cranium, both temples, both eyes. The danger of the
+  temple is a property of the temple (thin bone), not a rule.
+- **Dead ends are fine.** Nose, cheekbones, jawbone and inner ears have nothing behind them;
+  what they *do* is their own effect.
+- **Blunt doesn't reach the brain as a cut.** Every way in passes bone or the orbit, so a
+  staff to the head arrives as shock and dazes.
+- **It's small to author**: about thirty elements and forty arrows for the whole head,
+  mirrored.
+- **The face has no muscle layer.** The expression muscles are thin sheets that protect
+  nothing. Candidates if anything earns a place: the temporalis (a chewing muscle padding
+  the temple) and the masseter (over the side of the jaw).
 
 ### Other bodies
 
-The humanoid layout is written once and shared by every humanoid — skeletons, goblins,
-bandits, the other heroes. A creature only needs its own layout when its body genuinely
+The humanoid layout and graph are written once and shared by every humanoid — skeletons,
+goblins, bandits, the other heroes. A creature only needs its own when its body genuinely
 differs:
 
 - **bat:** 3 × 1 — wing, body, wing, at roughly 42 / 16 / 42 — with a tiny absolute height
   and width, which is what makes it hard to hit. Your weapon's footprint may cover the whole
   creature, so the problem is connecting at all rather than choosing where.
-- **spider:** wide and low, with eight leg containers around a body.
+- **spider:** wide and low, with eight legs around a body.
 - **giant slug:** two rows, a handful of columns, nothing but flank. Its job is to make you
-  turn around unless you brought something specific — so its interest lives in its contents
+  turn around unless you brought something specific — so its interest lives in its elements
   and hide rather than its layout.
-- **dragon:** a body plus a neck and tail whose regions *move*, which is where monster
-  posture comes in.
+- **dragon:** a body plus a neck and tail whose cells *move*, which is where monster posture
+  comes in.
 
 ### Rejected along the way
 
@@ -972,15 +1069,34 @@ differs:
   midline; the midline is the high-value target line, and between the legs is air.
 - **4×5**, which gives clean left/right but loses the midline — head, sternum, spine and
   groin would all straddle two cells, which is worse.
-- **Sub-cell positions or an ordering of containers within a cell**, i.e. mapping anatomy
-  inside a region. Direction of attack and precision cover what that was for.
+- **Sub-cell positions or an ordering of elements within a cell**, i.e. mapping anatomy
+  inside a region. The graph does what that was for.
 - **Outer columns as cells**, for reaching arms and held shields: nearly always empty, and
   better expressed as the extended *phase*.
 - **Depth as a third axis or a per-part attribute** (see Measure).
+- **A chain per cell, or per container** (skin → muscle → bone, with features dotted in).
+  Fine for a thigh, but a face is several chains side by side, and one brain sits behind
+  many of them. Replaced by one graph per creature.
+- **Layers that always fill their container.** A ribcage is mostly gaps. Replaced by shares
+  on arrows, and holes.
+- **"Between the ribs" as its own arrow.** Splits one thing in two; a hole in the ribs says
+  it, and the lung is behind either way.
+- **A single coverage fraction for holes**, and **solidity plus a maximum gap**. A fraction
+  can't tell one big hole from many small ones, and a collective gap size lets anything
+  through. Hole width and count replaced them.
+- **Vertical and horizontal spans** to describe holes: more numbers than the cases needed.
+- **Comparing contact *area* against a hole.** A sword edge is ~8 cm × 1.5 mm, tiny in area,
+  and would "fit" an eye socket. The widest side is what has to fit.
+- **The orbit rim as a placed piece of cranium.** It earned its place only as its own element
+  with holes.
+- **A thin bone behind the eye.** Anything that bursts an eye goes through it anyway; eye →
+  brain does the same job.
+- **Nose and nasal bone as two elements.** Same consequences; one element.
+
 ### Posture adjusts the layout
 
-A small adjustment step runs first, then the regions handle everything (both what the blade
-meets and what the hit does). Considered and rejected: a fully static layout, and a
+A small adjustment step runs first, then the grid and graph handle everything (both what
+the blade meets and what the hit does). Considered and rejected: a fully static layout, and a
 separate "contact decides interception" layer. One adjusted layout is simpler.
 
 - **crouch:** the leg rows compress and the head comes down; a smaller target, so high
@@ -988,15 +1104,14 @@ separate "contact decides interception" layer. One adjusted layout is simpler.
 - **arms:** move within their own 3×3 around the shoulder
 - **weight / jumping:** shift the whole layout relative to the attacker (an offset when
   mapping the attacker's swing onto it)
-- **shield:** placed into regions by the off-hand posture
+- **shield:** placed in front of cells by the off-hand posture
 - **non-humanoids** (snake, spider, bat): no posture system at all, so a static layout
 
-**Overlap is the point.** A raised forearm shares a cell with the head; a shield sits in
-front of the chest. No separate depth order is needed — the **protected by** chain does
-it. Posture just rewrites the links, e.g. a stomach cell reading: shield (hardness 0.9,
-covers 0.9) → forearm → skin → ribs → lung. Force filters down the chain: the shield stops
-most, a tenth slips past the rim, the forearm takes some, a sliver reaches the ribs.
-Blocking with your forearm falls out for free.
+**Overlap is the point.** A raised forearm ends up in front of the head; a shield in front of
+the chest. Posture just adds **outer elements** to the graph, e.g. the belly reading:
+shield → forearm → skin → muscle → ribs → lung. Force filters inward: the shield stops most,
+some slips past its rim, the forearm takes some, a sliver reaches the ribs. Blocking with
+your forearm falls out for free.
 
 ### Force along a path
 
@@ -1004,7 +1119,7 @@ Blocking with your forearm falls out for free.
   and the remainder carries on. A sweep through an unarmoured arm still has force for the
   chest; into a plated arm it's mostly spent. Order matters, so which side the swing comes
   from matters.
-- **Thrusts are sequential too**, but *inwards* along the protected-by chain.
+- **Thrusts are sequential too**, but *inwards*, along the arrows of the graph.
 - **Areas are even.** A body slam isn't a path: chest, stomach and both upper arms take
   modest shock at once. Both modes exist.
 - **Limbs yield.** An arm can be knocked aside, so it passes more force on than the torso,
@@ -1023,9 +1138,10 @@ Nobody writes "skeletons are immune to bleed". **Blunt is good against bone**: i
 blades skid off, thrusts pass between ribs and hit nothing. Bring the staff to the crypt.
 
 **Deterministic overlap:** no roll for "did it hit the eyes". A blow distributes its force
-by **fraction**: weapon coverage, card path and precision decide what share each content
-receives, and size decides how much there is to cover. A broad club across the face gives
-the eyes a good share; a precise thrust aimed at an eye puts nearly all its force there.
+by **fraction**: weapon coverage, card path and precision decide what share each element
+receives, and the shares decide how much there is to cover. A broad club across the face
+gives the orbit a good share; a precise thrust aimed at an eye puts nearly all its force
+there.
 
 ### Penetration and shock
 
@@ -1096,7 +1212,7 @@ Pain and disruption are separate: skeletons ignore the *hurt* but still get *sho
 
 ### Severity: graded underneath, labelled on top
 
-Per content, compare what arrived through each channel against that content's reference
+Per element, compare what arrived through each channel against that element's reference
 force for that channel:
 
 ```
@@ -1104,10 +1220,10 @@ severity = 50 × (arriving ÷ reference) ^ steepness        (capped at 100)
 ```
 
 scaled by the wound's **extent** (contact width) for the penetration channel. Then the
-remainder passes inward along the **protected by** chain.
+remainder passes inward along the arrows of the graph.
 
 That's the whole calculation. The only shared constants are the reference contact area and
-the 50; everything else is a property of the content or the contact.
+the 50; everything else is a property of the element or the contact.
 
 **Ladders are fine-grained, with intensity words doing the smoothing**, because labels
 jumping from "bruised" to "broken" feels discrete even when the number underneath isn't:
@@ -1122,21 +1238,21 @@ different amounts of pace and balance. The label says what happened; the number 
 much it matters. A second hit on a cracked shin can keep saying "cracked" while the penalty
 creeps, until it tips into broken — a limb deteriorating rather than flipping states.
 
-A few contents keep a **hard line**, where the fiction demands it: a severed tendon isn't a
+A few elements keep a **hard line**, where the fiction demands it: a severed tendon isn't a
 worse strain, and an eye isn't partly lost.
 
 Presentation (later): a hit rocks the screen and throws up a stack of short brutal phrases —
 "Tibia cracked", "Severe pain", "Off balance", "Reeling" — rather than one tidy line.
 
 **Severity adds up.** Bruised + bruised can become cracked. And damage **weakens** the
-content — its reference forces drop — so a cracked bone breaks more easily. Two moderate
+element — its reference forces drop — so a cracked bone breaks more easily. Two moderate
 hits on one shin are worse than one on each. Targeting a wound is a real tactic.
 
 ### Worked example: three weapons into an unarmoured shin
 
-Placeholder numbers, to show the shape. Lower-leg contents:
+Placeholder numbers, to show the shape. Lower-leg elements:
 
-| content | pen ref | shock ref | steepness | sensitivity |
+| element | pen ref | shock ref | steepness | sensitivity |
 |---|---|---|---|---|
 | skin | 6 | 60 | 1.0 | 0.8 |
 | muscle | 25 | 50 | 1.0 | 0.6 |
@@ -1334,14 +1450,14 @@ Learned from a first worked example that got too clever:
 
 - **Heat** — a third channel beside penetration and shock. Touches what is exposed or
   outermost, ignores hardness; skin burns, cloth catches, plate shields or cooks. Fits the
-  contents model. Dragonfire and the hero's fireball: powerful and niche, magic costs
+  anatomy graph. Dragonfire and the hero's fireball: powerful and niche, magic costs
   fatigue, not worth careful balancing.
 - **Sustained force** (a troll's grip, a constrictor, jaws that hold) — engagement.
 - **Things that stay in** (arrows, barbs, a lodged spear) — an injury that keeps going.
 - **Force that goes around coverage** (a flail wrapping over a shield) — too niche.
 - **Poison** — needs resistances; later.
 - Pushes and trips should already work: very wide force moves the body without hurting
-  contents.
+  elements.
 
 ---
 
@@ -1594,7 +1710,12 @@ Traits remain discrete flags, not stats, and live in the hub beside luck.
 
 - How required accuracy is computed from the attack (arc, working size) against the
   defending object (working length, width), and what precision it demands.
-- How precision and armour coverage combine in general (fraction bypassed? gap targeted?).
+- How a blow lands on a cell's surface elements: spread by share, or precision choosing
+  where it goes — and how a low-precision fighter ever lands a decisive hit if nothing is
+  random. Parked with determinism.
+- **Swings across several cells.** Scalp skin and jaw skin sit in more than one head cell,
+  so does a sweep through all three hit them once, or once per cell? Parked, but to be
+  settled before determinism.
 - Whether a fourth "very far" band exists, and what a fight opens at.
 - How a defence's quality maps to who sets the measure afterwards.
 - Which dodge cards are rare or hero signatures, to keep the flashy ones scarce.
@@ -1605,11 +1726,13 @@ Traits remain discrete flags, not stats, and live in the hub beside luck.
   weapon cards out of the deck.
 - The anchor list: the handful of sentences that calibrate reference forces (first one: a
   committed two-handed staff strike breaks a shin, a tap does not).
-- How armour behaves in the two channels as a content (plate stops penetration and passes
+- How armour behaves in the two channels as an element (plate stops penetration and passes
   shock; padding soaks shock).
-- Each content's penalty mapping, and how severity splits into structural vs pain.
-- How the attacker's 3×3 swing grid maps onto the target's regions (proportional overlap of
+- Each element's penalty mapping, and how severity splits into structural vs pain.
+- How the attacker's 3×3 swing grid maps onto the target's cells (proportional overlap of
   a real-unit footprint, positioned by height).
+- Authoring the rest of the humanoid graph, starting with the neck (windpipe, carotids,
+  spine), where the mouth → throat link lands.
 - How the knight-style "defending already" case skips a reaction cleanly.
 - How stat values feed the combat maths at all — the wheel's numbers exist, nothing reads
   them yet. (Skewed builds are answered: the wheel's notch curves produce them
