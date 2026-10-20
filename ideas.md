@@ -98,6 +98,56 @@ Long way off, deliberately not designed. What was said:
 
 ---
 
+## Weapons and force, loose ends (20 Oct)
+
+The settled shape is in `design.md` §Making the force and §Weapon; the full maths for
+review is in `force-model-review.md`.
+
+- **Contact shapes x × y can't express** (Claude's list, not yet discussed):
+  - **how deep a part can go**: a morningstar's 3 cm spikes penetrate easily but can't reach
+    a heart. A depth limit per part would stop it there and turn the rest into push.
+  - **several points at once**: a morningstar's spikes, a trident's tines, claws. A count
+    per part, mirroring holes (width and count).
+  - **wedge versus blade**: an axe is a thick wedge behind its edge and cleaves bone; a sword
+    slices. Might fold into keenness plus head weight; try without a new field first.
+- **The sword's sweet spot** doesn't appear (the tip out-hits the middle of the edge).
+  Claude's proposed fix: through contact, since the tip touches a short stretch of edge and
+  makes a smaller wound.
+- **Rigid-only card requirements** ("needs a rigid weapon"): Claude's idea for how
+  flexibility limits a deck. Dan isn't sure cards want authoring like that.
+- **Grip span** might be derived rather than authored, since disarms are its only job.
+- **Penetration through armour** (war pick yes, rapier no) hasn't found its place in the
+  body-plus-parts structure.
+- **The penetration/shock split function** is still unwritten; the examples use fixed
+  shares per contact type.
+- **How the two channels combine** into one damage label for an element is undefined.
+- **Throwing and mechanisms**: speed lives on the card (a throw from the arm, a crossbow's
+  mechanism at a fixed speed regardless of strength). Not worked through.
+- **Improvised objects** (a chair, a candlestick, a rock) as the generality test: should be
+  describable from weight, size and shape alone.
+
+---
+
+## Shaping stats before the maths reads them (20 Oct)
+
+Dan's note while authoring force numbers: strength currently grows linearly (`1 + strength
+/ 10`), and that's fine for now — strength 20 *should* be overpowered, paid for by zeroing
+much of the rest of the wheel. But for the future, consider a **transform step**: map the
+raw 0–20 value onto a curve first, then let the mechanic read the mapped value. Something
+like the top half of an S-curve, or a sigmoid, so high values give diminishing returns.
+Dan is happy to apply transforms like this per stat, to give each one the shape we want.
+
+---
+
+## Doubts about the distance system (20 Oct)
+
+Dan: "I'm starting to doubt our distance system again", said while working out run-up for
+force, and deliberately not discussed then. The run-up term (pace × mass × ground crossed)
+assumes a solid way of knowing how much ground was crossed; the current measure bands
+(very far, far, normal, near) are the placeholder. Worth picking up on its own.
+
+---
+
 ## Direction: front, side, behind
 
 Raised during the anatomy-graph discussion (16–17 Oct). Shelved for now; the graph is
@@ -127,6 +177,26 @@ front-facing only. What came up:
   breathing and heartbeat stop. A reviewer also suggested a thrust through the open mouth
   past the back of the throat. Kidneys and the back of the neck are other likely
   candidates.
+
+---
+
+## Spotting, traps and hiddenness (20 Oct)
+
+Out of scope for the combat proof of concept, but it fell out of the stats discussion.
+
+- **Spotting as build–compare–band** (Dan's idea): instinct (and awareness, if it survives
+  as a separate stat) plus your condition, against a thing's **hiddenness** — a trap, an
+  ambusher, hidden loot. Bands: doesn't spot it / spots it late / spots it in advance.
+- **Spotting late chains into a second check** (Dan): reaction speed, pace and condition
+  against thresholds decide whether you get clear.
+- **The bands are combat's three states** (Claude): spotted in advance is planning (go round,
+  disarm, set your own ambush); spotted late is a danger **reaction opportunity**; not
+  spotted is the **blindsided** stance at zero brace. So traps and ambushes could be attacks
+  the dungeon makes, resolved by the combat machinery, with no separate system.
+- **Stealth as your own hiddenness** (Claude): built from footwork, mass and armour, maybe
+  plus a stat, and compared against the other side's instinct. The same comparison facing
+  the other way. Might answer whether stealth needs to be a wheel stat at all: it could be a
+  built quantity, like force.
 
 ---
 
@@ -269,6 +339,43 @@ finding a gap.
 - **An anatomy graph viewer**, later an editor, drawn as a Sankey diagram with a column per
   tier. Dan wants one for authoring. Claude's suggestion: two modes, the anatomy as authored
   and "show me where this hit went", since force flows along the same arrows.
+- **Two systems for "where".** Spreading uses adjacency inside a cell and the grid between
+  cells, so a cut follows different rules depending on which side of a cell border it is.
+  Claude diagnosed that seam as why the result felt "fine, not great". Dan accepted rough
+  spreading on the grounds that the player never sees the distribution, which removes the
+  pressure. If it ever bites again, the options raised were: one spatial system (the grid
+  does everything, finer where it matters; or the surface map does everything and cells
+  shrink to labels), or adjacency edges that cross cell borders so the whole body surface
+  is one connected map.
+- **Where a blow lands, loose ends** (18 Oct; the pipeline itself is in `design.md`):
+  - **Show the spread on the card**, so you know a wild swing might go anywhere around the
+    head before committing. Claude's idea for keeping "you can see why" despite the roll.
+    Not discussed.
+  - **Wild and precise cards.** A haymaker with more force and more drift; the existing
+    *precision strike* is the opposite. Wildness as a choice you write into the sequence,
+    not only a low stat. Claude's idea, not discussed.
+  - **Decisiveness and precision.** Dan wondered whether decisiveness should raise
+    precision. Claude: that double-dips (it already shapes the hand); a narrower version
+    is decisiveness cutting drift only on committed cards.
+  - **Instinct as spotting openings**: noticing he turned or dropped his guard, so
+    *needs-an-opening* elements are briefly reachable. Analysis knows where weak points
+    are; instinct notices when one is exposed. Claude's suggestion, after Dan said he
+    wasn't sure how awareness/instinct plays in.
+  - **Vital value derived from the graph** ("thin bone with the brain behind it") instead of
+    authored. Authoring it is simpler to start with.
+  - **Obviousness and monsters.** An unfamiliar creature's weak points might be less
+    obvious until you've learned them. Unexplored.
+  - **Where the drift comes from: the roads not taken.** Dan's first instinct was chaos
+    that looks like chance (derived from the fight's state, reproducible but not
+    followable), and the defender moving into a blow is still real through card dynamics.
+    Settled on a fenced-in roll instead. Also considered: a smeared average over the
+    possible area (rejected: it averages the drama away).
+  - **Per-cell aiming** for swings that carry into the next cell, rejected for now in
+    favour of aiming once; revisit if multi-cell swings turn out to matter.
+- **Lodging could fall out of passthrough.** If penetration runs out *inside* a hard element
+  (an axe in a skull, a spear in a shoulder blade), the weapon could be stuck: the
+  subtraction hit zero inside bone. That's engagement territory. Claude noticed it comes
+  free; Dan isn't sure he wants lodging at all, but wanted it noted.
 - **Orientation is ignored for holes and edges.** Physically, a horizontal slice runs
   parallel to the ribs and could slip between them while a vertical chop crosses them all.
   Deliberately left out; revisit only if a case needs it.

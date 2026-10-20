@@ -44,12 +44,19 @@ failure. If your weapon can't hurt it, leave.
 
 ## Randomness
 
-**No output randomness.** Resolution is deterministic: weapon, card, stats, commitment,
-anatomy and the opponent's card decide the outcome. No hit rolls, no vital-hit chance.
+**Whether is never random; where can be, a little.** Weapon, card, stats, commitment,
+anatomy and the opponent's card decide whether a blow connects, whether a block holds and
+whether a dodge works. No hit rolls; you never "miss" because of dice.
+
+The one exception (decided 18 Oct): **where a blow lands within a cell** has some
+randomness, and precision limits it (see Anatomy §Where a blow lands). That's what lets a
+wild swing find an eye, and what makes precision the size of the gamble. Earlier versions
+of this doc ruled out even that ("no vital-hit chance").
 
 Uncertainty comes from:
 - **the draw** (which cards you have this turn)
 - **hidden information** (the opponent's sequence, feints, whether a move is committed)
+- **drift**: where inside a cell a blow ends up
 
 If your mallet can't hit the bat, that's an observation, not bad luck. The counterplay
 lives in the breadth of the deck: a faster swing, your fists, the environment, a
@@ -871,8 +878,11 @@ Three columns (side, midline, side) and seven uneven rows. Columns are three sli
   …thighs likewise
 ```
 
-A cell lists its surface elements and their **shares**, which add up to 1. That is all a
-cell knows. Everything beneath the surface lives in the graph, shared across cells.
+A cell lists its surface elements and their **shares**, which add up to 1, and which of
+them are next to each other (see Spreading a blow). That is all a cell knows. **Surface
+elements never cross cells**: the centre of the jaw and the side of the jaw are two
+elements, and both can lead to the same jawbone. Everything beneath the surface lives in
+the graph, shared across cells.
 
 - **The midline is the duelist's line**: throat, sternum, gut, groin. Exactly what thrusts
   and straight chops are for.
@@ -935,8 +945,16 @@ Each element says what it is made of:
   skin just gets a longer cut (shallow).
 - **sensitivity:** pain produced per point of severity. A shin or a kneecap hurts out of all
   proportion to the damage; muscle hurts less per point but costs far more function.
-- **what it passes on:** skin passes nearly everything; muscle soaks penetration; bone stops
-  penetration and transmits shock.
+- **what it passes on**, one rule per channel. Both subtract as the blow goes inward:
+  - **penetration** uses up the element's **penetration reference** and the rest carries
+    on. Being cut through *is* being ruined, so how hard something is to cut and how much it
+    stops a cut are the same number. Plate stops nearly everything; skin barely slows a
+    blade.
+  - **shock** uses up the element's **soak**, a separate amount, and the rest carries on.
+    Fragility and absorption really differ here: bone is hard to break but soaks almost
+    nothing (so a staff to the head dazes), while soft tissue and padding soak a lot. An
+    amount rather than a fraction, so padding helps a great deal against a fist and barely
+    against a troll's club.
 - **its own penalty mapping:** bone → weight-bearing and balance, muscle → push-off and
   strength. No hierarchy between elements — a severed calf cripples a leg about as badly as
   a broken tibia.
@@ -946,8 +964,12 @@ Each element says what it is made of:
   starts a slow internal bleed. These are properties of the element, not rules about
   routes.
 
-Skin, muscle and bone are authored once and reused almost everywhere. Some elements keep a
-**hard line** where the fiction demands it (an eye is lost or it isn't).
+Skin, muscle and bone are **templates**, authored once and reused almost everywhere, with
+values that vary by place. Fat counts as part of the skin, and it's almost nothing over the
+shin, knuckles and scalp but thick over the belly, buttocks and thigh, so the skin there
+soaks more. Muscle varies the same way: a thin layer on the forearm, a lot of it in the
+thigh. Some elements keep a **hard line** where the fiction demands it (an eye is lost or it
+isn't).
 
 Small flavour elements are welcome even when they do nothing in a fight yet — eyebrows,
 hair, a beard. They cost almost nothing, and they give later systems something to hold on
@@ -975,6 +997,60 @@ next is whatever lies behind the element.
 Hole width is a fraction of the cell's width, so it scales with the creature; the contact
 converts through the cell size like everything else. This is deliberately coarse — refine
 it only if it turns out not fine enough to model something we care about.
+
+### Where a blow lands
+
+Which surface element a blow is centred on, once the card has brought it to a cell.
+
+1. **The card decides the cells.** Its path (row, side, entry and exit) says which cells the
+   blow passes through, in order.
+2. **Analysis decides what you aim for.** Each surface element has a **vital value** (how
+   much hitting it matters: eye and temple high, scalp low) and an **obviousness** (how easy
+   it is to know it's worth hitting: eyes and throat are obvious to anyone, the temple, the
+   liver or the gap under the arm are things you have to *know*). Elements whose
+   obviousness your analysis beats are candidates, and you aim at the most valuable one. If
+   you recognise none, the blow goes to the card's natural landing spot.
+3. **Precision decides how far you drift.** Precision is compared against how hard the aim
+   is to hit: the element's size (small is hard) and the target's state (a dummy or a dazed
+   man is easy, a moving one hard). The result is never a hit or a miss but **drift**: how
+   many rings of neighbours away from the aim the blow is centred. Exhaustion and fatigue
+   make both aiming and hitting worse.
+4. **Chance decides which way it drifts.** This is the one random step in resolution (see
+   Randomness). Aim at the temple, drift one ring, and the roll picks ear, scalp or cheek.
+   The wild haymaker that finds an eye is a long drift in a lucky direction, which is why
+   it's rare, and why precision matters: it is the size of the gamble.
+5. **Then spreading, the graph, and luck.** The contact spreads from its centre (below),
+   force goes inward, and luck nudges whatever ends up borderline.
+
+**Aim once.** Steps 2–4 happen in the first cell the blow enters. A swing that still has
+force to carry into the next cell lands on that cell's natural spot for the card, with no
+new aim and no new drift. Hard elements stop most edges and turn the rest into a push (see
+Force along a path), so carrying on is the uncommon case and doesn't need machinery of its
+own.
+
+### Spreading a blow
+
+How a blow that has reached a cell is shared between that cell's surface elements.
+
+- **A contact is centred** on one surface element, chosen as above.
+- **If the contact fits inside that element**, everything lands there. An element's area is
+  its share × the cell's area, and the contact's is x × y, both in m².
+- **If it's bigger, it spreads to the element's neighbours**, then to their neighbours, ring
+  by ring, until the contact is roughly used up. A contact extends both ways from its centre,
+  so a cut centred on the nose reaches up and down (or left and right) at once.
+- **Adjacency is plain and undirected**: each cell lists which surface elements touch. No
+  above or below, no horizontal or vertical, no exact accounting of how much length each
+  element uses up.
+- **A contact that runs out of cell** carries on into the next cell over, which is the
+  grid's job, exactly as swings already travel cell to cell.
+
+**Why rough is fine.** Bodies twist and turn constantly in a fight, and the player never sees
+how force was divided — only "jaw cracked, brow cut, reeling". If a horizontal slash catches
+both jaw and forehead, the fiction absorbs it: the head was tilted, or turning away. The
+test isn't whether the spread is anatomically exact, but whether the result **reads as
+something that could have happened**. A fist to the jaw blinding both eyes would fail it;
+plain adjacency makes that kind of result very unlikely, because the eyes aren't next to the
+jaw.
 
 ### Armour
 
@@ -1010,27 +1086,31 @@ legs can borrow a leg).
 
 Shares are placeholders. Left and right are mirrored.
 
-**Grid.** Centre head cell: forehead skin 0.25, jaw skin 0.21, cheek skin 0.10 each side,
-lips 0.10, nose 0.08, orbit 0.08, scalp skin 0.08. Each side cell: scalp skin 0.25, cheek
-skin 0.20, jaw skin 0.20, temple skin 0.20, ear 0.15.
+**Grid.** Every surface element belongs to one cell, so the scalp, cheek and jaw skin come
+in a centre piece and side pieces.
 
-**Graph**, outside in:
+| cell | surface elements and shares | next to each other |
+|---|---|---|
+| centre | forehead skin 0.25, jaw skin 0.21, cheek skin 0.10 each side, lips 0.10, nose 0.08, orbit 0.08, scalp skin 0.08 | scalp – forehead – orbit; orbit – nose, both cheeks; nose – cheeks, lips; lips – cheeks, jaw; cheeks – jaw |
+| each side | scalp skin 0.25, cheek skin 0.20, jaw skin 0.20, temple skin 0.20, ear 0.15 | scalp – temple; temple – ear, cheek; ear – cheek, jaw; cheek – jaw |
+
+**Graph**, outside in. The pieces of one skin lead to the same thing behind:
 
 ```
-hair       → scalp skin
+hair       → scalp skin (all three)
 beard      → jaw skin (most), lips (a little)
 
-scalp skin    → cranium → brain
-forehead skin → cranium
-temple skin   → temple (thin bone) → brain
-orbit         → left eye, right eye → brain       two eye-sized holes; eyebrows
-nose          (dead end)                          bleeds, waters the eyes
-ear           → inner ear                         balance
-cheek skin    → cheekbone, teeth
-lips          → teeth → tongue → throat (neck)
-jaw skin      → jawbone                           dazes
+scalp skin (centre, sides) → cranium → brain
+forehead skin              → cranium
+temple skin                → temple (thin bone) → brain
+orbit                      → left eye, right eye → brain   two eye-sized holes; eyebrows
+nose                       (dead end)                      bleeds, waters the eyes
+ear                        → inner ear                     balance
+cheek skin (centre, side)  → cheekbone, teeth
+lips                       → teeth → tongue → throat (neck)
+jaw skin (centre, sides)   → jawbone                       dazes
 
-brain         → brainstem                         deep; a backstab target
+brain                      → brainstem                     deep; a backstab target
 ```
 
 What it shows:
@@ -1092,6 +1172,16 @@ differs:
 - **A thin bone behind the eye.** Anything that bursts an eye goes through it anyway; eye →
   brain does the same job.
 - **Nose and nasal bone as two elements.** Same consequences; one element.
+- **Spreading by share across the whole cell.** Puts part of a jaw blow on the scalp.
+  Replaced by spreading to neighbours.
+- **Directional neighbours** (above, below, left, right), and later **neighbours tagged
+  horizontal or vertical**, so a cut could travel along its own axis. More precision than
+  anyone would ever see; the fiction absorbs a slightly wrong spread.
+- **A finer grid in the head**, or **a small picture of the surface per cell**, so the grid
+  itself supplies neighbours and direction. Considered as a way to avoid having two systems
+  for "where"; not needed once rough spreading was accepted.
+- **Exact accounting of how much contact each element uses up** (for instance an element's
+  length along the cut as the square root of its area). Hand-waving dressed as precision.
 
 ### Posture adjusts the layout
 
@@ -1122,9 +1212,32 @@ your forearm falls out for free.
 - **Thrusts are sequential too**, but *inwards*, along the arrows of the graph.
 - **Areas are even.** A body slam isn't a path: chest, stomach and both upper arms take
   modest shock at once. Both modes exist.
-- **Limbs yield.** An arm can be knocked aside, so it passes more force on than the torso,
-  which has nowhere to go. Severing needs huge force relative to the bone, and should be
-  rare.
+- **Passing through.** The graph is front-facing, so a chain has no far side: an arm is skin
+  → muscle → bone, and that's the end of it. **If penetration is still left over at the end
+  of a chain, the blow went through** — severed for a swing, skewered for a thrust — and the
+  leftover carries on: sideways into the next cell for a swing, deeper for a thrust. A sweep
+  through a bare arm still has force for the chest; a plated arm eats it. No extra rule:
+  it's the penetration subtraction running out of things to subtract from.
+- **Limbs yield.** Blunt force doesn't cut through, it shoves through. An arm can be knocked
+  aside, so it passes more force on than the torso, which has nowhere to go. Severing needs
+  huge force relative to the bone, and should be rare.
+- **What the torso doesn't stop moves the body.** A blunt blow into the left chest that
+  still has force left after the chest's elements doesn't carry on to the next cell like a
+  blade. It turns or shoves the whole body, through disruption and the knockdown check
+  below. So a troll's club with a lot left over sends you flying, and nothing extra decides
+  that. The same goes for a blade stopped by something hard: a sword that bites into a
+  skull and stops rocks the head and staggers him.
+- **Every blow's force ends somewhere**: used up as damage in the elements it went through,
+  carried on (through, deeper, or into the next cell), or moving the body. Nothing is left
+  over unaccounted for.
+- **One blow reaching an element by several paths is one hit.** A sweep through all three
+  head cells meets three pieces of jaw skin, and all three lead to the jawbone. Each path
+  loses its own soak on the way in; what arrives is added up, and the jawbone is judged
+  **once**. So the wide blow lands a little weaker than the same blow on a narrow area,
+  because more tissue was compressed getting there. Separate blows are different: those
+  add up as severity (bruised + bruised can become cracked). The order matters because
+  damage rises faster than force does, so working out three small hits separately would
+  badly understate one big one.
 - **Knockdown is checked afterwards**, once every cell has been resolved: total body shock
   vs mass, balance, current feet posture and brace. Direction decides which posture field
   moves (a side cut shoves you sideways, a slam backwards).
@@ -1212,6 +1325,11 @@ Pain and disruption are separate: skeletons ignore the *hurt* but still get *sho
 
 ### Severity: graded underneath, labelled on top
 
+**Status: an idea, not settled.** The formula below was Claude's proposal during a quick
+worked example (13 Oct). Dan liked the reference forces and the labels, but the formula
+itself was never properly discussed and is expected to be revisited. The labels, and
+severity adding up and weakening an element, are on firmer ground than the maths.
+
 Per element, compare what arrived through each channel against that element's reference
 force for that channel:
 
@@ -1250,7 +1368,9 @@ hits on one shin are worse than one on each. Targeting a wound is a real tactic.
 
 ### Worked example: three weapons into an unarmoured shin
 
-Placeholder numbers, to show the shape. Lower-leg elements:
+**Every number in this example is made up**, to show the shape of the calculation. None of
+them is calibrated, and the passing-on figures were improvised rather than taken from a
+rule. Lower-leg elements:
 
 | element | pen ref | shock ref | steepness | sensitivity |
 |---|---|---|---|---|
@@ -1278,6 +1398,18 @@ Placeholder numbers, to show the shape. Lower-leg elements:
 
 Three completely different outcomes on the same target, from one set of numbers and no
 authored damage types. A staff breaks shins, a sword opens them, a rapier punctures them.
+
+**Addendum (17 Oct).** Two things this example gets wrong, to fix when it's redone:
+
+- **The layering.** The front of the shin has almost no muscle: it is skin (with its thin
+  fat) straight onto the tibia, which is exactly why shin hits hurt so much and break so
+  easily. The muscle is behind, in the calf. In the graph that's two surface elements:
+  front of shin → tibia, and calf skin → muscle → tibia. A staff to the front breaks bone;
+  the same blow to the calf mostly bruises muscle.
+- **Shock losses were improvised.** The penetration figures already follow the
+  subtract-the-reference rule (the sword's 39 loses the skin's 6 and 33 reaches the
+  muscle). The shock figures just shrank "a little" at each layer. They should come from
+  each element's soak.
 
 ### What a hit leaves behind
 
@@ -1401,20 +1533,74 @@ eats its next turn.
 
 ## Making the force
 
-- **body:** strength × drive (commitment raises drive)
-- **moving mass:** mass × card footwork, plus pace for running cards
-- **swing:** arc × weapon weight × leverage (reach, weight distribution)
-- **handling:** strength vs weapon weight — bends force a little and time a lot
+Reworked 20 Oct, ingredient by ingredient. The full maths, every constant, the example
+tables and the stated assumptions are in **`force-model-review.md`**, written for an
+outside reviewer; this section is the shape. All numbers are invented.
 
-Shape: **(body + swing + moving mass) × handling.** The sources add; handling multiplies,
-because a weapon you can't control spoils everything.
+```
+force  = weight_behind × speed  +  run_up
+speed  = arm_speed(card) × (1 + strength / 10) × lever × weight_penalty
+```
 
-A weak character with a heavy weapon is penalised in both, but mostly in time: hard *and*
-slow, not useless. Precision and celerity stay out of force — precision decides where it
-lands, celerity decides time.
+**Speed starts from the arms.** Every strike has the card's arm speed. The weapon only
+amplifies it.
 
-Then the force is **split** (penetration vs shock, by damage type and by narrow vs wide)
-and **spread** (sequentially along a path, evenly over an area).
+- **Lever:** ×1 at the hands, growing the further out the striking part is (`1 + distance
+  in m`). A staff end or a ball and chain's head moves much faster than your hands. Straight
+  motions — thrusts, punches, shield slams, a cross check with a staff — don't use a lever:
+  ×1.
+- **Strength:** `1 + strength / 10`, the raw stat with one constant. ×1 at 0 (the default),
+  ×1.5 at 5, ×3 at 20, so the strongest hits twice as hard as an average fighter. Linear for
+  now; a per-stat transform for diminishing returns is an idea (`ideas.md`).
+- **Weapon weight penalty:** only once the weapon's **felt weight** is more than you
+  comfortably handle. Felt weight = weight × (1 + how far the balance point sits from the
+  hands), so it's never less than the real weight; a staff held in the middle feels exactly
+  its weight, a mallet much more. Two hands double the comfortable weight. Below it the
+  penalty is ×1 and invisible. It should also make heavy weapons slow (timing, not yet
+  covered).
+
+**Weight behind it**, in kg:
+
+- **straight motions move the whole weapon** at hand speed, so all of its weight counts
+- **swings count the striking part's own weight**, authored per part ("a mallet head puts
+  nearly all its weight into the blow, a sword's edge about half")
+- **plus your mass × the card's body share**: how much of you the move brings. A wrist flick
+  none, a committed swing some, a body slam nearly all — whether it starts at touching
+  distance or across the room.
+
+**Run-up**, a separate entry that is usually 0: mass × (1 + pace / 10) × how much ground you
+crossed getting there. A charge from far away gets it; the same slam point-blank doesn't
+and is still devastating. Distance comes from the fight, not the card.
+
+What falls out:
+
+- **Pushes are just strikes at the hands.** A cross check is a punch with the whole staff
+  and a wide contact; no separate push term needed.
+- **Commitment matters enormously for light weapons**: an uncommitted sword cut is weak, a
+  committed one isn't. Swords and daggers live on body mechanics.
+- **Thrusts carry less force than swings but put it into a point.**
+- **Blades don't break bone; blunt weapons do.**
+- **Heavy weapons reward strength**: weak fighters gain nothing from a mallet but slowness;
+  strong ones hit far harder with it.
+- **The biggest numbers are the least damaging**: slams and cross checks land wide, so
+  they're nearly all shock and mostly knock people over.
+- **Stepping inside a long weapon helps**, because nearer parts move slower and are often
+  blunt.
+
+Ignored for now, noted: posture, disruption mid-strike, the target's own movement into the
+blow, exhaustion, fatigue, injuries.
+
+Not part of force: **precision** decides where it lands; **keenness and contact shape**
+decide the penetration/shock split; **how long the swing takes** is separate, and where
+celerity's missing home will be decided.
+
+Then the force is **split** (penetration vs shock, by contact and keenness) and **spread**
+(see Anatomy §Spreading a blow).
+
+*Superseded, in order:* (body + swing + moving mass) × handling (four quantities nobody
+could picture, strength diluted to one source of three, footwork doing two jobs); then a
+first weight × speed version whose lever made strikes at the hands *slower* than the arm,
+and whose part weights were derived with a one-third floor that was quietly doing the work.
 
 ### House rules for the maths
 
@@ -1425,8 +1611,8 @@ Learned from a first worked example that got too clever:
   metres.
 - **Compare like with like.** Prefer "time needed vs time available" and "cells short vs
   cells of reach" over ratios of invented quantities.
-- **One shape for modifiers:** `base × (1 ± small terms)`, terms from `stat/50 − 1`. No
-  powers, no roots.
+- **One shape for modifiers:** `base × (1 ± small terms)`, terms from the raw stat (e.g.
+  `1 + stat/20`). No powers, no roots.
 - **No flat bonuses tacked on the end.** If something helps, it should help *because of
   what it is* (a wide shield covers its width).
 - Deliberate balance knobs are fine; accidental ones are what sank attempt 1. Keep them
@@ -1439,7 +1625,38 @@ Learned from a first worked example that got too clever:
 - **Skills: no abstract scale.** Stat values are the sums produced by the stat wheel
   (`character-creation.md`), and the maths here is written against those numbers rather
   than the reverse. They are meaningful only relative to each other and to monsters built
-  the same way.
+  the same way. **0 is bad but not useless, average is around 5, 20 is ridiculous mastery,
+  and values can go negative** from injuries, traits and the like
+  (`character-creation.md` §4).
+
+### How stats get read (20 Oct)
+
+**One mechanic at a time.** There's no universal formula for what a stat does. A swing reads
+strength one way, lifting a boulder might read it more heavily; imagination is a count,
+precision fades drift to nothing, instinct is a contest. Each mechanic is authored for what
+it is. That's more authoring, but each one tells us what it actually needs.
+
+**0 is the default.** Mechanics are authored for a 0 character (×1); stats above zero are
+bonuses, below zero penalties. Average is around 5, so an ordinary adventurer is already a
+little better than the default.
+
+**Authoring rule: three anchors, handwaved.** For each mechanic, make 0, 5 and 20 produce
+reasonable results and draw straight-ish lines between them. Fine-tune later. Exhaustion,
+fatigue, injuries and the like will affect most mechanics; note that they do, and **ignore
+them at first**.
+
+**The common shape: build, compare, band.** Most mechanics turn out to be the same three
+steps:
+
+- **build** a quantity from several stats plus the situation
+- **compare** it against a number the world owns
+- **band** the result into a few outcomes, rather than pass or fail
+
+Force is the model case: strength, drive, the weapon and so on build a force; it's compared
+against an element's reference force; the result lands in bands (bruised, cracked, broken).
+Analysis against obviousness, precision against how hard the aim is, and composure against
+intimidation all have the same shape. The world's numbers live on the same 0–20 scale as the
+stats they're compared against.
 
   *Superseded:* skills were on a 0–100 scale anchored at 0 = the wimpiest adult alive,
   100 = the strongest human alive, 50 = an average adventurer. Dropped for the reason
@@ -1636,48 +1853,75 @@ Traits remain discrete flags, not stats, and live in the hub beside luck.
 
 ### Weapon
 
-- **weight:** relative to your strength drives speed, bail-ease, redirecting, and force
-- **balance point:** head-heavy (mallet) builds momentum and is hard to stop; centred is
-  easy to control. Feeds commitment/bail-ease, and torque when blocking (blocking a mallet
-  near a sword's tip is hopeless)
-- **grip span** (m): the distance between the hands in two-handed use — long on a staff,
-  ~0.35 on a longsword. One-handed use takes hand width, derived from height. Cards can
-  modify it (choke up, widen, grip at the tip). Feeds `holding` against torque.
-- **hand-to-surface distance** (m): how far the blocking/striking surface sits from the
-  hand. ~0.1 for a strapped shield, ~0.4 for a sword parrying mid-blade. Multiplies aim
-  error, and sets the lever for torque.
-- **reach:** the weapon alone, in metres, from a comfortable grip, plus an arm contribution
-  from height. Its main job is deciding **which measure bands you threaten at** (see
-  Measure): a polearm owns *far*, a sword *normal*, a dagger only *near*. So reach is
-  upside at one band and a liability at another, and getting inside it is the counterplay.
-  A card can say "grip at the tip": more reach, with the costs following from existing
-  stats (weight distribution moves out, so slower to redirect, harder to bail, easier to
-  twist from your grip, and no second hand).
-- **working length** and **working width** (metres): the surface that can hurt or stop
-  something. Length tells how many of the target's cells a swing crosses; width decides
-  narrow-and-penetrating vs wide-and-shocking; length × width is roughly the area, which
-  *is* coverage when defending, measured against the target's cell size.
+Reworked 20 Oct: **a weapon is a body plus striking parts.** Not ultra-general, but any
+weapon can be divided into its parts.
 
-  | | working length | width |
-  |---|---|---|
-  | longsword | 0.9 | 0.04 |
-  | spear | 0.05 | 0.04 |
-  | mallet | 0.15 | 0.15 |
-  | shield | 0.6 | 0.6 |
-  | ball and chain | 0.2 | 0.2 |
+**The body:**
 
-  A shield 0.6 m across, against a 1.7 m creature whose cells are ~0.34 m, spans about two
-  cells and fills them. The same shield on a 4 m giant covers much less. A sword blocks
-  about a tenth of what a shield does.
-- **damage type:** default; cards can override (a sword's hilt strike is blunt)
-- **hands:** one, two, either
-- **penetration:** punching *through* armour (war pick yes, rapier no). Finding gaps is
-  precision, not this.
-- **keenness** (0–1): edge quality. Same geometry, very different behaviour between a sharp
-  axe and a blunted one; it raises the penetrating share of the force. Degrades with use,
-  which gives maintenance something to do later.
+- **weight** (kg)
+- **length** (m), fully extended for flexible weapons (a swung ball and chain is pulled
+  straight by its own spin)
+- **balance:** how far the balance point sits from the hands, in metres. Its job is **felt
+  weight** = weight × (1 + balance distance), which the weapon weight penalty reads. A staff
+  held in the middle has balance 0; a sword's hilt and pommel pull its balance to ~10–15 cm
+  in front of the guard, which is why swords feel light for their length; a mallet's sits
+  far out.
+- **hands:** one, two or either. Decides loadouts (a two-hander means no shield), and two
+  hands double the comfortable felt weight.
+- **grip span** (m): how far apart the hands are two-handed (short on a longsword, long on a
+  staff). Its job is **disarms**: holding on against a twist goes with strength × grip span.
+  Niche; might end up derived rather than authored.
+
+**Striking parts**, one or more per weapon. A card picks which part it uses, and stepping
+inside a long weapon changes which part reaches you. Each part has:
+
+- **distance from the hands** (m), which gives its lever. Negative behind the hands (a
+  pommel).
+- **contact shape**, x × y, which drives the penetration/shock split and, for a defending
+  part, how much it covers
+- **keenness** (0–1)
+- **part weight**: how much weight is behind it in a swing, authored
+- **rigid or flexible** attachment (a flail's head is flexible, its handle rigid)
+
+| weapon | parts, outward from the hands |
+|---|---|
+| quarterstaff | an end each way, the shaft between and near the hands |
+| longsword | hands and pommel, the edge near the guard, the middle of the edge, the tip |
+| spear | shaft, head |
+| ball and chain | handle, chain, head |
+| shield | face, rim, boss |
+| a rock | itself |
+
+**Reusable part profiles**, like skin and muscle templates: chain, shaft, pommel, and **the
+wielder's own hands and forearms**. Stepping into a ball and chain quietly gets you hit by
+the chain; stepping into a sword swing by the hands and pommel. Unarmed fighting is the same
+structure — fists, elbows and knees are parts at different distances, which is why elbows
+and knees are the clinch weapons.
+
+**Rigid or flexible** is mostly not about force. Where it matters: which cards a weapon can
+use (no thrusts or fine redirects with a flail), timing (a moving flexible head can't be
+stopped or steered: no tracking a dodge, no bail except letting go, long recovery on a
+miss), and blocks (the chain catches the rim and the head swings over). A flexible weapon
+also needs room to swing, so it's nearly useless at touching distance.
+
+**Stepping in** needs no working length any more: which parts reach you at a given distance
+decides it. Nearer parts move slower and are often blunt, so stepping in past a spearhead
+helps; stepping from a sword's tip into its edge might not; stepping into a ball and chain
+trades the head for the chain. This depends on the distance system being able to say
+roughly how far apart two fighters are.
+
+Kept from before:
+
+- **keenness** degrades with use, which gives maintenance something to do later
 - **durability:** later, but wanted (skeletons' wooden shields should splinter)
-- possible: two-ended (quarterstaff), making high and low close in posture
+- **penetration through armour** (war pick yes, rapier no) is separate from finding gaps,
+  which is precision. Not yet placed in the new structure.
+
+*Superseded:* working length and width (now each part's contact shape), reach (now the
+parts' distances), hand-to-surface distance (now a part's distance), damage type with card
+overrides (now the card picking a part: a sword's hilt strike uses the pommel), "two-ended,
+maybe" (now two parts), and balance as a fraction along the weapon (it could make felt weight
+less than the real weight).
 
 ### Card
 
@@ -1710,12 +1954,13 @@ Traits remain discrete flags, not stats, and live in the hub beside luck.
 
 - How required accuracy is computed from the attack (arc, working size) against the
   defending object (working length, width), and what precision it demands.
-- How a blow lands on a cell's surface elements: spread by share, or precision choosing
-  where it goes — and how a low-precision fighter ever lands a decisive hit if nothing is
-  random. Parked with determinism.
-- **Swings across several cells.** Scalp skin and jaw skin sit in more than one head cell,
-  so does a sweep through all three hit them once, or once per cell? Parked, but to be
-  settled before determinism.
+- Numbers for where a blow lands: vital value and obviousness per element, how precision
+  turns into drift, and each card's natural landing spot. The shape is settled (§Where a
+  blow lands).
+- **How much each element passes on**, per channel, as numbers. It's written in words
+  ("skin passes nearly everything, bone stops penetration and passes shock") and the shin
+  example improvised figures. With force flowing along the graph, this is the core of the
+  flow. Next up.
 - Whether a fourth "very far" band exists, and what a fight opens at.
 - How a defence's quality maps to who sets the measure afterwards.
 - Which dodge cards are rare or hero signatures, to keep the flashy ones scarce.

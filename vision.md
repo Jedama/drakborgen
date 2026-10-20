@@ -245,6 +245,11 @@ real. So uncertainty is the kind you can outthink, closer to poker than to dice,
 fight goes wrong it was your call. "My mallet can't touch this bat" is an observation, not
 bad luck.
 
+One fence, deliberately small: **where** a blow lands has a little randomness, never
+**whether** it lands. A wild swing can find an eye, a careful one lands where it was meant,
+and precision is how big a gamble you're taking. Nothing in a fight is lost to a roll; only
+the exact spot a connected blow finds is.
+
 **Emergence over authored matchups.** We'd rather describe things and let interactions fall
 out. A skeleton is immune to bleeding because it has no skin, not because someone wrote
 "immune to bleed." Blunt weapons are good against it because bone is brittle and blades skid
@@ -416,5 +421,6 @@ and a luck score that runs negative. Everything numeric about it is guesswork so
   questions.
 - **`character-creation.md`** — the stat wheel: notches, curves, the soul hub.
 - **`ideas.md`** — the scratchpad: unsettled ideas, options left open, half-thoughts.
+- **`roadmap.md`** — what's next, roughly ranked.
 - **`attempt1/`** — the first attempt, kept as a record. The curves, the splines, the
   millisecond timeline and the prototype that ran them.

@@ -156,6 +156,29 @@ A consequence worth remembering: **the numbers are only meaningful relative to e
 other.** A character's 8.91 means something next to their own 0.77 and next to a troll
 built the same way. It means nothing on its own, and `UNIT` can be rescaled freely.
 
+### What 0 and 20 mean (20 Oct)
+
+- **0 is bad, but not useless.** You struggle with everything at 0, but nothing is closed
+  to you. Imagination 0 draws something like three random cards and three stance cards, so
+  building a good sequence is hard, especially when some of them don't apply. Strength 0
+  means you need a very good, precise hit to accomplish much of anything. Instinct 0 means
+  every trap ambushes you and you never spot anything hidden.
+- **0 is also the default the maths is written against.** Every mechanic is authored for a
+  0 character, so 0 means ×1, and anything above is a bonus on top (strength might give
+  ×1.2 at 5 and ×2 at 20). Below zero is a penalty. This is for ease of thinking: the
+  numbers on a card describe the default person, and stats only ever adjust them.
+- **Average is somewhere around 5.** Roughly where the shoulders of a bell notch land. So
+  an ordinary adventurer already gets a small bonus over the default.
+- **20 is ridiculous.** The ceiling, reachable only by stacking every notch, means
+  near-absolute mastery of that one thing: imagination drawing something like twenty cards
+  instead of ten, precision that always lands where it's aimed, endurance that never tires.
+- **Stats can go negative.** Injuries, traits, exhaustion and the like push values below
+  zero.
+
+This is the framing the combat maths gets written against. With the wheel's total of 58.4
+over sixteen stats (3.65 each on average), a typical character is below average at most
+things and good at a few, which suits the game.
+
 ---
 
 ## 5. How a build reads
