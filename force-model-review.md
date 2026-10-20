@@ -345,3 +345,183 @@ shatters it (2.0).
 - Is there a simpler way to get the same behaviour?
 - Anything that looks like it's quietly doing more work than it should (the way the
   one-third clamp on part weight was).
+
+---
+
+## 12. Round two: response to the review (21 Oct 2026)
+
+Thank you; the review found real problems. Below is how we read each suggestion, what we
+propose instead where we differ, and the questions it opened. **Nothing here is
+calibrated yet**; numbers are illustrative only.
+
+### 12.1 Summary
+
+| suggestion | our response |
+|---|---|
+| A. run-up into speed, not force | **adopted** |
+| B. lever = 0.7 + distance | **adopted and extended**: the base comes from the joint that drives the move, and it needs a counterweight in timing |
+| C. the card decides swing vs thrust | **adopted in principle**, but we read the physics differently: see 12.4 |
+| D. the sweet spot via grip torque | **adopted**, and we think the sweet spot also appears in force once C is fixed |
+| E. strength as power-to-weight | **adopted in a different place**: in timing, not force, plus a size baseline. See 12.6 |
+| weight penalty as a floor | **adopted in shape**; constants later with the weapons |
+| continuous severity under the labels | **agreed**; that was always the intent |
+| soak cliffs | **agreed** that consequences soften them; a capped soak noted as an option if a case needs it |
+| the split function, depth limits | **agreed**, still open |
+
+### 12.2 A. Run-up
+
+```
+speed_at_hands = arm_speed(card) × (1 + strength / 10) + run_up_speed
+run_up_speed   = k × (1 + pace / 10) × ground_crossed
+```
+
+Running speed is not multiplied by the lever. A consequence we like: **run-up now scales
+with how much of the body the card brings.** A charging shoulder slam (body share ~0.6)
+carries most of its weight at run-up speed; a charging dagger lunge (~0.15) gets a real
+bump, about 11 kg × the run-up, but nothing like a battering ram.
+
+### 12.3 B. The lever, and where it pivots
+
+A swing turns around a joint, so the striking part's speed is turning speed × its distance
+from that joint. Rather than a fixed 0.7 m, **the card says which joint drives the move**:
+
+| driving joint | base radius (m) |
+|---|---|
+| wrist (a flick) | ~0.05 |
+| elbow (a forearm chop) | ~0.35 |
+| shoulder (a full swing) | ~0.7 |
+| spine (a whole-body swing) | ~0.9 |
+
+with in-between values allowed. A flick with a long weapon gains a lot of tip speed from
+very little. The radius should probably also scale with the fighter's height, since arm
+length varies.
+
+Compared with `1 + distance`, at equal hand speed the shoulder version makes length matter
+about 1.4× more per metre (staff end ×2.3 instead of ×1.9, spear head swung ×3.6 instead
+of ×2.8). That's closer to reality (a sword tip moves roughly 2.5–3× as fast as the hand),
+but:
+
+- **It needs a counterweight.** Real long weapons are much harder to *turn* (rotational
+  inertia grows with length squared). With the weight penalty reduced to a floor, nothing in
+  force brakes long weapons. We think the brake belongs in **timing**: longer and heavier
+  means slower windups, earlier commitment, and less ability to change plans mid-strike.
+  That last one is the dagger's real advantage. Timing is the next topic, and B shouldn't
+  be finalised without it.
+- **Thrusts need their own number.** With thrusts fixed at 1.0 and a swing at the hands at
+  0.7, a straight punch out-hits a hook by 40% from a constant alone. A thrust's speed
+  should be chosen deliberately on the same footing.
+
+### 12.4 C. Swings, thrusts, and where the weight comes from
+
+We agree a part is just a physical part and the card decides the motion. But we read the
+mass question differently, and it led to what we think is the more important fix.
+
+**Swings.** The review is right that we under-counted the weapon. The weight effectively
+behind a point on a swung weapon is its **effective mass** there: for an evenly weighted
+blade, about three-quarters of the weapon near two-thirds of the way out (the sweet spot),
+and about a third at the tip. So a sword's middle-of-the-edge part weight should be nearer
+1 kg than the 0.5 we used.
+
+**The deeper flaw: the body was riding the lever.** §4 multiplies *everything* behind the
+blow by the speed at the striking part, including the body share. That says your body's
+mass arrives at sword-tip speed, which is wrong, and it's why the tip out-hit the edge.
+Proposed:
+
+```
+force = part_weight × speed_at_part  +  body_share × mass × speed_at_hands
+```
+
+**Your body's weight arrives at your hands' speed; only the weapon's own weight gets the
+lever.**
+
+**Thrusts.** We think the grip argument is right, but about the body, not the weapon. In a
+straight thrust the weapon moves as one rigid piece at hand speed, so all of its own weight
+arrives, regardless of grip: its momentum doesn't pass through your hand. What a grip
+limits is how much of **your body** you can push through it before your hand slips. So:
+
+- thrusts keep the **whole weapon's weight**
+- **grip caps a thrust's body share**: one hand low, two hands higher, a brace or couched
+  spear highest
+
+That's also good gameplay: a one-handed thrust can't put much of you into it.
+
+Illustrative numbers at strength 5 (hand speed 3.3, committed body share 7 kg, shoulder
+lever):
+
+| | weapon part | body | force |
+|---|---|---|---|
+| sword, middle of the edge | 1.0 × 6.3 | 7 × 3.3 | ~29 |
+| sword tip | 0.45 × 7.6 | 7 × 3.3 | ~27 |
+| staff end | 0.7 × 7.6 | 7 × 3.3 | ~28 |
+| mallet head | 4.0 × 7.6 | 7 × 3.3 | ~54 |
+
+- **The sweet spot appears in force**: the middle of the edge out-hits the tip, with no
+  extra rule.
+- **Heavy heads matter far more**: the mallet is now about twice the staff.
+- **Light weapons live even more on the body.**
+- **It defuses part of B**: the lever only multiplies the weapon's own weight, so long
+  *light* weapons gain little from length; long *heavy* ones still gain a lot, and those
+  are exactly what timing should slow.
+- **All forces drop**, so the calibration anchor (an average committed staff strike just
+  breaks a shin) needs re-tuning.
+
+### 12.5 D. The sweet spot through grip
+
+Adopted as the review describes: striking hard things with the extreme tip twists the
+weapon in your hand, risking deflection, hand strain and lost posture. It gives grip span
+(`holding = strength × grip span`, from the parry/disarm model) a second job. With 12.4,
+the sweet spot now shows up in both force and grip.
+
+### 12.6 E. Strength, mass and size
+
+We agree trolls should be strong, heavy and slow, and that no creature should need an
+absurd strength number (−25 or 300) to make the maths work. But a strict power-to-weight
+reading has a consequence we don't want: if limb speed goes with strength ÷ mass and force
+is mass × speed, **body mass cancels out of every swing**, and a 100 kg fighter hits no
+harder than a 60 kg one of the same strength.
+
+What we think is going on: **one "speed" was doing two jobs**, how much momentum a blow
+carries (force) and how quickly the swing happens (time). Proposed:
+
+- **Force** uses strength and mass as now.
+- **Time** (windup, recovery) uses **strength relative to what's being moved**: your own
+  body plus the weapon's felt weight. Power-to-weight belongs here, where it's right.
+
+**And a size baseline, from square-cube.** Muscle force grows with cross-section (size²)
+and weight with volume (size³), so bigger creatures are much stronger in absolute terms but
+weaker relative to their own weight. So:
+
+- **the body sets the baseline**: a creature's raw muscle output comes from its mass,
+  growing more slowly than mass itself (∝ mass^⅔)
+- **strength says strong or weak for its kind**, on the same 0–20 scale; an average troll
+  is about 5, a strong one 12
+- **slowness falls out**, because output grows more slowly than mass
+
+| average member, strength 5 | mass | muscle vs a human | weight vs a human | moves its body |
+|---|---|---|---|---|
+| human | 70 kg | ×1 | ×1 | ×1 |
+| troll | 300 kg | ×2.6 | ×4.3 | ×0.6 |
+| dragon | 5 t | ×17 | ×71 | ×0.24 |
+
+- A physique built for hitting (troll arms) would be a **build factor** on the frame, next
+  to mass, so "trolls hit unusually hard for their size" is a fact about trolls rather than
+  a fudged strength number.
+- Could be a formula (mass^⅔) or a small table of size classes. Either is fine by us.
+
+### 12.7 Weight penalty
+
+Agreed as a floor. With comfortable weight 2.5 + 0.3 × strength (×2 for two hands), an
+average fighter swings a mallet freely. The ball and chain one-handed stays penalised at
+strength 5, which seems right for an exotic weapon. We'll tune the constants with the
+weapons.
+
+### 12.8 Questions back to the reviewer
+
+1. Does **body at hand speed, weapon at part speed** (12.4) hold up, or does it break
+   somewhere, e.g. whole-body swings where the hips and shoulders really do move fast?
+2. Is a **grip cap on a thrust's body share** a fair reading of the grip argument?
+3. Does **power-to-weight in timing, not force**, plus the **square-cube baseline**, solve
+   the troll and dragon cases without creating new ones?
+4. With length now mattering more in swings, what's the strongest **counterweight in
+   timing** you'd expect long weapons to need?
+5. Anything in 12.2–12.6 that looks like it's quietly doing more work than it should?
