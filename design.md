@@ -1612,7 +1612,10 @@ Learned from a first worked example that got too clever:
 - **Compare like with like.** Prefer "time needed vs time available" and "cells short vs
   cells of reach" over ratios of invented quantities.
 - **One shape for modifiers:** `base × (1 ± small terms)`, terms from the raw stat (e.g.
-  `1 + stat/20`). No powers, no roots.
+  `1 + stat/20`). *"No powers, no roots" was Claude's wording (24 Sep), written up after
+  a shield calculation with `√drag` in it felt too complex. Dan never set it as a rule; the
+  real intent is "keep the maths simple enough to picture", and a power is fine where it
+  says something real (e.g. square-cube for creature size).*
 - **No flat bonuses tacked on the end.** If something helps, it should help *because of
   what it is* (a wide shield covers its width).
 - Deliberate balance knobs are fine; accidental ones are what sank attempt 1. Keep them

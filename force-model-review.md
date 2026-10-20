@@ -1,5 +1,9 @@
 # Force model: maths and assumptions, for review
 
+> **Round two (21 Oct 2026):** the designers' response to the first review, with proposed
+> changes and new questions, is in **§12** at the end. §1–11 are the model as first
+> submitted, kept so the review can be read against it.
+
 A self-contained write-up of how a blow's force is built and what it does to a body, as of
 20 Oct 2026. Written so a reviewer who hasn't seen the project can check it. Every number
 here is **invented and uncalibrated**; what's under review is the *shape* of the model, the
