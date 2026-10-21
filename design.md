@@ -1402,20 +1402,25 @@ lowers them; brace raises muscle soak (shock only) where braced; the size tier s
    - **labels and pop-ups:** per **label class** (the tibia uses *bone*; bone might read
      notched / chipped / cut through for cut, bruised / cracked / broken / shattered for
      crush)
-   - **pain:** from how hard it went in, **not** scaled by extent — a deep puncture hurts as
-     much as you'd expect — times sensitivity, from both tracks
-   - **bleeding:** the element's bleeding rate × its cut × extent, so a wide slash bleeds
-     more than a narrow puncture
+   - **pain:** times sensitivity, from both tracks. *Open:* Claude proposed taking it from how
+     hard the blow went in, not scaled by extent, so a deep puncture hurts as much as you'd
+     expect.
+   - **bleeding:** from the element's bleeding rate and its cut. *Open:* Claude proposed
+     scaling it by extent, so a wide slash bleeds more than a narrow puncture.
    - **its own effects:** a brain's crush dazes, a jaw dazes, an inner ear upsets balance
 6. **Pass on** what's left to the elements behind (by the arrows' shares for a wide contact,
    following where the blow landed for a narrow one).
 7. **End of the chain.** Leftover penetration means it went **through** (an exit wound:
    extra bleeding and pain, and it carries on); leftover shock **moves the body**.
 
-**Thrusts and punctures.** A thrust cuts little *function* (a narrow channel), hurts a lot,
-and bleeds modestly — plus the exit wound if it went through. That matches reality: a lunge
-through a thigh is survivable. Its real lethality is **what it reaches**: organs are
-elements. Nerves and arteries inside a limb are deliberately **not** modelled; too much.
+**Thrusts and punctures — still open.** The problem: a thrust through the calf only cuts a
+narrow channel, so with extent scaling cut it barely counts, even when it went clean
+through. Decided so far: going through is a flag that adds bleeding and pain (no second
+skin), and nerves and arteries inside a limb are **not** modelled (too much). Not settled:
+whether that's enough, and how pain and bleeding should treat a narrow, deep wound against a
+wide, shallow one. Dan didn't like adding width and depth as separate measures, or taking
+whichever is larger. A thrust's lethality otherwise comes from what it reaches; organs are
+elements.
 
 ### Severity: graded underneath, labelled on top
 
