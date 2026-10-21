@@ -1256,7 +1256,9 @@ your forearm falls out for free.
   of a chain, the blow went through** — severed for a swing, skewered for a thrust — and the
   leftover carries on: sideways into the next cell for a swing, deeper for a thrust. A sweep
   through a bare arm still has force for the chest; a plated arm eats it. No extra rule:
-  it's the penetration subtraction running out of things to subtract from.
+  it's the penetration subtraction running out of things to subtract from. **Going through
+  is a flag, not more anatomy** (21 Oct): the exit wound adds extra bleeding and pain to the
+  wound. There is no second skin to model. "Run through the calf" is its pop-up.
 - **Limbs yield.** Blunt force doesn't cut through, it shoves through. An arm can be knocked
   aside, so it passes more force on than the torso, which has nowhere to go. Severing needs
   huge force relative to the bone, and should be rare.
@@ -1364,6 +1366,56 @@ Pain and disruption are separate: skeletons ignore the *hurt* but still get *sho
   nothing against cuts and thrusts, and nothing over bare bone like the front of the shin.
 - Leaning: *kind* of injury from weapon + location, *severity* from commitment + how the
   defence went. Not settled.
+
+### Inside an element, step by step (21 Oct)
+
+What happens when a blow reaches one element. Numbers are placeholders; the shape is what's
+agreed.
+
+**What arrives:** penetration **P** and shock **S**, plus what the blow carries: its contact
+width and its wedge.
+
+**What the element is:** penetration and shock references, soak, holes, bleeding rate,
+sensitivity, a label class (bone, skin, muscle…) and its own effects. Adjusted before the
+blow lands: pain tolerance raises bone and skin references a little; damage already there
+lowers them; brace raises muscle soak (shock only) where braced; the size tier scales them.
+
+1. **Holes.** If the contact fits a hole, some of the blow may pass without touching the
+   element (the landing system decides how much).
+2. **Penetration.** The toll is (1 + wedge) × the penetration reference. If P is bigger,
+   it cuts through and P − toll goes on; if not, it stops inside. The wedge's share of the
+   toll goes into this element as extra shock.
+3. **Shock.** Shock here is S plus the wedge's extra. What goes on is shock − soak.
+4. **Damage, in two tracks.** Every element holds **cut %** and **crush %** — its
+   **brokenness**, the state everything reads from. A bone can be notched *and* bruised.
+   - **added brokenness = 50% × (arriving ÷ reference) ^ steepness**, never above 100% in
+     total. The reference is the force that half-ruins it; steepness is how brittle it is.
+     (Still a placeholder curve.)
+   - **cut** is scaled by **extent**: contact width ÷ the element's own width, never above
+     1. A 5 cm cut is a finger's full width and a small part of a thigh. Crush ignores
+     extent.
+   - **existing damage weakens** the element (references drop as brokenness rises, e.g. ×
+     (1 − brokenness ÷ 2)), so two hits on one shin are worse than one on each.
+5. **What brokenness drives:**
+   - **function and stat penalties:** from **both tracks added**, kept small, since most hits
+     leave a bit of both (needs playtesting)
+   - **labels and pop-ups:** per **label class** (the tibia uses *bone*; bone might read
+     notched / chipped / cut through for cut, bruised / cracked / broken / shattered for
+     crush)
+   - **pain:** from how hard it went in, **not** scaled by extent — a deep puncture hurts as
+     much as you'd expect — times sensitivity, from both tracks
+   - **bleeding:** the element's bleeding rate × its cut × extent, so a wide slash bleeds
+     more than a narrow puncture
+   - **its own effects:** a brain's crush dazes, a jaw dazes, an inner ear upsets balance
+6. **Pass on** what's left to the elements behind (by the arrows' shares for a wide contact,
+   following where the blow landed for a narrow one).
+7. **End of the chain.** Leftover penetration means it went **through** (an exit wound:
+   extra bleeding and pain, and it carries on); leftover shock **moves the body**.
+
+**Thrusts and punctures.** A thrust cuts little *function* (a narrow channel), hurts a lot,
+and bleeds modestly — plus the exit wound if it went through. That matches reality: a lunge
+through a thigh is survivable. Its real lethality is **what it reaches**: organs are
+elements. Nerves and arteries inside a limb are deliberately **not** modelled; too much.
 
 ### Severity: graded underneath, labelled on top
 
