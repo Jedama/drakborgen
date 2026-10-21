@@ -3,6 +3,13 @@
 > **Round two (21 Oct 2026):** the designers' response to the first review, with proposed
 > changes and new questions, is in **§12** at the end. §1–11 are the model as first
 > submitted, kept so the review can be read against it.
+>
+> **After round two:** the reviewer agreed with §12. Two refinements on top: the swing lever
+> is measured from the hands, `(joint_radius + distance) ÷ joint_radius`, so 1 means hand
+> speed for swings and thrusts alike; and the wrist-flick-spear exploit is handled by
+> authoring cards per weapon (no such card exists), not by the maths. The current model
+> lives in `design.md` §Making the force. Round three: timing, the split function, depth
+> limits.
 
 A self-contained write-up of how a blow's force is built and what it does to a body, as of
 20 Oct 2026. Written so a reviewer who hasn't seen the project can check it. Every number

@@ -110,9 +110,22 @@ review is in `force-model-review.md`.
     per part, mirroring holes (width and count).
   - **wedge versus blade**: an axe is a thick wedge behind its edge and cleaves bone; a sword
     slices. Might fold into keenness plus head weight; try without a new field first.
-- **The sword's sweet spot** doesn't appear (the tip out-hits the middle of the edge).
-  Claude's proposed fix: through contact, since the tip touches a short stretch of edge and
-  makes a smaller wound.
+- **The sword's sweet spot** — settled 21 Oct in `design.md` (body at hand speed, effective
+  part weights, grip torque on tip strikes). Claude's other idea, that the tip also lays a
+  shorter cut (less extent), still applies and could add to it.
+- **Per-joint comfortable weight** (Claude, 21 Oct): each joint (wrist, elbow, shoulder,
+  spine) handles its own weight, so a wrist flick of a spear comes out feeble without any
+  rule. Dropped: every card is authored per weapon, so nonsensical cards just aren't written.
+- **Soak with a cap** (Claude, after the round-one review): soak stays an amount but never
+  takes more than some share of the incoming shock, so padding eats a fist but a troll's
+  club mostly gets through. Only if a case needs it.
+- **Punches and dagger stabs** carry nearly the same momentum (a fist weighs almost nothing,
+  a dagger 0.3 kg); the dagger's lethality is the point. The reviewer flagged punches as a
+  watchpoint; no change planned.
+- **Joint radius by height**: arm length varies, so the lever's joint radius should probably
+  scale with the fighter. Not decided.
+- **Size tier numbers**: the table (baseline muscle, base action cost per tier) is agreed in
+  shape, with no values yet.
 - **Rigid-only card requirements** ("needs a rigid weapon"): Claude's idea for how
   flexibility limits a deck. Dan isn't sure cards want authoring like that.
 - **Grip span** might be derived rather than authored, since disarms are its only job.
@@ -125,6 +138,22 @@ review is in `force-model-review.md`.
   mechanism at a fixed speed regardless of strength). Not worked through.
 - **Improvised objects** (a chair, a candlestick, a rock) as the generality test: should be
   describable from weight, size and shape alone.
+
+---
+
+## Exhaustion, stamina and weight, loose ends (21 Oct)
+
+- **How stamina and exhaustion play together** — Dan wants to refine this. Current
+  placeholder: stamina sets how fast exhaustion builds; fatigue lowers effective stamina, so
+  a fatigued fighter gets winded sooner.
+- **Which scale exhaustion and fatigue live on**: 0–20 like the stats keeps one mental model;
+  a drifting resource might suit something else. Placeholder idea: effective stat = stat −
+  exhaustion ÷ 4, which takes an average fighter's strength to the default at full
+  exhaustion.
+- **What raises exhaustion per card** (drive, arc, crossing ground, carried weight): belongs
+  with timing.
+- **Which states hit the mental stats** — adrenaline, heart rate, fear, stress, confusion,
+  "or whatever I end up using" (Dan). Not designed yet.
 
 ---
 

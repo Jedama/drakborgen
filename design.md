@@ -113,6 +113,13 @@ eligible archetypes plus its signatures.
 Card faces show **computed** values: this card, with your weapon, in your posture, costs
 2.25. Pick up the mallet and it says 3.
 
+**Every weapon's cards are authored, and as many as possible** (21 Oct). Templates and
+archetypes make authoring easier, but every weapon should feel unique, and bringing a
+weapon adds *its* cards to your deck. Because each card is authored for its weapon, things
+that make no sense are simply never written: there is no wrist flick for a spear, so the
+maths doesn't need a rule to stop one. You can look through a weapon's cards and they make
+sense.
+
 Parked: card rarities (e.g. a legendary "Decapitate").
 
 ---
@@ -638,9 +645,32 @@ when you take a breath, disengage, or spend a turn doing little. That is the
 overexert/underexert idea arriving naturally: spend big now and be slower later, or pace
 yourself and stay sharp.
 
-**What it costs:** small drops to celerity, force and pace. And when you're *really*
-exhausted, the mental stats go too — imagination, reaction speed, analysis. Not a lot at any
-one step; enough that the late fight is a different fight.
+**What it costs** (refined 21 Oct): exhaustion lowers **effective stats**, and everything
+reads effective stats, so it needs no terms of its own in force or timing. Because it gets
+applied nearly everywhere, its numbers must be **small**. Placeholder shape, to be tuned:
+
+| stat | how hard exhaustion hits it | from when |
+|---|---|---|
+| strength | heavy | from the start |
+| pace | heavy | from the start |
+| footwork | moderate | from the start |
+| precision | moderate (shaky arms) | from the start |
+| reaction speed | light, then heavy | heavy once badly exhausted |
+| analysis, imagination, improvisation | none, then moderate | only when badly exhausted |
+| composure | light | when badly exhausted |
+
+The mental stats are mostly hit by **other states** — adrenaline, a racing heart, fear,
+stress, confusion — rather than by exhaustion. Only when you're very, very exhausted does
+everything take a hit. Not a lot at any one step; enough that the late fight is a different
+fight.
+
+**Strength takes it three ways at once**: blows get weaker (arm speed), everything gets slower
+(power-to-weight), and weapons feel heavier (the weight penalty's floor is checked against
+strength, so an exhausted average fighter's mallet becomes too heavy). No extra rules needed.
+
+**Watch for a death spiral**: tired → weaker → each action costs more relative to your
+strength → more tired. The brakes are catching your breath, low-effort cards and the forced
+*gasp* cards; whether they're enough is a timing question.
 
 It pairs badly (for you) with **adrenaline**, which masks pain but decays: a long fight
 erodes your body *and* stops hiding the damage. Two clocks both saying finish this.
@@ -1533,74 +1563,134 @@ eats its next turn.
 
 ## Making the force
 
-Reworked 20 Oct, ingredient by ingredient. The full maths, every constant, the example
-tables and the stated assumptions are in **`force-model-review.md`**, written for an
-outside reviewer; this section is the shape. All numbers are invented.
+Reworked 20–21 Oct, ingredient by ingredient, then through two rounds of outside review.
+The full maths, the example tables and the review exchange are in **`force-model-review.md`**
+(§1–11 the first version, §12 the round-two changes); this section is the current shape.
+All numbers are invented and uncalibrated.
 
 ```
-force  = weight_behind × speed  +  run_up
-speed  = arm_speed(card) × (1 + strength / 10) × lever × weight_penalty
+arm            = arm_speed(card) × (1 + strength / 10) × weight_penalty
+speed_at_hands = arm + run_up_speed
+speed_at_part  = arm × lever + run_up_speed
+
+force = part_weight × speed_at_part  +  body_share × mass × speed_at_hands
 ```
 
-**Speed starts from the arms.** Every strike has the card's arm speed. The weapon only
-amplifies it.
+**Your body's weight arrives at your hands' speed; only the weapon's own weight gets the
+lever.** This is the key decision of round two. Before it, the body share rode the lever,
+which said your body hits at the speed of the sword tip; that's what made the tip out-hit
+the edge.
 
-- **Lever:** ×1 at the hands, growing the further out the striking part is (`1 + distance
-  in m`). A staff end or a ball and chain's head moves much faster than your hands. Straight
-  motions — thrusts, punches, shield slams, a cross check with a staff — don't use a lever:
-  ×1.
-- **Strength:** `1 + strength / 10`, the raw stat with one constant. ×1 at 0 (the default),
-  ×1.5 at 5, ×3 at 20, so the strongest hits twice as hard as an average fighter. Linear for
-  now; a per-stat transform for diminishing returns is an idea (`ideas.md`).
-- **Weapon weight penalty:** only once the weapon's **felt weight** is more than you
-  comfortably handle. Felt weight = weight × (1 + how far the balance point sits from the
-  hands), so it's never less than the real weight; a staff held in the middle feels exactly
-  its weight, a mallet much more. Two hands double the comfortable weight. Below it the
-  penalty is ×1 and invisible. It should also make heavy weapons slow (timing, not yet
-  covered).
+### Speed
 
-**Weight behind it**, in kg:
+- **Arm speed** comes from the card. Strength multiplies it: `1 + strength / 10`, so ×1 at
+  0 (the default), ×1.5 at 5, ×3 at 20. Linear for now; a per-stat transform for
+  diminishing returns is an idea (`ideas.md`).
+- **The lever** is how much faster the striking part moves than the hands, so **1 means hand
+  speed**:
+  - swings: `(joint_radius + distance) ÷ joint_radius`
+  - thrusts: 1, because the weapon moves rigidly with the hands
 
-- **straight motions move the whole weapon** at hand speed, so all of its weight counts
-- **swings count the striking part's own weight**, authored per part ("a mallet head puts
-  nearly all its weight into the blow, a sword's edge about half")
-- **plus your mass × the card's body share**: how much of you the move brings. A wrist flick
-  none, a committed swing some, a body slam nearly all — whether it starts at touching
-  distance or across the room.
+  `distance` is how far out the striking part is (m). `joint_radius` comes from **the card:
+  which joint drives the move** — wrist ~0.05, elbow ~0.35, shoulder ~0.7, spine ~0.9, with
+  in-between values allowed. Probably scaled by the fighter's height. A strike at the hands
+  is ×1 whether it's a swing or a thrust, so a hook and a straight punch differ only by what
+  their cards say. A wrist flick's ratio gets large, but in a flick the hands barely move, so
+  the card's arm speed is small.
+- **Run-up** adds to speed, and isn't levered: `run_up_speed = k × (1 + pace / 10) ×
+  ground_crossed`, usually 0. It scales with how much of you the card brings: a charging
+  shoulder slam carries most of its weight at run-up speed, a charging dagger lunge only a
+  little.
+- **The weapon weight penalty** is a **floor**, not a mid-tier gate: it keeps a strength 0
+  fighter from comfortably using a mallet, and an average fighter should barely ever see it.
+  Felt weight = weight × (1 + how far the balance point sits from the hands);
+  comfortable weight roughly 2.5 + 0.3 × strength, doubled with two hands. Shape only; tune
+  with the weapons.
 
-**Run-up**, a separate entry that is usually 0: mass × (1 + pace / 10) × how much ground you
-crossed getting there. A charge from far away gets it; the same slam point-blank doesn't
-and is still devastating. Distance comes from the fight, not the card.
+### Weight
 
-What falls out:
+- **Swings count the striking part's effective weight**, authored per part. It peaks around
+  two-thirds of the way out (about three-quarters of an evenly weighted blade) and is small
+  at the tip (about a third). A sword's middle edge is ~1 kg, its tip ~0.45; a mallet head
+  nearly all of the mallet.
+- **Thrusts count the whole weapon**, since it moves as one piece and its momentum doesn't
+  pass through your grip.
+- **Body share × mass**: how much of you the card brings, from a wrist flick (none) to a body
+  slam (~0.6). **Mass is total mass**: your body plus armour, pack, loot and whatever else
+  you carry. So an armoured knight's charge or slam carries more.
+- **Total weight mostly shows up in timing, not force.** Carried weight only adds to a blow
+  when you throw your body into it; everywhere else it makes you slower (power-to-weight)
+  and tires you faster. A heavy *weapon* is different: it hits harder and is slow to get
+  moving.
+- **Grip caps a thrust's body share**: what passes through your hands is your body, and a
+  grip can only hold so much before it slips. One-handed thrusts are light vital-seekers;
+  two hands, a brace or a couched spear turn thrusts into drives.
 
-- **Pushes are just strikes at the hands.** A cross check is a punch with the whole staff
-  and a wide contact; no separate push term needed.
-- **Commitment matters enormously for light weapons**: an uncommitted sword cut is weak, a
-  committed one isn't. Swords and daggers live on body mechanics.
-- **Thrusts carry less force than swings but put it into a point.**
+### What falls out
+
+- **The sweet spot appears in force**: the middle of a sword's edge out-hits the tip.
+- **Heavy heads matter**: a mallet hits about twice as hard as a staff end.
+- **Light weapons live on the body**: daggers and swords depend on how much of you goes in.
+- **Long light weapons gain little from length**; long heavy ones gain a lot, and timing has
+  to slow them.
+- **Pushes are just strikes at the hands**: a cross check is a punch with the whole staff and
+  a wide contact.
 - **Blades don't break bone; blunt weapons do.**
-- **Heavy weapons reward strength**: weak fighters gain nothing from a mallet but slowness;
-  strong ones hit far harder with it.
-- **The biggest numbers are the least damaging**: slams and cross checks land wide, so
-  they're nearly all shock and mostly knock people over.
-- **Stepping inside a long weapon helps**, because nearer parts move slower and are often
-  blunt.
+- **Stepping inside a long weapon helps**: the nearer parts move slower and are often blunt.
+- **All forces dropped** with round two, so the calibration anchor (an average committed
+  staff strike just breaks a shin) needs re-tuning.
+
+### The sweet spot and grip
+
+Besides force, striking hard things (bone, a shield, armour) with the **extreme tip** twists
+the weapon in your hand: deflection, hand strain or lost posture if your grip can't hold.
+That uses the parry model's `holding = strength × grip span`. So the tip offers reach and
+vital-sniping, and the middle of the edge is the reliable striking zone.
+
+### Strength, mass and size
+
+**Force and time are separate.** One "speed" was doing two jobs: how much momentum a blow
+carries, and how quickly the swing happens.
+
+- **Force** uses strength and mass, as above. A troll hits like an avalanche.
+- **Time** (windup, recovery) uses **power-to-weight**: strength relative to what's being
+  moved, your own body plus the weapon's felt weight. A troll's attacks have long, readable
+  windups.
+- **Size tiers** (medium, large, huge, colossal) give a creature its **baseline muscle**. Muscle
+  grows with cross-section and weight with volume (square-cube), so bigger creatures are much
+  stronger in absolute terms but weaker relative to their own weight, which is why they're
+  slow. Captured as an authored table, not a runtime exponent.
+- **Strength is strong or weak for its kind**, on the same 0–20 scale: an average troll is
+  about 5. No creature should need an absurd number to make the maths work.
+- **A build factor** on the frame says when a physique is built for hitting (troll arms), so
+  that's a fact about trolls rather than a fudged strength number.
+
+### Counterweights, in timing
+
+Long and heavy weapons gain a lot from the lever and their weight, and timing is what pays
+for it. Heavy and long are different costs:
+
+- **heavy** is slow to *get moving*: long windups, from felt weight against strength
+- **long** is hard to *change once moving*: early commitment, a long recovery on a miss or
+  parry (no defensive cards in it), and a dead zone inside, where only the shaft can reach
+
+A dagger's real strength is the opposite: being able to change plans mid-strike. Timing is
+the next topic; the lever shouldn't be finalised without it.
 
 Ignored for now, noted: posture, disruption mid-strike, the target's own movement into the
 blow, exhaustion, fatigue, injuries.
 
 Not part of force: **precision** decides where it lands; **keenness and contact shape**
-decide the penetration/shock split; **how long the swing takes** is separate, and where
-celerity's missing home will be decided.
+decide the penetration/shock split; **how long the swing takes** is timing.
 
 Then the force is **split** (penetration vs shock, by contact and keenness) and **spread**
 (see Anatomy §Spreading a blow).
 
-*Superseded, in order:* (body + swing + moving mass) × handling (four quantities nobody
-could picture, strength diluted to one source of three, footwork doing two jobs); then a
-first weight × speed version whose lever made strikes at the hands *slower* than the arm,
-and whose part weights were derived with a one-third floor that was quietly doing the work.
+*Superseded, in order:* (body + swing + moving mass) × handling; then weight × speed with
+the lever measured from the hands as `1 + distance`; then with the body share riding the
+lever, part weights derived with a one-third floor, and run-up added to force rather than
+speed (a running dagger hit like a battering ram). Strict power-to-weight in force was
+considered and rejected: it cancels body mass out of every swing.
 
 ### House rules for the maths
 

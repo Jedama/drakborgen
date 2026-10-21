@@ -21,11 +21,14 @@ Last reshuffled: 17 Oct 2026.
    (`design.md` §Elements, §Force along a path, §Worked example: shin)
 2. **How stats feed the combat maths.** The approach is settled (one mechanic at a time,
    three handwaved anchors at 0 / 5 / 20, build–compare–band, exhaustion and fatigue
-   ignored at first). A swing's force is done in shape (weight behind it × speed, + run-up;
-   weapons as a body plus striking parts), with example numbers out for an independent
-   review (`force-model-review.md`). Next: fold in the review, then how long a swing takes,
-   which is where celerity's missing home gets decided. (`design.md` §How stats get read,
-   `character-creation.md` §4, §9)
+   ignored at first). **Force is settled in shape after two review rounds** (weapon part at
+   part speed + body at hand speed; levers from the card's joint; size tiers;
+   power-to-weight in timing; total mass and exhaustion through effective stats).
+   **Next: timing** — windups and recovery from power-to-weight against total mass, the
+   heavy-versus-long counterweights, what raises exhaustion per card, and where celerity's
+   missing home gets decided.
+   Then re-tune the shin anchor, since every force dropped. (`design.md` §Making the force,
+   §How stats get read; `character-creation.md` §4, §7)
 3. **Numbers for where a blow lands.** The shape is settled (aim by analysis, drift by
    precision, a roll for which way it drifts, aim once). Still needed: vital value and
    obviousness for the head's elements, how precision turns into drift, and natural
@@ -38,6 +41,8 @@ Last reshuffled: 17 Oct 2026.
 
 - The rest of the humanoid graph, starting with the neck (windpipe, carotids, spine; where
   mouth → throat lands)
+- **The penetration/shock split function** (contact area and keenness into the ratio), and
+  **depth limits** for short spikes. Both flagged by the review for round three.
 - How much of a swing's force a cell uses up before the rest carries on (passthrough
   itself is settled; lodging is an idea)
 - **Severity, properly.** The formula (`50 × ratio ^ steepness`) is a quick proposal that

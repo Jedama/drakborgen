@@ -9,6 +9,12 @@ A design project for a game, mostly done by brainstorming. Read `vision.md` firs
   X?"). Say what was done and stop; Dan says what's next. Ask only when genuinely blocked
   on a decision that's his.
 
+## Committing
+
+- Commit after writing to the design files (`design.md`, `character-creation.md`,
+  `vision.md`, `ideas.md`, `roadmap.md` and the like), without asking. Pushing is still
+  Dan's call.
+
 ## Brainstorming
 
 - Discuss before solving. Explore the problem with Dan; don't rush to a fix or on to the

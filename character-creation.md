@@ -279,6 +279,17 @@ value, which other systems feed:
   and shove resistance, height into reach and region heights.
 - **Gear** likewise — full plate is intimidating whoever is inside it.
 
+### Other creatures: size tiers (21 Oct)
+
+Stats on the wheel are **strong or weak for that creature's kind**, on the same 0–20
+scale: an average troll has strength about 5, a strong one 12. What makes a troll stronger
+than a human in absolute terms is its **size tier** (medium, large, huge, colossal), an
+authored table that gives each tier a baseline muscle and a base action cost. Muscle grows
+with cross-section and weight with volume, so bigger creatures are far stronger but slower
+relative to their own weight. A **build factor** on the frame covers physiques built for
+hitting (troll arms). No creature should need an absurd stat to make the maths work. See
+`design.md` §Making the force, §Strength, mass and size.
+
 Intimidation is the clearest case and settles an open question: it stays a pure wheel stat,
 but *effective* intimidation is that stat plus frame plus gear. A small character can
 still build presence; they simply pay more for it than a large one does. This also resolves
