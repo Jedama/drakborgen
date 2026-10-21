@@ -108,8 +108,7 @@ review is in `force-model-review.md`.
     a heart. A depth limit per part would stop it there and turn the rest into push.
   - **several points at once**: a morningstar's spikes, a trident's tines, claws. A count
     per part, mirroring holes (width and count).
-  - **wedge versus blade**: an axe is a thick wedge behind its edge and cleaves bone; a sword
-    slices. Might fold into keenness plus head weight; try without a new field first.
+  - **wedge versus blade** — settled 21 Oct as a per-part wedge (`design.md` §Elements).
 - **The sword's sweet spot** — settled 21 Oct in `design.md` (body at hand speed, effective
   part weights, grip torque on tip strikes). Claude's other idea, that the tip also lays a
   shorter cut (less extent), still applies and could add to it.

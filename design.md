@@ -2015,6 +2015,16 @@ the chain; stepping into a sword swing by the hands and pommel. Unarmed fighting
 structure — fists, elbows and knees are parts at different distances, which is why elbows
 and knees are the clinch weapons.
 
+**Striking with your own body** (21 Oct). A fist, elbow, knee or shin is a striking part
+*and* an element of your own anatomy graph, so a blow passes through your own striking part
+first. Its **soak is the cushioning**: a fist squashes and spreads the blow out, so a
+committed punch lands softer than a staff strike carrying similar momentum. Steel and wood
+have soak about 0. So "hardness" needs no field of its own. The striker also **feels the
+collision**: roughly, the striking part takes whatever shock the target's surface doesn't
+soak, checked against its own references, so hands break on skulls and not on bellies (the
+exact rule may turn out less simple than that). This is what keeps a punch from cracking a
+shin, which the numbers showed it could before.
+
 **Rigid or flexible** is mostly not about force. Where it matters: which cards a weapon can
 use (no thrusts or fine redirects with a flail), timing (a moving flexible head can't be
 stopped or steered: no tracking a dodge, no bail except letting go, long recovery on a
