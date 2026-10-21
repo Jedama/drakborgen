@@ -1349,7 +1349,10 @@ Pain and disruption are separate: skeletons ignore the *hurt* but still get *sho
 - **Brace:** a temporary boost on top of pain tolerance, raised by cards: how ready you
   are to take a shock, *and where*. Raising a shield braces high; a feint can move it,
   leaving you braced for the wrong place (effectively negative). A braced knight hit on
-  armor might take only −1 footwork and a small stagger.
+  armor might take only −1 footwork and a small stagger. Beyond pain and footing, **brace
+  raises muscle soak a little, against shock only, where you're braced** (21 Oct): tensing
+  helps against blunt blows to soft tissue, as a boxer tenses for a body punch. It does
+  nothing against cuts and thrusts, and nothing over bare bone like the front of the shin.
 - Leaning: *kind* of injury from weapon + location, *severity* from commitment + how the
   defence went. Not settled.
 
@@ -1912,7 +1915,15 @@ back.
 **Muscle:**
 - **strength:** how hard you push (force, disruption); bail-ease comes from your strength
   vs your weapon's weight
-- **pain tolerance:** base for taking hurt; brace is a temporary boost on top
+- **pain tolerance:** how little pain bothers you, **and a little toughness** (21 Oct):
+  a small boost to the reference forces of bone and skin, maybe muscle soak. Conditioning
+  is real (bone remodels denser under repeated stress, which is why Muay Thai fighters
+  condition their shins; skin calluses), and people used to pain tend to be the
+  conditioned ones. Kept small, so it doesn't become *the* defence stat. Low pain tolerance
+  means you feel it more *and* break more easily — the board game's *Kroppspoäng* (body
+  points), which Aelfric's "fragile" maps onto. Toughness is deliberately **not** a stat of
+  its own, not strength (which already does a lot), and only lightly the frame. Brace is a
+  temporary boost on top.
 - **stamina:** resists **Exhaustion**, the within-a-fight resource
 - **endurance:** resists **Fatigue**, the across-the-run resource
 

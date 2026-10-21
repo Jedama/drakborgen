@@ -230,6 +230,14 @@ front-facing only. What came up:
   probably go for the neck, and the neck is its own row. The neck's order differs too
   (spine first from behind, throat first from the front), but for a full-force blow
   that probably doesn't matter.
+- **Direction as tags** (Dan, 21 Oct, "starting to consider direction more", parked again):
+  tag elements rather than authoring a second chain. The back of the head tagged *back*. The
+  atlas (top vertebra) reachable from the front through the windpipe, or through the back
+  of the neck. Shoulders and scalp tagged *top*, so jumping cleaves make sense. The front of
+  the shin (bare bone, no muscle) separated from the calf, tagged *back* and maybe *sides*.
+  Useful for guiding attacks. Anatomy note: the bare part is the inner front face of the
+  tibia; the outer front has a muscle (tibialis anterior); the calf is the muscle group
+  behind.
 - What exists already: features can be tagged **needs-an-opening** (reachable from
   behind, or only while prone).
 - **Backstab targets, once there's a system:** the **brainstem**. It's inside the skull,

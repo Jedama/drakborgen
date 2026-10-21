@@ -39,7 +39,7 @@ everyday meaning of courage.
 | # | Stat | Category | What it does | Link to next |
 |---|---|---|---|---|
 | 1 | Strength | Muscle | Force, disruption, handling heavy weapons | Strong enough to push through pain |
-| 2 | Pain tolerance | Muscle | Keep going through pain | Both keep you going through a fight |
+| 2 | Pain tolerance | Muscle | Keep going through pain; a little harder to break | Both keep you going through a fight |
 | 3 | Stamina | Muscle | Resist exhaustion in a fight | One fight, then the whole day |
 | 4 | Endurance | Muscle | Resist fatigue across a whole day | Going deeper into the dungeon |
 | 5 | Pace | Sinew | Crossing ground | Moving well, at speed and up close |
