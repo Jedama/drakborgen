@@ -1352,8 +1352,19 @@ Pain and disruption are separate: skeletons ignore the *hurt* but still get *sho
   `41 −8`. Hover: `Pain: left shin −8`.
 - **Pain:** modest. Lowers stats, and adds cards like **Wince**. Pain should do more than
   narrow your options: these cards may **autoplay**, putting themselves onto your timeline so
-  you have to build around them (you don't choose to wince). Exact shape undecided. Fades *gradually* between
-  fights depending on severity, so rushing into the next room means going in hurt.
+  you have to build around them (you don't choose to wince). Exact shape undecided.
+
+  **Pain has two parts** (21 Oct):
+  - **the spike:** the sharp pain of being hit. It fades over turns and rooms, and
+    adrenaline masks it mid-fight. Rushing into the next room means going in with it.
+  - **the ache:** a floor tied to the injury's brokenness. As long as the shin is cracked,
+    it hurts, and it doesn't go away on its own during a run, because wounds don't heal in
+    the dungeon. A **healing salve** (a couple of characters carry one) lowers it but
+    doesn't remove it; only real healing does.
+
+  So a serious wound leaves you worse for the rest of the run, structurally and through the
+  ache. The spike is the fight-time problem, what adrenaline is for; the ache is the
+  run-time problem, what salves, care and getting out are for.
 - **Bleeding, broken things, (fatigue?)** carry over. Bleeding is a clock toward the exit.
 - **Adrenaline** rises when hurt and temporarily counteracts bad effects, but falls off
   over turns. Short fights you ride through; long fights the bill arrives.
@@ -1396,31 +1407,55 @@ lowers them; brace raises muscle soak (shock only) where braced; the size tier s
      extent.
    - **existing damage weakens** the element (references drop as brokenness rises, e.g. ×
      (1 − brokenness ÷ 2)), so two hits on one shin are worse than one on each.
-5. **What brokenness drives:**
-   - **function and stat penalties:** from **both tracks added**, kept small, since most hits
-     leave a bit of both (needs playtesting)
+5. **Depth.** How far into the element the blow got: penetration ÷ the toll, never above 1.
+   **1 means it went through.** It's a number step 2 already works out, given a second job.
+   Each element type has a **deep weight**: the danger bundled inside it. Nerves and
+   arteries aren't modelled as elements; they're bundled into skin and muscle, and the deep
+   weight is where they live. The leg's one big artery (the femoral) runs deep in the inner
+   thigh, so that's where a deep wound is a crisis.
+
+   | element | deep weight | why |
+   |---|---|---|
+   | inner thigh | very high | the femoral artery |
+   | calf | moderate | the smaller vessels, the nerve |
+   | forearm | moderate | |
+   | front of the shin | low | almost nothing before the bone |
+   | belly fat | low | the danger is the gut behind it, its own element |
+
+6. **What the wound drives.** A wound has a **surface** (how wide: the cut × extent) and a
+   **depth** (how far in × the deep weight).
+   - **function and stat penalties: every wound costs some**, in two ways. **Structural**:
+     the tissue is damaged, so it works worse; from both tracks added, plus the depth, kept
+     small since most hits leave a bit of both (needs playtesting). **Through pain**: it
+     hurts, so you move worse (below). A spear through the calf leaves you limping partly
+     from what it severed and partly because it hurts.
+   - **bleeding:** the element's bleeding rate × the surface (a long cut bleeds from its
+     length), plus depth × the deep weight (a deep wound has probably nicked something).
+   - **pain:** times sensitivity, from both tracks and the depth. See Consequences for the
+     spike and the ache.
    - **labels and pop-ups:** per **label class** (the tibia uses *bone*; bone might read
      notched / chipped / cut through for cut, bruised / cracked / broken / shattered for
      crush)
-   - **pain:** times sensitivity, from both tracks. *Open:* Claude proposed taking it from how
-     hard the blow went in, not scaled by extent, so a deep puncture hurts as much as you'd
-     expect.
-   - **bleeding:** from the element's bleeding rate and its cut. *Open:* Claude proposed
-     scaling it by extent, so a wide slash bleeds more than a narrow puncture.
    - **its own effects:** a brain's crush dazes, a jaw dazes, an inner ear upsets balance
-6. **Pass on** what's left to the elements behind (by the arrows' shares for a wide contact,
+7. **Pass on** what's left to the elements behind (by the arrows' shares for a wide contact,
    following where the blow landed for a narrow one).
-7. **End of the chain.** Leftover penetration means it went **through** (an exit wound:
-   extra bleeding and pain, and it carries on); leftover shock **moves the body**.
+8. **End of the chain.** Leftover penetration means it went **through**: the full deep
+   weight, plus an **exit wound** (a flag adding bleeding and pain; there's no second skin),
+   and the leftover carries on. Leftover shock **moves the body**.
 
-**Thrusts and punctures — still open.** The problem: a thrust through the calf only cuts a
-narrow channel, so with extent scaling cut it barely counts, even when it went clean
-through. Decided so far: going through is a flag that adds bleeding and pain (no second
-skin), and nerves and arteries inside a limb are **not** modelled (too much). Not settled:
-whether that's enough, and how pain and bleeding should treat a narrow, deep wound against a
-wide, shallow one. Dan didn't like adding width and depth as separate measures, or taking
-whichever is larger. A thrust's lethality otherwise comes from what it reaches; organs are
-elements.
+How the wounds read:
+
+- **a sword slash across the calf**: wide and deep. The worst calf wound.
+- **a spear through the calf**: narrow but deep. Moderate bleeding, some function lost, an
+  exit wound, real pain. A serious wound, not a crippling one.
+- **a spear through the inner thigh**: narrow, but the deep weight is huge. A crisis.
+- **a shallow slash**: wide, not deep. A long cut that bleeds from its length and hides
+  nothing worse.
+- A thrust's other lethality is **what it reaches**: organs are elements.
+
+Considered and set aside: width and depth as separate authored measures; extent as
+whichever is larger, width or depth; nerves and arteries as their own elements; modelling
+the exit wound as a second skin.
 
 ### Severity: graded underneath, labelled on top
 
@@ -1515,7 +1550,8 @@ authored damage types. A staff breaks shins, a sword opens them, a rapier punctu
 An injury has separate parts:
 
 - **structural** (the shin can't bear weight well): stays for the rest of the dungeon
-- **pain** (it hurts): fades over time; adrenaline masks it mid-fight
+- **pain** (it hurts): a spike that fades and an ache that stays as long as the injury
+  does (see Consequences); adrenaline masks it mid-fight
 - **bleeding**, if skin was cut: gets *worse over time* until stopped; a clock (turns in a
   fight, rooms in the dungeon)
 
