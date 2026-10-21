@@ -11,9 +11,9 @@ A design project for a game, mostly done by brainstorming. Read `vision.md` firs
 
 ## Committing
 
-- Commit after writing to the design files (`design.md`, `character-creation.md`,
-  `vision.md`, `ideas.md`, `roadmap.md` and the like), without asking. Pushing is still
-  Dan's call.
+- When a topic or subtopic closes and its findings get written into the docs, commit,
+  without asking. Small passing edits (a note dropped into `ideas.md` mid-discussion) don't
+  need their own commit. Pushing is still Dan's call.
 
 ## Brainstorming
 

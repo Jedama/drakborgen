@@ -157,6 +157,39 @@ review is in `force-model-review.md`.
 
 ---
 
+## Mind states and new stat candidates (21 Oct)
+
+Ideas from the pop-up discussion. The wheel is open to new stats and categories (Dan:
+"we're not at all locked down by it").
+
+- **Composure, steady versus volatile** (Dan, Claude agreed): keeping yourself together in
+  dire circumstances. It **damps swings both ways**: less fear and panic, but also smaller
+  spikes of adrenaline, heart rate and alertness. Low composure is volatile (great short
+  fights, bad long ones); high is steady. It limits the *effects* pain and exhaustion have
+  on you, but must not encroach on stamina or endurance. Claude's split: pain tolerance =
+  how much the pain is, stamina = how much the exhaustion is, composure = how much they get
+  to you. Reaction speed sits opposite composure on the wheel ("fast hands against a steady
+  head"), and this gives that opposition a mechanical meaning.
+- **Alertness** (Dan): a temporary boost to reaction speed and instinct under stress or
+  fear, the mind in overdrive. Gives fear a double edge: a worse hand, sharper reflexes.
+- **Heart rate** (Claude): a visible hub state that adrenaline, fear and exertion push up,
+  and the natural home for "the mental stats are hit by adrenaline and stress, not
+  exhaustion". Its pop-up *ba-dump* at the current rate is information as well as flavour.
+- **Awareness and instinct as separate stats** (Dan is considering it). Claude's split:
+  awareness notices what's there to be seen (deliberate, mostly out of combat); instinct
+  senses danger before there's evidence (involuntary).
+- **Knowledge** (Dan): identifying magic amulets and relics; maybe damping the fear of
+  meeting the dungeon's horrors for the first time. Claude: it could also raise how obvious
+  a known creature's weak points are. Caution: it should help on top of the player learning
+  monsters over runs, not replace it. Would naturally sit in Brain.
+- **Damage pop-ups** (Dan, liked more and more): a stack of short lines popping up — "Left
+  shin: pain" (repeated), "Left tibia: potentially broken", "Left shin: bleeding", "Panic
+  increased", "Alertness increased", "Heart rate increased", "Adrenaline" — mostly red for
+  pain, a heartbeat *ba-dump* at the current rate, blue for adrenaline. "Potentially broken"
+  is the fuzzy-injury idea surfacing exactly where it should.
+
+---
+
 ## Shaping stats before the maths reads them (20 Oct)
 
 Dan's note while authoring force numbers: strength currently grows linearly (`1 + strength
