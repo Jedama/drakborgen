@@ -985,6 +985,15 @@ Each element says what it is made of:
     nothing (so a staff to the head dazes), while soft tissue and padding soak a lot. An
     amount rather than a fraction, so padding helps a great deal against a fist and barely
     against a troll's club.
+  - **a wedge** (21 Oct, a property of the striking part) pays a **bigger toll at every
+    layer it cuts through**: (1 + wedge) × that layer's penetration reference, and **the
+    extra toll goes into that layer as shock**. A thick wedge has to push tissue apart as it
+    goes, so it's stopped sooner, and every layer it passes is cut *and* crushed. In bone,
+    where the shock reference is low, that extra shock is the splitting: an axe breaks bones
+    a sword only notches, and splits wooden shields. A sword (~0.1) barely notices the
+    toll; an axe (~0.6) pays 60% extra at each layer. Blunt parts have no wedge, since they
+    don't penetrate and are all shock already. Wedge doesn't add bleeding: clean cuts bleed
+    freely, and a messier wound is the honest difference.
 - **its own penalty mapping:** bone → weight-bearing and balance, muscle → push-off and
   strength. No hierarchy between elements — a severed calf cripples a leg about as badly as
   a broken tibia.
@@ -1986,6 +1995,10 @@ inside a long weapon changes which part reaches you. Each part has:
 - **keenness** (0–1)
 - **part weight**: how much weight is behind it in a swing, authored
 - **rigid or flexible** attachment (a flail's head is flexible, its handle rigid)
+- **wedge**, for parts that cut or pierce: how thick the part is behind its edge or point,
+  so how much it forces tissue and bone apart (see Elements, what it passes on). Rough
+  values: dagger point ~0.05, sword edge ~0.1, spearhead ~0.15, morningstar spike ~0.3,
+  cleaver ~0.5, axe edge ~0.6. Blunt parts have none.
 
 | weapon | parts, outward from the hands |
 |---|---|
