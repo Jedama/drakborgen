@@ -29,8 +29,10 @@ Last reshuffled: 17 Oct 2026.
    missing home gets decided.
    Then re-tune the shin anchor, since every force dropped. (`design.md` §Making the force,
    §How stats get read; `character-creation.md` §4, §7)
-3. **Numbers for where a blow lands.** The shape is settled (aim by analysis, drift by
-   precision, a roll for which way it drifts, aim once). Still needed: vital value and
+3. **Where a blow lands, the rest.** The shape is settled (the arc and heights decide where
+   it can go; ordinary cards steer a little by analysis, targeting cards name a target in
+   reach; precision sets drift, a roll its direction; cards trade force for control). Open:
+   vital value, holes, the defender's part, and numbers. Still needed: vital value and
    obviousness for the head's elements, how precision turns into drift, and natural
    landing spots for the cards the fight uses. (`design.md` §Where a blow lands)
 4. **Author the skeleton** as a graph, and the quarterstaff in the same terms.

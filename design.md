@@ -1039,27 +1039,54 @@ it only if it turns out not fine enough to model something we care about.
 
 ### Where a blow lands
 
-Which surface element a blow is centred on, once the card has brought it to a cell.
+Which surface element a blow is centred on. Reworked 22 Oct.
 
-1. **The card decides the cells.** Its path (row, side, entry and exit) says which cells the
-   blow passes through, in order.
-2. **Analysis decides what you aim for.** Each surface element has a **vital value** (how
-   much hitting it matters: eye and temple high, scalp low) and an **obviousness** (how easy
-   it is to know it's worth hitting: eyes and throat are obvious to anyone, the temple, the
-   liver or the gap under the arm are things you have to *know*). Elements whose
-   obviousness your analysis beats are candidates, and you aim at the most valuable one. If
-   you recognise none, the blow goes to the card's natural landing spot.
-3. **Precision decides how far you drift.** Precision is compared against how hard the aim
+1. **The arc decides where the blow *can* go.** Most cards are a sweep, a chop or a thrust
+   with an **arc** — where it starts and ends on the attacker's own body (high, middle,
+   low) — and maybe a displacement (stepping down into it, rising out of a crouch). The
+   arc's heights come from the attacker's body and reach, and are laid over the defender's
+   rows using both fighters' real heights. Wherever it crosses the defender is where it can
+   land; the **natural landing spot** isn't authored per card, it falls out of the geometry.
+   - a human against a 3 m troll: a head-high sweep lands on its belly or hips; a low sweep
+     finds its shins
+   - a human against a goblin: a low sweep hits its chest or head; a head-high sweep passes
+     over it entirely. Not a random miss: the goblin just isn't there. Ducking under a swing
+     works the same way.
+2. **Aiming**, in one of two ways:
+   - **Ordinary cards steer a little.** Within the cells the arc already crosses, analysis
+     picks the most valuable thing it recognises (by each element's **vital value** and
+     **obviousness**; eyes and throat are obvious to anyone, the temple or the gap under the
+     arm are things you have to *know*). With low analysis there's no steering: the blow goes
+     where the arc takes it.
+   - **Targeting cards name the target** (*go for the throat*, *the knee*), so no analysis is
+     needed to choose. The target has to be **in reach**: your height, arm and weapon against
+     where it is. A 5 m giant's neck isn't reachable from the ground. Since everything is
+     always playable, a card that can't reach its target falls back to the nearest reachable
+     one, or its natural path.
+3. **Precision decides how far you drift**, in rings of neighbours, against how hard the aim
    is to hit: the element's size (small is hard) and the target's state (a dummy or a dazed
-   man is easy, a moving one hard). The result is never a hit or a miss but **drift**: how
-   many rings of neighbours away from the aim the blow is centred. Exhaustion and fatigue
-   make both aiming and hitting worse.
-4. **Chance decides which way it drifts.** This is the one random step in resolution (see
-   Randomness). Aim at the temple, drift one ring, and the roll picks ear, scalp or cheek.
-   The wild haymaker that finds an eye is a long drift in a lucky direction, which is why
-   it's rare, and why precision matters: it is the size of the gamble.
+   man is easy, a moving one hard). Never a hit or a miss. Exhaustion and fatigue make both
+   aiming and hitting worse.
+4. **Chance decides which way it drifts.** The one random step in resolution (see
+   Randomness). The wild haymaker that finds an eye is a long drift in a lucky direction,
+   which is why it's rare, and why precision matters: it is the size of the gamble.
 5. **Then spreading, the graph, and luck.** The contact spreads from its centre (below),
    force goes inward, and luck nudges whatever ends up borderline.
+
+**Reach depends on posture, both yours and theirs.** The giant's neck becomes reachable if
+it's brought down (tripped, kneeling, a knee broken, bent to bite or grab), or if you're
+raised (on a table, on the stairs, mid-jump). So "bring the giant down, then go for its
+neck" is a plan the game supports without a giant-killing rule.
+
+**Cards trade force for control.** A card can carry modifiers to precision and analysis,
+paid for in force: a **wild hammer swing** hits hard, *somewhere* (more force, less precision
+and steering, wide drift); a **careful, targeted strike** hits softer, *exactly there*.
+
+**Analysis also shapes the hand.** High analysis raises the odds of drawing targeting cards
+(draw weights), and some may be gated behind it as well (weights, gates, or both; open). A
+sharp fighter's hand is full of *the throat*, *the gap under the arm*, *the knee*; a dull
+one's is mostly sweeps and chops. So analysis does two jobs — steering ordinary cards and
+filling the hand with targeted ones — and precision one: landing whatever you aimed at.
 
 **Aim once.** Steps 2–4 happen in the first cell the blow enters. A swing that still has
 force to carry into the next cell lands on that cell's natural spot for the card, with no

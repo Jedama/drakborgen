@@ -420,9 +420,8 @@ finding a gap.
   - **Show the spread on the card**, so you know a wild swing might go anywhere around the
     head before committing. Claude's idea for keeping "you can see why" despite the roll.
     Not discussed.
-  - **Wild and precise cards.** A haymaker with more force and more drift; the existing
-    *precision strike* is the opposite. Wildness as a choice you write into the sequence,
-    not only a low stat. Claude's idea, not discussed.
+  - **Wild and precise cards** — settled 22 Oct: cards trade force for precision and
+    analysis (`design.md` §Where a blow lands).
   - **Decisiveness and precision.** Dan wondered whether decisiveness should raise
     precision. Claude: that double-dips (it already shapes the hand); a narrower version
     is decisiveness cutting drift only on committed cards.
