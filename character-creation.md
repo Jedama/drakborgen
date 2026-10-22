@@ -350,7 +350,35 @@ are made of. It holds traits rather than notch-driven stats.
 
 ---
 
-## 10. Prototype
+## 10. Stat icons (22 Oct)
+
+**Each stat's icon shows the part of the body that does the job.** The categories are
+already body parts (Muscle, Sinew, Brain, Nerve), so the icons carry the same idea down to
+each stat. Style: rough woodcut or linocut ink on warm paper, coloured by category (rust red
+for Muscle, ochre for Nerve, purple for Brain, as in the prototype). First drafts are in
+`icons/` in the main checkout.
+
+| stat | part | status |
+|---|---|---|
+| strength | the arm muscles | needs a redesign (the first draft read as a helmet) |
+| pain tolerance | the jaw and throat: biting down on a strap | drafted |
+| endurance | the back, bowed: bearing, enduring | drafted |
+| instinct | the eyes, with roots running down | drafted |
+| imagination | the brain | drafted (came out reading more like the Brain category itself) |
+
+Suggestions for the rest (Claude), each a distinct body part so no two icons look alike at
+small sizes: **stamina** the lungs; **pace** the legs mid-stride; **footwork** the foot and
+ankle tendons; **reaction speed** the spine and neck (reflexes run through the spinal
+cord); **precision** the tendons of the hand; **analysis** the optic paths into the brain;
+**improvisation** firing neurons; **strategy** the cortex folds as a maze or map;
+**decisiveness** the gut ("trusting your gut to commit"); **composure** a slow, steady heart;
+**intimidation** the chest and brow; candidates **awareness** the ears, **knowledge** the
+inside of the skull carved with marks. Brain and Nerve are the harder categories, with less
+room to vary.
+
+Not a priority: the categories themselves are still open, so the icons will follow them.
+
+## 11. Prototype
 
 `stat-wheel.html` at the repo root — one self-contained page, no server needed (there is
 no node or python on this machine; `attempt1/serve.ps1` exists for the multi-file ones).
