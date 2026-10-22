@@ -31,8 +31,10 @@ Last reshuffled: 17 Oct 2026.
    §How stats get read; `character-creation.md` §4, §7)
 3. **Where a blow lands, the rest.** The shape is settled (the arc and heights decide where
    it can go; ordinary cards steer a little by analysis, targeting cards name a target in
-   reach; precision sets drift, a roll its direction; cards trade force for control). Open:
-   vital value, holes, the defender's part, and numbers. Still needed: vital value and
+   reach; precision sets drift, a roll its direction; cards trade force for control; the
+   fighter chooses by sampling candidates and scoring how much worse off each leaves the
+   defender). Open: the defender's part (moving into a blow), the scoring weights (long
+   term), and numbers. Still needed: vital value and
    obviousness for the head's elements, how precision turns into drift, and natural
    landing spots for the cards the fight uses. (`design.md` §Where a blow lands)
 4. **Author the skeleton** as a graph, and the quarterstaff in the same terms.

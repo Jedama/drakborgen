@@ -1053,11 +1053,10 @@ Which surface element a blow is centred on. Reworked 22 Oct.
      over it entirely. Not a random miss: the goblin just isn't there. Ducking under a swing
      works the same way.
 2. **Aiming**, in one of two ways:
-   - **Ordinary cards steer a little.** Within the cells the arc already crosses, analysis
-     picks the most valuable thing it recognises (by each element's **vital value** and
-     **obviousness**; eyes and throat are obvious to anyone, the temple or the gap under the
-     arm are things you have to *know*). With low analysis there's no steering: the blow goes
-     where the arc takes it.
+   - **Ordinary cards steer a little**, by judgement (see *How a fighter chooses* below).
+     Within what the arc can reach, the fighter considers a few targets and goes for the
+     one they think will leave the opponent worst off. With little analysis there's barely
+     any steering: the blow goes where the arc takes it.
    - **Targeting cards name the target** (*go for the throat*, *the knee*), so no analysis is
      needed to choose. The target has to be **in reach**: your height, arm and weapon against
      where it is. A 5 m giant's neck isn't reachable from the ground. Since everything is
@@ -1065,8 +1064,10 @@ Which surface element a blow is centred on. Reworked 22 Oct.
      one, or its natural path.
 3. **Precision decides how far you drift**, in rings of neighbours, against how hard the aim
    is to hit: the element's size (small is hard) and the target's state (a dummy or a dazed
-   man is easy, a moving one hard). Never a hit or a miss. Exhaustion and fatigue make both
-   aiming and hitting worse.
+   man is easy, a moving one hard). Never a hit or a miss. When the aim goes through a gap
+   (between the ribs, a visor slit), precision also decides whether the point finds it; a
+   blow that wasn't aiming through the gap goes through by the open share. Exhaustion and
+   fatigue make both aiming and hitting worse.
 4. **Chance decides which way it drifts.** The one random step in resolution (see
    Randomness). The wild haymaker that finds an eye is a long drift in a lucky direction,
    which is why it's rare, and why precision matters: it is the size of the gamble.
@@ -1087,6 +1088,49 @@ and steering, wide drift); a **careful, targeted strike** hits softer, *exactly 
 sharp fighter's hand is full of *the throat*, *the gap under the arm*, *the knee*; a dull
 one's is mostly sweeps and chops. So analysis does two jobs — steering ordinary cards and
 filling the hand with targeted ones — and precision one: landing whatever you aimed at.
+
+#### How a fighter chooses (22 Oct)
+
+Two different errors, two stats: **judgement** (choosing a worse spot than you could have)
+and **execution** (missing the spot you chose). A dull, precise fighter hits exactly where
+they meant, but meant somewhere mediocre; a sharp, clumsy one picks the perfect spot and
+misses it.
+
+The fighter aims at **what's underneath**, not at the surface: the plan is a path ("the
+heart, through the gap in the ribs"; "the brain, through the temple").
+
+1. **Candidates.** The fighter considers a few targets beneath what the arc can reach.
+   **Analysis** sets how many; each target's **obviousness** sets how likely it is to come
+   to mind (everyone thinks of the eyes and throat; the temple or the liver turn up less
+   often). Nothing is locked out.
+2. **Scoring.** Each candidate is run **hypothetically** through the real resolution, but
+   against **the fighter's picture of the target**, which is noisy: guesses at soak,
+   references, armour and so on are centred on the truth, with noise that shrinks with
+   **analysis**, **knowledge** and **familiarity** with that kind of creature, and grows
+   with how obscure the thing is. Nothing ambushes you completely; you're just more or less
+   wrong. The hypothetical runs use *expected* drift, not a roll, so the only rolls are
+   "which spots came to mind" and "where it actually went".
+3. **The score is how much worse off it leaves them**: stat points lost × how long, pain,
+   bleeding, posture (a trip, a stagger, a shoved timeline), and hard outcomes (dead,
+   unconscious, can't stand) as very large numbers. Almost every consequence is already a
+   stat penalty, so that's the common currency.
+   - **Short term counts for more**: a consequence that bites now can be snowballed into the
+     next blow. A trip that sets up a finisher beats a slow bleed.
+   - Every stat counts the same, whoever loses it; no weighting by how much the defender
+     relies on it.
+   - The weights (pain against stat loss against bleeding, how fast "sooner" falls off) are
+     a tuning question, likely open for a long time.
+4. **Go for the best.** Targeting cards skip all this and name the target.
+
+What falls out: old wounds become targets (the same blow does more there); clumsy fighters
+aim at big things (their chance at the eye is poor); weapons aim differently (a staff for
+the head, a dagger for the gap, a sword away from plate); trippable creatures make legs
+valuable and an untrippable slug doesn't; a low-analysis troll just swings at you, while a
+black elf goes for your wounds and eyes. The player sees the judgement in the pop-ups:
+*"Goes for the heart."* then *"Glances off the ribs."*
+
+**Familiarity** grows each time you fight a kind of creature and, for now, **resets every
+run**. Adventurers who make it out might keep some, as a reward for surviving.
 
 **Aim once.** Steps 2–4 happen in the first cell the blow enters. A swing that still has
 force to carry into the next cell lands on that cell's natural spot for the card, with no

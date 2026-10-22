@@ -180,7 +180,10 @@ Ideas from the pop-up discussion. The wheel is open to new stats and categories 
 - **Knowledge** (Dan): identifying magic amulets and relics; maybe damping the fear of
   meeting the dungeon's horrors for the first time. Claude: it could also raise how obvious
   a known creature's weak points are. Caution: it should help on top of the player learning
-  monsters over runs, not replace it. Would naturally sit in Brain.
+  monsters over runs, not replace it. Would naturally sit in Brain. **22 Oct: Dan leans
+  more and more towards knowledge as a separate stat.** It now has a combat job too: it
+  sharpens the fighter's picture of a target when choosing where to aim (`design.md` §How a
+  fighter chooses), next to analysis (how many openings you weigh) and per-run familiarity.
 - **Damage pop-ups** (Dan, liked more and more): a stack of short lines popping up — "Left
   shin: pain" (repeated), "Left tibia: potentially broken", "Left shin: bleeding", "Panic
   increased", "Alertness increased", "Heart rate increased", "Adrenaline" — mostly red for
@@ -429,10 +432,14 @@ finding a gap.
     *needs-an-opening* elements are briefly reachable. Analysis knows where weak points
     are; instinct notices when one is exposed. Claude's suggestion, after Dan said he
     wasn't sure how awareness/instinct plays in.
-  - **Vital value derived from the graph** ("thin bone with the brain behind it") instead of
-    authored. Authoring it is simpler to start with.
-  - **Obviousness and monsters.** An unfamiliar creature's weak points might be less
-    obvious until you've learned them. Unexplored.
+  - **Vital value** — superseded 22 Oct: there's no authored vital value; a target's worth
+    is how much worse off the hypothetical blow leaves the defender (`design.md` §How a
+    fighter chooses). Claude's other suggestions there, not taken: authored values on deep
+    elements inherited outward; noisy evaluation of every spot instead of sampling; card-
+    supplied goals for trips and disarms (Dan: no, consequences cover it); weighting stats
+    by how much the defender relies on them (Dan: too much).
+  - **Obviousness and monsters** — settled 22 Oct as per-run **familiarity**. Open: whether
+    adventurers who make it out keep some, as a reward for surviving.
   - **Where the drift comes from: the roads not taken.** Dan's first instinct was chaos
     that looks like chance (derived from the fight's state, reproducible but not
     followable), and the defender moving into a blow is still real through card dynamics.
