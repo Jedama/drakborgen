@@ -192,6 +192,52 @@ Ideas from the pop-up discussion. The wheel is open to new stats and categories 
 
 ---
 
+## The wheel's groups, revisited (22 Oct)
+
+- **Reaction speed belongs in Nerve** (Dan), maybe renamed **reflexes**. Reflexes really are
+  nerves. It breaks the current grouping a little, since speed and movement live in Sinew.
+- **A fifth group** (Dan): Brain roughly opposite Muscle, Sinew and Nerve next to each other,
+  the fifth opposite them. Home for willpower and luck. "Soul" is the placeholder, but Dan
+  would rather keep the anatomy. Note: a five-sided wheel has no true opposites; each group
+  faces the *gap between* two others. With the order Muscle, Sinew, Nerve, Brain, fifth,
+  the fifth faces the Sinew–Nerve pair and Brain faces Muscle–Sinew.
+- **Decisiveness feels weak** (Dan): cards already have commitment for that domain.
+  Claude: its remaining job (how tightly the hand concentrates on the chosen stance) could
+  fold into willpower, freeing a Nerve slot for reflexes.
+- **What the fifth group is.** Dan wants it anatomical, so not "soul". Dan: organs are still
+  unused, "but... eh"; bone feels better; luck could live in bones; breath and a guardian
+  spirit are both worse than soul. Claude's candidates, with roots: **heart** (the Egyptian
+  heart weighed against a feather: fate, will), **breath** (pneuma, spiritus, ruach, prana,
+  qi all mean both breath and spirit), **liver** (Babylonian and Etruscan liver divination;
+  "lily-livered"), **blood** (lineage, hot-blooded), **gut** (Japanese *hara*, the belly as
+  the seat of resolve). Also mentioned, as flavour: Norse *hamingja* (luck as a guardian
+  spirit that could be lent), Greek *thumos* (spirited will, seated in the chest).
+- **Bone as the fifth group** — Dan's leaning. Claude's framing: bone is the innermost part
+  of you and what's left when everything else is gone, so it's an anatomical stand-in for
+  soul. Order Muscle, Sinew, Nerve, Brain, Bone puts Bone between Muscle (anchored to bone)
+  and Brain (inside the skull), facing the Sinew–Nerve pair. Colour: ivory, bone-white.
+  - **Luck: the knucklebones.** Dan: "luck could live in bones". Claude: the oldest dice
+    were sheep's knucklebones, "rolling the bones", casting bones for fortunes; relics are
+    bones too (a saint's finger bone), tying luck to chapels and relics.
+  - **Willpower** — Dan sees it as ambition, drive and will to live. Dan: grit and steeling
+    your bones feel more like pain tolerance. Claude: **the marrow** (where blood is made)
+    for will to live: how long you hold on when you should already be dead, like Darkest
+    Dungeon's death's door.
+  - **Composure in the spine** — Dan's question ("having a spine and not being a coward?").
+    Claude: yes, "spineless", "standing firm" say *holding together* better than Nerve;
+    moving it leaves Nerve with instinct, intimidation and reflexes.
+  - **Recovery** (Claude): also marrow, how quickly you heal between rooms and the ache
+    fades, and recovering from blood loss.
+  - **Pain tolerance** (Claude, prompted by Dan's grit remark): could fit Bone now it carries
+    a bit of toughness, but moving it would thin out Muscle.
+  - Claude's possible four: luck, will to live, composure, and recovery or pain tolerance.
+  - Luck would stop being a hub-only stat and could be raised by notches like any other.
+    Dan: we can always change how luck is used.
+- **Symmetry matters to Dan.** Four stats in each of five groups would be nice, but not if
+  it means shoehorning stats in. He wants to see more before deciding.
+
+---
+
 ## Shaping stats before the maths reads them (20 Oct)
 
 Dan's note while authoring force numbers: strength currently grows linearly (`1 + strength
